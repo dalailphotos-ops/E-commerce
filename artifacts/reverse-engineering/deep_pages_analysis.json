@@ -1,0 +1,328 @@
+{
+  "design": {
+    "url": "https://loomaapparels.com/design/",
+    "h1": [
+      "Design your Product"
+    ],
+    "h2": [
+      "1 Choose your t-shirt",
+      "2 Add your design",
+      "3 Adjust",
+      "4 Print type &amp; quantity",
+      "5 Your quote",
+      "Design Studio tips"
+    ],
+    "h3": [
+      "Best file types",
+      "Real print sizes",
+      "Price by print size",
+      "We check every design"
+    ],
+    "forms_count": 0,
+    "inputs": [],
+    "selects": [],
+    "buttons": [
+      "Undo all",
+      "Fit area",
+      "Send design on WhatsApp",
+      "Front",
+      "I",
+      "\u21bb Replace image",
+      "Copy to back",
+      "\u2715 Delete"
+    ],
+    "has_canvas": true,
+    "iframes": [],
+    "text_sample": "Design your Product - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/design\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/design\\/#listItem\",\"name\":\"Design your Product\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/design"
+  },
+  "price-estimator": {
+    "url": "https://loomaapparels.com/price-estimator/",
+    "h1": [
+      "Price Estimator"
+    ],
+    "h2": [
+      "Your order",
+      "Get this quote confirmed",
+      "Popular print combinations",
+      "Got an idea? Let\u2019s make it wearable.",
+      "Shop",
+      "Company"
+    ],
+    "h3": [
+      "Plain T-Shirt",
+      "A3 Back Print",
+      "A3 Back + Chest Logo",
+      "A3 Back + A4 Chest"
+    ],
+    "forms_count": 1,
+    "inputs": [
+      "phone",
+      "_wp_http_referer",
+      "_back",
+      "action",
+      "website",
+      "items",
+      "looma_nonce",
+      "name",
+      "email"
+    ],
+    "selects": [],
+    "buttons": [
+      "Start over",
+      "Menu",
+      "Send enquiry",
+      "Send via WhatsApp",
+      "Add another productDifferent style, colour or print",
+      "Copy",
+      "Email",
+      "PDF"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Price Estimator - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/price-estimator\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/price-estimator\\/#listItem\",\"name\":\"Price Estimator\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.c"
+  },
+  "quote": {
+    "url": "https://loomaapparels.com/quote/",
+    "h1": [
+      "Quote List"
+    ],
+    "h2": [
+      "Your quote list is empty",
+      "Send quote request",
+      "Shop",
+      "Company",
+      "Visit &amp; contact"
+    ],
+    "h3": [],
+    "forms_count": 1,
+    "inputs": [
+      "phone",
+      "_wp_http_referer",
+      "_back",
+      "action",
+      "website",
+      "items",
+      "looma_nonce",
+      "name",
+      "email"
+    ],
+    "selects": [],
+    "buttons": [
+      "Menu",
+      "Send enquiry",
+      "Send via WhatsApp"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Quote List - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/quote\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/quote\\/#listItem\",\"name\":\"Quote List\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/quote\\/#listItem\",\"positio"
+  },
+  "bulk-orders": {
+    "url": "https://loomaapparels.com/bulk-orders/",
+    "h1": [
+      "Custom T-Shirts in Bulk"
+    ],
+    "h2": [
+      "Low minimums. Full control.",
+      "Made for every kind of team",
+      "The more you order, the less you pay",
+      "Tell us about your order",
+      "Shop",
+      "Company"
+    ],
+    "h3": [
+      "Start with just 10 pieces",
+      "Full customisation",
+      "Multiple printing options",
+      "FREE branding"
+    ],
+    "forms_count": 1,
+    "inputs": [
+      "phone",
+      "_wp_http_referer",
+      "website",
+      "_back",
+      "action",
+      "quantity",
+      "looma_nonce",
+      "name",
+      "email"
+    ],
+    "selects": [
+      "order_type"
+    ],
+    "buttons": [
+      "Menu",
+      "Send enquiry",
+      "Send via WhatsApp"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Bulk Orders - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/bulk-orders\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/bulk-orders\\/#listItem\",\"name\":\"Bulk Orders\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/bulk-orders\\"
+  },
+  "shop": {
+    "url": "https://loomaapparels.com/shop/",
+    "h1": [
+      "Shop T-Shirts"
+    ],
+    "h2": [
+      "Ready stock, ready to ship",
+      "Need something else?",
+      "Got an idea? Let\u2019s make it wearable.",
+      "Shop",
+      "Company",
+      "Visit &amp; contact"
+    ],
+    "h3": [
+      "Oversized Tee",
+      "Acid Wash Oversized Tee",
+      "Full Sleeve Oversized Tee",
+      "Oversized Tee",
+      "Oversized Tee",
+      "Regular Fit Tee"
+    ],
+    "forms_count": 0,
+    "inputs": [],
+    "selects": [],
+    "buttons": [
+      "Lavender",
+      "Menu",
+      "Royal Blue",
+      "Black",
+      "All",
+      "Beige",
+      "Regular fit",
+      "White"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Shop - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/shop\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/shop\\/#listItem\",\"name\":\"Shop\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/shop\\/#listItem\",\"position\":2,\"name\":\"Sh"
+  },
+  "services": {
+    "url": "https://loomaapparels.com/services/",
+    "h1": [
+      "Services",
+      "our services"
+    ],
+    "h2": [
+      "Shop",
+      "Company",
+      "Visit &amp; contact"
+    ],
+    "h3": [
+      "From $99",
+      "From $99",
+      "From $99"
+    ],
+    "forms_count": 0,
+    "inputs": [],
+    "selects": [],
+    "buttons": [
+      "Menu"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Services - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/services\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/services\\/#listItem\",\"name\":\"Services\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/services\\/#listItem\",\"po"
+  },
+  "dropshipping": {
+    "url": "https://loomaapparels.com/dropshipping/",
+    "h1": [
+      "Dropshipping &amp; Print on Demand"
+    ],
+    "h2": [
+      "Launch your brand with zero inventory",
+      "Five simple steps",
+      "Pick your blanks",
+      "Set up your dropshipping account",
+      "Shop",
+      "Company"
+    ],
+    "h3": [
+      "No minimum order quantity",
+      "Customised printing",
+      "Free branding available",
+      "Pan-India delivery",
+      "Choose products",
+      "Place your order"
+    ],
+    "forms_count": 1,
+    "inputs": [
+      "phone",
+      "_wp_http_referer",
+      "website",
+      "_back",
+      "action",
+      "quantity",
+      "looma_nonce",
+      "name",
+      "email"
+    ],
+    "selects": [
+      "order_type"
+    ],
+    "buttons": [
+      "Lavender",
+      "Menu",
+      "Royal Blue",
+      "Send enquiry",
+      "Send via WhatsApp",
+      "Black",
+      "Beige",
+      "White"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Dropshipping - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/dropshipping\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/dropshipping\\/#listItem\",\"name\":\"Dropshipping\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/dropship"
+  },
+  "printing": {
+    "url": "https://loomaapparels.com/printing/",
+    "h1": [
+      "Different techniques. Endless possibilities."
+    ],
+    "h2": [
+      "DTF Print",
+      "Puff Print",
+      "HD / High Density",
+      "Embroidery",
+      "Screen Print",
+      "DTF printing charges"
+    ],
+    "h3": [
+      "DTF roll available"
+    ],
+    "forms_count": 0,
+    "inputs": [],
+    "selects": [],
+    "buttons": [
+      "Menu"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Printing - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/printing\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/printing\\/#listItem\",\"name\":\"Printing\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/printing\\/#listItem\",\"po"
+  },
+  "size-guide": {
+    "url": "https://loomaapparels.com/size-guide/",
+    "h1": [
+      "Size Guide"
+    ],
+    "h2": [
+      "Oversized fit",
+      "Regular fit",
+      "Got an idea? Let\u2019s make it wearable.",
+      "Shop",
+      "Company",
+      "Visit &amp; contact"
+    ],
+    "h3": [],
+    "forms_count": 0,
+    "inputs": [],
+    "selects": [],
+    "buttons": [
+      "Menu",
+      "Regular Fit",
+      "Oversized Fit"
+    ],
+    "has_canvas": false,
+    "iframes": [],
+    "text_sample": "Size Guide - Looma Apparels {\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/loomaapparels.com\\/size-guide\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/#listItem\",\"position\":1,\"name\":\"Home\",\"item\":\"https:\\/\\/loomaapparels.com\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/size-guide\\/#listItem\",\"name\":\"Size Guide\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/loomaapparels.com\\/size-guide\\/#lis"
+  }
+}

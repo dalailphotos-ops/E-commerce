@@ -1,0 +1,228 @@
+{
+  "products": [
+    {
+      "id": "oversized-tee-250-gsm-french-terry",
+      "name": "Oversized Tee \u2014 250 GSM \u00b7 French Terry",
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 290
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 265
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 260
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 255
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 250
+        }
+      ],
+      "url": "https://loomaapparels.com/shop/oversized-tee-250-gsm-french-terry/"
+    },
+    {
+      "id": "acid-wash-oversized-tee-250-gsm",
+      "name": "Acid Wash Oversized Tee \u2014 250 GSM \u00b7 Acid Wash",
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 358
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 310
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 305
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 300
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 295
+        }
+      ],
+      "url": "https://loomaapparels.com/shop/acid-wash-oversized-tee-250-gsm/"
+    },
+    {
+      "id": "full-sleeve-oversized-tee-250-gsm",
+      "name": "Full Sleeve Oversized Tee \u2014 250 GSM \u00b7 French Terry",
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 388
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 350
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 345
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 340
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 335
+        }
+      ],
+      "url": "https://loomaapparels.com/shop/full-sleeve-oversized-tee-250-gsm/"
+    },
+    {
+      "id": "oversized-tee-230-gsm",
+      "name": "Oversized Tee \u2014 230 GSM \u00b7 Single Jersey",
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 275
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 255
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 250
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 245
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 240
+        }
+      ],
+      "url": "https://loomaapparels.com/shop/oversized-tee-230-gsm/"
+    },
+    {
+      "id": "oversized-tee-190-gsm",
+      "name": "Oversized Tee \u2014 190 GSM \u00b7 Single Jersey",
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 245
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 230
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 99 pcs",
+          "price": 225
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 220
+        }
+      ],
+      "url": "https://loomaapparels.com/shop/oversized-tee-190-gsm/"
+    },
+    {
+      "id": "regular-fit-tee-190-gsm",
+      "name": "Regular Fit Tee \u2014 190 GSM \u00b7 Single Jersey",
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 210
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 49 pcs",
+          "price": 198
+        },
+        {
+          "min": 50,
+          "label": "50+ pcs",
+          "price": 192
+        }
+      ],
+      "url": "https://loomaapparels.com/shop/regular-fit-tee-190-gsm/"
+    }
+  ],
+  "dtf": {
+    "a2": {
+      "label": "A2 Size",
+      "single": 200,
+      "bulk": 175,
+      "size": "16 \u00d7 22"
+    },
+    "a3": {
+      "label": "A3 Size",
+      "single": 135,
+      "bulk": 100,
+      "size": "11 \u00d7 16"
+    },
+    "a4": {
+      "label": "A4 Size",
+      "single": 95,
+      "bulk": 70,
+      "size": "8 \u00d7 11"
+    },
+    "a5": {
+      "label": "A5 Size",
+      "single": 60,
+      "bulk": 45,
+      "size": "5.8 \u00d7 8.3"
+    },
+    "a6": {
+      "label": "A6 Size",
+      "single": 40,
+      "bulk": 25,
+      "size": "4.1 \u00d7 5.8"
+    },
+    "logo": {
+      "label": "Logo",
+      "single": 20,
+      "bulk": 10,
+      "size": "2.5 \u00d7 2.5"
+    },
+    "label": {
+      "label": "Neck Label (Branding)",
+      "single": 0,
+      "bulk": 0,
+      "size": "\u2014"
+    }
+  },
+  "gst": "5",
+  "whatsapp": "918089963691",
+  "quoteUrl": "https://loomaapparels.com/quote/"
+}

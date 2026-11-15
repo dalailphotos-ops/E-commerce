@@ -1,0 +1,942 @@
+{
+  "products": [
+    {
+      "id": "oversized-tee-250-gsm-french-terry",
+      "name": "Oversized Tee",
+      "spec": "250 GSM \u00b7 French Terry",
+      "gsm": "250 GSM",
+      "fit": "oversized",
+      "from": 250,
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 290
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 265
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 260
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 255
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 250
+        }
+      ],
+      "colours": [
+        {
+          "name": "Black",
+          "hex": "#131313",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "White",
+          "hex": "#F2EAEA",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Beige",
+          "hex": "#EBE6D4",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Navy Blue",
+          "hex": "#1F273A",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Royal Blue",
+          "hex": "#083D8A",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Lavender",
+          "hex": "#684BA2",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Red",
+          "hex": "#C52E2E",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Green",
+          "hex": "#24572A",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Brown",
+          "hex": "#79472D",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown-back.jpg?v=3.3.0"
+        }
+      ],
+      "display": "Beige",
+      "zones": {
+        "front": [
+          300,
+          375,
+          300,
+          420,
+          0
+        ],
+        "back": [
+          300,
+          357,
+          300,
+          450,
+          0
+        ],
+        "right": [
+          100,
+          258,
+          72,
+          72,
+          24
+        ],
+        "left": [
+          500,
+          258,
+          72,
+          72,
+          -24
+        ]
+      }
+    },
+    {
+      "id": "acid-wash-oversized-tee-250-gsm",
+      "name": "Acid Wash Oversized Tee",
+      "spec": "250 GSM \u00b7 Acid Wash",
+      "gsm": "250 GSM",
+      "fit": "oversized",
+      "from": 295,
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 358
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 310
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 305
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 300
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 295
+        }
+      ],
+      "colours": [
+        {
+          "name": "Black",
+          "hex": "#313131",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Green",
+          "hex": "#24572A",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Royal Blue",
+          "hex": "#083D8A",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue-back.jpg?v=3.3.0"
+        }
+      ],
+      "display": "Black",
+      "zones": {
+        "front": [
+          300,
+          378,
+          300,
+          420,
+          0
+        ],
+        "back": [
+          300,
+          357,
+          300,
+          450,
+          0
+        ],
+        "right": [
+          98,
+          258,
+          72,
+          72,
+          24
+        ],
+        "left": [
+          502,
+          258,
+          72,
+          72,
+          -24
+        ]
+      }
+    },
+    {
+      "id": "full-sleeve-oversized-tee-250-gsm",
+      "name": "Full Sleeve Oversized Tee",
+      "spec": "250 GSM \u00b7 French Terry",
+      "gsm": "250 GSM",
+      "fit": "oversized",
+      "from": 335,
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 388
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 350
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 345
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 340
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 335
+        }
+      ],
+      "colours": [
+        {
+          "name": "Black",
+          "hex": "#131313",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black-back.jpg?v=3.3.0"
+        }
+      ],
+      "display": "Black",
+      "zones": {
+        "front": [
+          300,
+          375,
+          300,
+          420,
+          0
+        ],
+        "back": [
+          300,
+          357,
+          300,
+          450,
+          0
+        ],
+        "right": [
+          110,
+          290,
+          52,
+          140,
+          10
+        ],
+        "left": [
+          490,
+          290,
+          52,
+          140,
+          -10
+        ]
+      }
+    },
+    {
+      "id": "oversized-tee-230-gsm",
+      "name": "Oversized Tee",
+      "spec": "230 GSM \u00b7 Single Jersey",
+      "gsm": "230 GSM",
+      "fit": "oversized",
+      "from": 240,
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 275
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 255
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 49 pcs",
+          "price": 250
+        },
+        {
+          "min": 50,
+          "label": "50 \u2013 99 pcs",
+          "price": 245
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 240
+        }
+      ],
+      "colours": [
+        {
+          "name": "Black",
+          "hex": "#131313",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "White",
+          "hex": "#F2EAEA",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white-back.jpg?v=3.3.0"
+        }
+      ],
+      "display": "White",
+      "zones": {
+        "front": [
+          300,
+          375,
+          300,
+          420,
+          0
+        ],
+        "back": [
+          300,
+          357,
+          300,
+          450,
+          0
+        ],
+        "right": [
+          100,
+          258,
+          72,
+          72,
+          24
+        ],
+        "left": [
+          500,
+          258,
+          72,
+          72,
+          -24
+        ]
+      }
+    },
+    {
+      "id": "oversized-tee-190-gsm",
+      "name": "Oversized Tee",
+      "spec": "190 GSM \u00b7 Single Jersey",
+      "gsm": "190 GSM",
+      "fit": "oversized",
+      "from": 220,
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 245
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 24 pcs",
+          "price": 230
+        },
+        {
+          "min": 25,
+          "label": "25 \u2013 99 pcs",
+          "price": 225
+        },
+        {
+          "min": 100,
+          "label": "100+ pcs",
+          "price": 220
+        }
+      ],
+      "colours": [
+        {
+          "name": "Black",
+          "hex": "#131313",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-black.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-black-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "White",
+          "hex": "#F2EAEA",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-white.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-white-back.jpg?v=3.3.0"
+        }
+      ],
+      "display": "Black",
+      "zones": {
+        "front": [
+          300,
+          375,
+          300,
+          420,
+          0
+        ],
+        "back": [
+          300,
+          357,
+          300,
+          450,
+          0
+        ],
+        "right": [
+          100,
+          258,
+          72,
+          72,
+          24
+        ],
+        "left": [
+          500,
+          258,
+          72,
+          72,
+          -24
+        ]
+      }
+    },
+    {
+      "id": "regular-fit-tee-190-gsm",
+      "name": "Regular Fit Tee",
+      "spec": "190 GSM \u00b7 Single Jersey",
+      "gsm": "190 GSM",
+      "fit": "regular",
+      "from": 192,
+      "prices": [
+        {
+          "min": 1,
+          "label": "1 \u2013 9 pcs",
+          "price": 210
+        },
+        {
+          "min": 10,
+          "label": "10 \u2013 49 pcs",
+          "price": 198
+        },
+        {
+          "min": 50,
+          "label": "50+ pcs",
+          "price": 192
+        }
+      ],
+      "colours": [
+        {
+          "name": "Black",
+          "hex": "#000000",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "White",
+          "hex": "#FFFFFF",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white-back.jpg?v=3.3.0"
+        },
+        {
+          "name": "Red",
+          "hex": "#DB0C0C",
+          "front": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red.jpg?v=3.3.0",
+          "back": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red-back.jpg?v=3.3.0"
+        }
+      ],
+      "display": "Red",
+      "zones": {
+        "front": [
+          300,
+          372,
+          290,
+          415,
+          0
+        ],
+        "back": [
+          300,
+          350,
+          290,
+          445,
+          0
+        ],
+        "right": [
+          98,
+          228,
+          60,
+          60,
+          28
+        ],
+        "left": [
+          502,
+          228,
+          60,
+          60,
+          -28
+        ]
+      }
+    }
+  ],
+  "sizes": [
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL"
+  ],
+  "ppi": "18.2",
+  "embroidery": [
+    {
+      "min": 1,
+      "rate": 7
+    },
+    {
+      "min": 10,
+      "rate": 6
+    },
+    {
+      "min": 50,
+      "rate": 4
+    }
+  ],
+  "ajax": "https://loomaapparels.com/wp-admin/admin-ajax.php",
+  "pdfjs": "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/vendor/pdfjs/",
+  "fonts": [
+    {
+      "f": "Anton",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Bebas Neue",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Oswald",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Archivo Black",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Alfa Slab One",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Bowlby One",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Bungee",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Russo One",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Staatliches",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Teko",
+      "w": [
+        500,
+        700
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Big Shoulders Display",
+      "w": [
+        700,
+        900
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Rubik Mono One",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Black Ops One",
+      "w": [
+        400
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Archivo",
+      "w": [
+        700,
+        900
+      ],
+      "g": "Bold & display"
+    },
+    {
+      "f": "Inter",
+      "w": [
+        400,
+        600
+      ],
+      "g": "Clean sans"
+    },
+    {
+      "f": "Montserrat",
+      "w": [
+        400,
+        700,
+        900
+      ],
+      "g": "Clean sans"
+    },
+    {
+      "f": "Poppins",
+      "w": [
+        400,
+        700,
+        900
+      ],
+      "g": "Clean sans"
+    },
+    {
+      "f": "Kanit",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Clean sans"
+    },
+    {
+      "f": "Josefin Sans",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Clean sans"
+    },
+    {
+      "f": "Raleway",
+      "w": [
+        400,
+        800
+      ],
+      "g": "Clean sans"
+    },
+    {
+      "f": "Playfair Display",
+      "w": [
+        400,
+        700,
+        900
+      ],
+      "g": "Serif"
+    },
+    {
+      "f": "Abril Fatface",
+      "w": [
+        400
+      ],
+      "g": "Serif"
+    },
+    {
+      "f": "Cinzel",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Serif"
+    },
+    {
+      "f": "Roboto Slab",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Serif"
+    },
+    {
+      "f": "DM Serif Display",
+      "w": [
+        400
+      ],
+      "g": "Serif"
+    },
+    {
+      "f": "Merriweather",
+      "w": [
+        400,
+        900
+      ],
+      "g": "Serif"
+    },
+    {
+      "f": "Pacifico",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Dancing Script",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Great Vibes",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Lobster",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Satisfy",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Caveat",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Allura",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Permanent Marker",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Kaushan Script",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Sacramento",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Yellowtail",
+      "w": [
+        400
+      ],
+      "g": "Script & handwritten"
+    },
+    {
+      "f": "Bangers",
+      "w": [
+        400
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Righteous",
+      "w": [
+        400
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Press Start 2P",
+      "w": [
+        400
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Orbitron",
+      "w": [
+        400,
+        900
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Audiowide",
+      "w": [
+        400
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Shrikhand",
+      "w": [
+        400
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Fredoka",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Luckiest Guy",
+      "w": [
+        400
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "Creepster",
+      "w": [
+        400
+      ],
+      "g": "Retro & fun"
+    },
+    {
+      "f": "UnifrakturMaguntia",
+      "w": [
+        400
+      ],
+      "g": "Gothic & street"
+    },
+    {
+      "f": "Pirata One",
+      "w": [
+        400
+      ],
+      "g": "Gothic & street"
+    },
+    {
+      "f": "Metal Mania",
+      "w": [
+        400
+      ],
+      "g": "Gothic & street"
+    },
+    {
+      "f": "Grenze Gotisch",
+      "w": [
+        400,
+        900
+      ],
+      "g": "Gothic & street"
+    },
+    {
+      "f": "Rock Salt",
+      "w": [
+        400
+      ],
+      "g": "Gothic & street"
+    },
+    {
+      "f": "Baloo Chettan 2",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Malayalam"
+    },
+    {
+      "f": "Noto Sans Malayalam",
+      "w": [
+        400,
+        700
+      ],
+      "g": "Malayalam"
+    }
+  ],
+  "maxUpload": "26214400",
+  "maxFiles": "20",
+  "maxPost": "83886080"
+}
