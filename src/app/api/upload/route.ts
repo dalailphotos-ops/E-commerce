@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { uploadToCloudinary } from "@/lib/cloudinary";
+import { uploadToCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
 
 export async function POST(req: NextRequest) {
   try {
@@ -14,11 +14,8 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // If Cloudinary keys are configured, upload to Cloudinary
-    if (
-      process.env.CLOUDINARY_CLOUD_NAME &&
-      process.env.CLOUDINARY_CLOUD_NAME !== "demo"
-    ) {
+    // If Cloudinary URL or keys are configured, upload to Cloudinary
+    if (isCloudinaryConfigured()) {
       const result = await uploadToCloudinary(buffer, folder);
       return NextResponse.json({
         url: result.url,
@@ -32,7 +29,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       url: base64,
       public_id: `local_${Date.now()}`,
-      note: "Development fallback (configure Cloudinary in .env.local for production CDN storage)",
+      note: "Development fallback (configure CLOUDINARY_URL in .env.local for production CDN storage)",
     });
   } catch (error: any) {
     console.error("Upload error:", error);

@@ -54,11 +54,11 @@ When deploying to **Vercel**, add the following environment variables under **Pr
 | Variable | Description | Example / Note |
 | :--- | :--- | :--- |
 | `MONGODB_URI` | MongoDB connection string | `mongodb+srv://<username>:<password>@cluster0.mongodb.net/looma_ecommerce?retryWrites=true&w=majority` |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | `your_cloud_name` |
-| `CLOUDINARY_API_KEY` | Cloudinary API Key | `your_api_key` |
-| `CLOUDINARY_API_SECRET` | Cloudinary API Secret | `your_api_secret` |
+| `CLOUDINARY_URL` | Cloudinary Single Environment URL (API Environment variable) | `cloudinary://<api_key>:<api_secret>@<cloud_name>` *(from Cloudinary Dashboard)* |
 | `NEXT_PUBLIC_APP_URL` | Production website URL | `https://your-domain.vercel.app` |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | Business WhatsApp Number | `918089963691` |
+
+*(Note: If preferred, you can alternatively use `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET`).*
 
 ---
 
