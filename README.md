@@ -1,4 +1,4 @@
-# Looma Apparels — Custom Apparel & Print-on-Demand E-Commerce Platform
+# Asson Clothing Brand — Custom Apparel & Print-on-Demand E-Commerce Platform
 
 A production-ready e-commerce, custom apparel manufacturing, and print-on-demand platform inspired by [Looma Apparels](https://loomaapparels.com/). Built with **Next.js (App Router)**, **TypeScript**, **Tailwind CSS**, **MongoDB (Mongoose)**, and **Cloudinary**.
 

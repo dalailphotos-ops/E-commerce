@@ -36,7 +36,7 @@ export default function BulkOrdersPage() {
     try {
       const data = new FormData();
       data.append("file", file);
-      data.append("folder", "looma_bulk_enquiries");
+      data.append("folder", "asson_bulk_enquiries");
 
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -132,7 +132,7 @@ export default function BulkOrdersPage() {
             </p>
             <div className="pt-4">
               <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Looma,%20I%20just%20submitted%20a%20bulk%20order%20enquiry.`}
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Asson%20Clothing%20Brand,%20I%20just%20submitted%20a%20bulk%20order%20enquiry.`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold"

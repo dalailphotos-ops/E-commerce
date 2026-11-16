@@ -74,7 +74,7 @@ export default function AdminPage() {
             Backoffice Management
           </span>
           <h1 className="text-3xl font-black text-slate-900 mt-1">
-            Looma Apparels Staff Admin
+            Asson Clothing Brand Staff Admin
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Real-time MongoDB documents & Cloudinary artwork storage management.

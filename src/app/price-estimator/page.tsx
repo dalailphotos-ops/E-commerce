@@ -125,7 +125,7 @@ export default function PriceEstimatorPage() {
 
   // WhatsApp Message
   const generateWhatsAppMessage = () => {
-    let msg = `*Price Estimator Quote — Looma Apparels*\n\n`;
+    let msg = `*Price Estimator Quote — Asson Clothing Brand*\n\n`;
     items.forEach((it, idx) => {
       const calc = calculateItemCost(it);
       msg += `*Item ${idx + 1}:* ${calc.product.name}\n`;
@@ -177,12 +177,12 @@ export default function PriceEstimatorPage() {
         body: JSON.stringify({
           customerName,
           phone: customerPhone,
-          email: `${customerPhone}@looma-estimator.com`,
+          email: `${customerPhone}@asson-estimator.com`,
           items: quoteItems,
           subtotal: totals.subtotal,
           gst: gstAmount,
           total: grandTotal,
-          notes: "Generated via Looma Live Price Estimator",
+          notes: "Generated via Asson Live Price Estimator",
         }),
       });
 

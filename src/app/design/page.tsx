@@ -109,7 +109,7 @@ function DesignStudioContent() {
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("folder", "looma_studio_designs");
+      formData.append("folder", "asson_studio_designs");
 
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -167,7 +167,7 @@ function DesignStudioContent() {
   // WhatsApp Quote Link
   const activeArtUrl = frontUploadedImage || backUploadedImage;
   const whatsappMsg = encodeURIComponent(
-    `*Custom Studio Design Enquiry — Looma Apparels*\n\n` +
+    `*Custom Studio Design Enquiry — Asson Clothing Brand*\n\n` +
       `*Garment:* ${selectedProduct.name}\n` +
       `*Colour:* ${currentColor.name}\n` +
       `*Quantity:* ${quantity} pcs\n` +
@@ -213,7 +213,7 @@ function DesignStudioContent() {
         body: JSON.stringify({
           customerName,
           phone: customerPhone,
-          email: `${customerPhone}@looma-lead.com`,
+          email: `${customerPhone}@asson-lead.com`,
           items: [
             {
               productId: selectedProduct.id,
@@ -230,7 +230,7 @@ function DesignStudioContent() {
           subtotal,
           gst: gstAmount,
           total,
-          notes: "Generated via Looma Interactive Design Studio",
+          notes: "Generated via Asson Interactive Design Studio",
         }),
       });
 
@@ -256,7 +256,7 @@ function DesignStudioContent() {
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-            Looma Design Studio
+            Asson Design Studio
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Upload custom artwork, adjust print dimensions, configure volume tiers,
@@ -653,7 +653,7 @@ export default function DesignStudioPage() {
     <Suspense
       fallback={
         <div className="p-16 text-center text-xs font-semibold text-slate-500">
-          Loading Looma Design Studio...
+          Loading Asson Design Studio...
         </div>
       }
     >

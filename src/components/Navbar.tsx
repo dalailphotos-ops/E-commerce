@@ -25,7 +25,7 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-accent to-amber-500 flex items-center justify-center font-bold text-xl shadow-lg">
-              L
+              A
             </div>
             <div>
               <span className="font-extrabold text-xl tracking-wider text-white group-hover:text-amber-300 transition-colors">
@@ -91,7 +91,7 @@ export default function Navbar() {
             </Link>
 
             <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Looma%20Apparels,%20I%20want%20to%20enquire%20about%20custom%20apparel%20manufacturing.`}
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Asson%20Clothing%20Brand,%20I%20want%20to%20enquire%20about%20custom%20apparel%20manufacturing.`}
               target="_blank"
               rel="noreferrer"
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5"

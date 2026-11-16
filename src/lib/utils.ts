@@ -81,7 +81,7 @@ export function generateWhatsAppQuoteMessage({
   customerName?: string;
   designUrl?: string;
 }): string {
-  let msg = `*New Order / Quote Enquiry — Looma Apparels*\n\n`;
+  let msg = `*New Order / Quote Enquiry — Asson Clothing Brand*\n\n`;
   if (customerName) msg += `*Customer:* ${customerName}\n`;
   msg += `*Garment:* ${productName}\n`;
   if (color) msg += `*Colour:* ${color}\n`;

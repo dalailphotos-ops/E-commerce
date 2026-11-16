@@ -11,7 +11,7 @@ export default function Footer() {
           <div className="space-y-4 md:col-span-1">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded bg-gradient-to-tr from-accent to-amber-500 flex items-center justify-center font-bold text-white text-lg">
-                L
+                A
               </div>
               <span className="font-bold text-lg text-white tracking-wider">
                 {BRAND_NAME}
@@ -110,7 +110,7 @@ export default function Footer() {
               <li className="flex items-start gap-2.5">
                 <MapPin className="w-4 h-4 text-accent mt-0.5 shrink-0" />
                 <span>
-                  Looma Apparels, Kerala & South India Manufacturing Facilities
+                  Asson Clothing Brand, Kerala & South India Manufacturing Facilities
                 </span>
               </li>
               <li className="flex items-center gap-2.5">
@@ -119,7 +119,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center gap-2.5">
                 <Mail className="w-4 h-4 text-amber-400 shrink-0" />
-                <span>orders@loomaapparels.com</span>
+                <span>orders@assonclothing.com</span>
               </li>
             </ul>
           </div>

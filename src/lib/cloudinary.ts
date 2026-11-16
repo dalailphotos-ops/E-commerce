@@ -31,7 +31,7 @@ export function isCloudinaryConfigured(): boolean {
 
 export async function uploadToCloudinary(
   fileBuffer: Buffer | string,
-  folder: string = "looma_apparels"
+  folder: string = "asson_clothing"
 ): Promise<{ url: string; public_id: string }> {
   return new Promise((resolve, reject) => {
     // If it's a base64 string or URL
