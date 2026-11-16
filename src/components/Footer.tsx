@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { BRAND_NAME, BRAND_TAGLINE, WHATSAPP_NUMBER } from "@/lib/constants";
-import { Phone, Mail, MapPin, Sparkles } from "lucide-react";
+import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/constants";
+import { Phone, Mail, MapPin } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -89,14 +89,9 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <a
-                  href={`https://wa.me/${WHATSAPP_NUMBER}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="hover:text-emerald-400 text-emerald-500 flex items-center gap-1 transition"
-                >
-                  WhatsApp Direct Inquiry
-                </a>
+                <Link href="/bulk-orders" className="hover:text-white transition">
+                  Wholesale Inquiries
+                </Link>
               </li>
             </ul>
           </div>

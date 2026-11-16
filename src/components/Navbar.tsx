@@ -8,12 +8,9 @@ import {
   Palette,
   Calculator,
   Layers,
-  PhoneCall,
-  ShoppingBag,
   FileText,
-  Sparkles,
 } from "lucide-react";
-import { WHATSAPP_NUMBER, BRAND_NAME } from "@/lib/constants";
+import { BRAND_NAME } from "@/lib/constants";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -87,18 +84,16 @@ export default function Navbar() {
               className="px-4 py-2 text-xs font-semibold rounded-lg bg-brand-800 text-slate-200 hover:bg-brand-700 hover:text-white border border-brand-700 transition flex items-center gap-1.5"
             >
               <FileText className="w-4 h-4" />
-              Get Quote
+              Quote List
             </Link>
 
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Asson%20Clothing%20Brand,%20I%20want%20to%20enquire%20about%20custom%20apparel%20manufacturing.`}
-              target="_blank"
-              rel="noreferrer"
-              className="px-4 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-md transition flex items-center gap-1.5"
+            <Link
+              href="/design"
+              className="px-4 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition flex items-center gap-1.5"
             >
-              <PhoneCall className="w-4 h-4" />
-              WhatsApp
-            </a>
+              <Palette className="w-4 h-4" />
+              Design Studio
+            </Link>
           </div>
 
           {/* Mobile hamburger */}
@@ -171,15 +166,14 @@ export default function Navbar() {
             Quote List
           </Link>
 
-          <div className="pt-3 flex gap-2">
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}`}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-1 text-center py-2.5 rounded-lg bg-emerald-600 text-white font-medium text-sm flex items-center justify-center gap-1.5"
+          <div className="pt-3">
+            <Link
+              href="/design"
+              onClick={() => setIsOpen(false)}
+              className="w-full text-center py-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-sm flex items-center justify-center gap-1.5"
             >
-              <PhoneCall className="w-4 h-4" /> WhatsApp
-            </a>
+              <Palette className="w-4 h-4" /> Start Customizing
+            </Link>
           </div>
         </div>
       )}

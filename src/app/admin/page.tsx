@@ -8,11 +8,14 @@ import {
   Palette,
   RefreshCw,
   CheckCircle2,
-  AlertCircle,
+  Lock,
+  LogOut,
+  ShieldCheck,
   ExternalLink,
 } from "lucide-react";
 
 export default function AdminPage() {
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [activeTab, setActiveTab] = useState<"quotes" | "enquiries" | "designs">("quotes");
   const [quotes, setQuotes] = useState<any[]>([]);
   const [enquiries, setEnquiries] = useState<any[]>([]);
@@ -20,6 +23,73 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [seedMessage, setSeedMessage] = useState<string | null>(null);
+
+  // Login form states
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [loggingIn, setLoggingIn] = useState(false);
+
+  // Check auth session on load
+  const checkAuth = async () => {
+    try {
+      const res = await fetch("/api/admin/check");
+      const data = await res.json();
+      if (data.authenticated) {
+        setIsAuthenticated(true);
+        fetchData();
+      } else {
+        setIsAuthenticated(false);
+      }
+    } catch {
+      setIsAuthenticated(false);
+    }
+  };
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError(null);
+    setLoggingIn(true);
+
+    try {
+      const res = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPassword,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsAuthenticated(true);
+        fetchData();
+      } else {
+        setLoginError(data.error || "Invalid email or password");
+      }
+    } catch (err: any) {
+      setLoginError(err.message || "Failed to log in");
+    } finally {
+      setLoggingIn(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/admin/logout", { method: "POST" });
+      setIsAuthenticated(false);
+      setQuotes([]);
+      setEnquiries([]);
+      setDesigns([]);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
   const fetchData = async () => {
     setLoading(true);
@@ -46,10 +116,6 @@ export default function AdminPage() {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
   const handleSeedDatabase = async () => {
     setSeeding(true);
     setSeedMessage(null);
@@ -65,6 +131,82 @@ export default function AdminPage() {
     }
   };
 
+  // 1. Loading State
+  if (isAuthenticated === null) {
+    return (
+      <div className="max-w-md mx-auto my-32 p-8 text-center text-xs font-semibold text-slate-500">
+        Checking admin access credentials...
+      </div>
+    );
+  }
+
+  // 2. Unauthenticated State — Show Login Card
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-md mx-auto my-20 px-4">
+        <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-xl space-y-6">
+          <div className="text-center space-y-2">
+            <div className="w-12 h-12 rounded-2xl bg-brand-900 text-white flex items-center justify-center mx-auto shadow-md">
+              <Lock className="w-6 h-6 text-amber-400" />
+            </div>
+            <h1 className="text-2xl font-black text-slate-900">
+              Asson Staff Admin
+            </h1>
+            <p className="text-xs text-slate-500">
+              Enter the admin email and password configured in your environment.
+            </p>
+          </div>
+
+          {loginError && (
+            <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs text-center font-medium">
+              {loginError}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">
+                Admin Email
+              </label>
+              <input
+                type="email"
+                required
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                placeholder="admin@assonclothing.com"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-900"
+              />
+            </div>
+
+            <div>
+              <label className="text-xs font-bold text-slate-700 block mb-1">
+                Password
+              </label>
+              <input
+                type="password"
+                required
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                placeholder="••••••••••••"
+                className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-900"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={loggingIn}
+              className="w-full py-3.5 rounded-xl bg-brand-900 hover:bg-brand-800 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2"
+            >
+              <ShieldCheck className="w-4 h-4 text-amber-400" />
+              {loggingIn ? "Verifying..." : "Unlock Dashboard"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // 3. Authenticated Admin Dashboard
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
       {/* Admin Header */}
@@ -98,6 +240,14 @@ export default function AdminPage() {
             title="Refresh Data"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+          </button>
+
+          <button
+            onClick={handleLogout}
+            className="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-600 text-xs font-semibold flex items-center gap-1.5 transition border border-slate-200"
+            title="Log Out"
+          >
+            <LogOut className="w-3.5 h-3.5" /> Logout
           </button>
         </div>
       </div>

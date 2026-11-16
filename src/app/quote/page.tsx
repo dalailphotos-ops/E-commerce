@@ -4,13 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import {
   FileText,
-  PhoneCall,
   ShoppingBag,
   ArrowRight,
   Sparkles,
   CheckCircle2,
 } from "lucide-react";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 export default function QuotePage() {
   const [customerName, setCustomerName] = useState("");
@@ -148,7 +146,7 @@ export default function QuotePage() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  WhatsApp Number *
+                  Phone Number *
                 </label>
                 <input
                   type="tel"

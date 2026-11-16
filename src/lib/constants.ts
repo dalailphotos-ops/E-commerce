@@ -264,7 +264,6 @@ export const EMBROIDERY_RATES = [
 export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export const GST_PERCENTAGE = 5;
-export const WHATSAPP_NUMBER = "918089963691";
 export const BRAND_NAME = "Asson Clothing Brand";
 export const BRAND_TAGLINE = "The Clothing Lab — Custom Apparel & Streetwear Drops";
 

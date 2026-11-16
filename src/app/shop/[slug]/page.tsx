@@ -8,16 +8,15 @@ import {
   SIZES,
   formatINR,
   GST_PERCENTAGE,
-  WHATSAPP_NUMBER,
 } from "@/lib/constants";
 import {
   Palette,
-  PhoneCall,
   Check,
   Shield,
   Layers,
   ArrowLeft,
   FileText,
+  FileCheck,
 } from "lucide-react";
 
 export default function ProductDetailPage() {
@@ -39,6 +38,13 @@ export default function ProductDetailPage() {
     XL: 5,
     XXL: 0,
   });
+
+  // Direct Quote Modal state
+  const [showQuoteForm, setShowQuoteForm] = useState(false);
+  const [customerName, setCustomerName] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const currentColor = product.colours[selectedColorIdx] || product.colours[0];
   const activeImage =
@@ -62,19 +68,43 @@ export default function ProductDetailPage() {
     setSizeQuantities((prev) => ({ ...prev, [size]: num }));
   };
 
-  const whatsappMessage = encodeURIComponent(
-    `*Order Enquiry from Website*\n` +
-      `Product: ${product.name}\n` +
-      `Colour: ${currentColor.name}\n` +
-      `Total Quantity: ${totalQuantity} pcs\n` +
-      `Sizes: ${Object.entries(sizeQuantities)
-        .filter(([_, q]) => q > 0)
-        .map(([s, q]) => `${s}: ${q}`)
-        .join(", ")}\n` +
-      `Unit Price: ₹${unitPrice}\n` +
-      `Estimated Subtotal: ₹${subtotal} + 5% GST = ₹${total}\n\n` +
-      `Please let me know production and delivery timeline.`
-  );
+  const handleSubmitQuote = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customerName || !customerPhone) return;
+
+    setIsSubmitting(true);
+    try {
+      await fetch("/api/quotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customerName,
+          phone: customerPhone,
+          email: `${customerPhone}@customer.com`,
+          items: [
+            {
+              productId: product.id,
+              productName: product.name,
+              color: currentColor.name,
+              quantity: totalQuantity,
+              sizes: sizeQuantities,
+              unitPrice,
+              totalPrice: total,
+            },
+          ],
+          subtotal,
+          gst: gstAmount,
+          total,
+          notes: `Batch Order for ${product.name} in ${currentColor.name}`,
+        }),
+      });
+      setSubmitted(true);
+    } catch (err) {
+      console.error("Quote error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-12">
@@ -275,16 +305,57 @@ export default function ProductDetailPage() {
                 Customize in Studio
               </Link>
 
-              <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noreferrer"
-                className="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition"
+              <button
+                type="button"
+                onClick={() => setShowQuoteForm(true)}
+                className="py-3 px-4 rounded-xl bg-brand-800 hover:bg-brand-700 text-white font-bold text-xs flex items-center justify-center gap-2 border border-brand-700 transition"
               >
-                <PhoneCall className="w-4 h-4" />
-                Order via WhatsApp
-              </a>
+                <FileText className="w-4 h-4" />
+                Request Quote
+              </button>
             </div>
+
+            {/* In-app Quote submission drawer */}
+            {showQuoteForm && (
+              <div className="mt-4 pt-4 border-t border-brand-800">
+                {submitted ? (
+                  <div className="p-3 bg-emerald-950/80 border border-emerald-700 rounded-xl text-center text-xs text-emerald-300 font-semibold flex items-center justify-center gap-2">
+                    <FileCheck className="w-4 h-4" /> Order quote saved! Our team will contact you.
+                  </div>
+                ) : (
+                  <form onSubmit={handleSubmitQuote} className="space-y-2">
+                    <span className="text-xs font-bold text-brand-200 block">
+                      Enter Details for Formal Quote:
+                    </span>
+                    <div className="grid grid-cols-2 gap-2">
+                      <input
+                        type="text"
+                        required
+                        placeholder="Your Name"
+                        value={customerName}
+                        onChange={(e) => setCustomerName(e.target.value)}
+                        className="p-2 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                      />
+                      <input
+                        type="tel"
+                        required
+                        placeholder="Phone Number"
+                        value={customerPhone}
+                        onChange={(e) => setCustomerPhone(e.target.value)}
+                        className="p-2 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
+                    >
+                      {isSubmitting ? "Submitting..." : "Confirm & Send Quote Request"}
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

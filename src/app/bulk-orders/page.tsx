@@ -5,11 +5,10 @@ import {
   Layers,
   Upload,
   CheckCircle2,
-  PhoneCall,
+  Mail,
   Sparkles,
   FileCheck,
 } from "lucide-react";
-import { WHATSAPP_NUMBER } from "@/lib/constants";
 
 export default function BulkOrdersPage() {
   const [formData, setFormData] = useState({
@@ -128,18 +127,8 @@ export default function BulkOrdersPage() {
             </h3>
             <p className="text-sm text-slate-600 max-w-md mx-auto">
               Our merchandising team is reviewing your requirements and will
-              reach out via WhatsApp / phone with a formal proforma invoice.
+              reach out via email / phone with a formal proforma invoice.
             </p>
-            <div className="pt-4">
-              <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hi%20Asson%20Clothing%20Brand,%20I%20just%20submitted%20a%20bulk%20order%20enquiry.`}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold"
-              >
-                <PhoneCall className="w-4 h-4" /> Message Us on WhatsApp
-              </a>
-            </div>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6">
@@ -162,7 +151,7 @@ export default function BulkOrdersPage() {
 
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  WhatsApp Number *
+                  Phone Number *
                 </label>
                 <input
                   type="tel"

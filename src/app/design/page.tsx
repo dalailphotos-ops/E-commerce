@@ -7,7 +7,6 @@ import {
   DTF_PRINTS,
   SIZES,
   GST_PERCENTAGE,
-  WHATSAPP_NUMBER,
   GarmentProduct,
 } from "@/lib/constants";
 import {
@@ -17,13 +16,13 @@ import {
   Move,
   RotateCw,
   Trash2,
-  PhoneCall,
   Check,
   Sparkles,
   Layers,
   ArrowRight,
   Download,
   FileCheck,
+  Send,
 } from "lucide-react";
 
 function DesignStudioContent() {
@@ -163,22 +162,6 @@ function DesignStudioContent() {
     else setBackUploadedImage(null);
     setTextElements((prev) => prev.filter((t) => t.side !== activeSide));
   };
-
-  // WhatsApp Quote Link
-  const activeArtUrl = frontUploadedImage || backUploadedImage;
-  const whatsappMsg = encodeURIComponent(
-    `*Custom Studio Design Enquiry — Asson Clothing Brand*\n\n` +
-      `*Garment:* ${selectedProduct.name}\n` +
-      `*Colour:* ${currentColor.name}\n` +
-      `*Quantity:* ${quantity} pcs\n` +
-      `*Print Technique:* ${isEmbroidery ? "Computerized Embroidery" : "HD DTF Print"}\n` +
-      `*Print Size:* ${DTF_PRINTS[printSizeKey]?.label || printSizeKey}\n` +
-      `*Neck Label:* ${hasNeckLabel ? "Included (Free Branding)" : "None"}\n` +
-      `*Unit Price:* ₹${unitPrice} / pc\n` +
-      `*Estimated Total:* ₹${total.toLocaleString()} (incl. 5% GST)\n` +
-      (activeArtUrl ? `*Artwork:* ${activeArtUrl}\n` : "") +
-      `\nPlease review my mockup and confirm order schedule.`
-  );
 
   // Submit quote to MongoDB
   const handleSubmitQuote = async (e: React.FormEvent) => {
@@ -597,16 +580,6 @@ function DesignStudioContent() {
               </div>
             </div>
 
-            {/* Quick WhatsApp Share & Order */}
-            <a
-              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMsg}`}
-              target="_blank"
-              rel="noreferrer"
-              className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs flex items-center justify-center gap-2 transition text-white shadow-lg"
-            >
-              <PhoneCall className="w-4 h-4" /> Send Design on WhatsApp
-            </a>
-
             {/* Save to MongoDB Quote Drawer */}
             {submittedSuccess ? (
               <div className="p-3 bg-emerald-950/80 border border-emerald-700 rounded-xl text-center text-xs text-emerald-300 font-semibold flex items-center justify-center gap-2">
@@ -621,23 +594,24 @@ function DesignStudioContent() {
                     placeholder="Your Name"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="p-2 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    className="p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                   <input
                     type="tel"
                     required
-                    placeholder="Phone / WhatsApp"
+                    placeholder="Phone Number"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="p-2 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    className="p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                 </div>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 border border-brand-700 text-white font-semibold text-xs transition"
+                  className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition shadow-md"
                 >
-                  {isSubmitting ? "Submitting..." : "Save Design & Get Formal Quote"}
+                  <Send className="w-4 h-4" />
+                  {isSubmitting ? "Submitting..." : "Save Design & Request Quote"}
                 </button>
               </form>
             )}

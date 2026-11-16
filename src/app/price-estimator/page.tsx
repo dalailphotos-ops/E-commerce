@@ -6,12 +6,10 @@ import {
   REVERSE_ENGINEERED_PRODUCTS,
   DTF_PRINTS,
   GST_PERCENTAGE,
-  WHATSAPP_NUMBER,
   formatINR,
 } from "@/lib/constants";
 import {
   Calculator,
-  PhoneCall,
   CheckCircle2,
   Copy,
   Plus,
@@ -19,6 +17,7 @@ import {
   ArrowRight,
   FileCheck,
   Sparkles,
+  Send,
 } from "lucide-react";
 
 interface EstimatorItem {
@@ -123,29 +122,29 @@ export default function PriceEstimatorPage() {
     }
   };
 
-  // WhatsApp Message
-  const generateWhatsAppMessage = () => {
-    let msg = `*Price Estimator Quote — Asson Clothing Brand*\n\n`;
+  // Quote Summary Text
+  const generateQuoteSummaryText = () => {
+    let msg = `Price Estimator Quote — Asson Clothing Brand\n\n`;
     items.forEach((it, idx) => {
       const calc = calculateItemCost(it);
-      msg += `*Item ${idx + 1}:* ${calc.product.name}\n`;
+      msg += `Item ${idx + 1}: ${calc.product.name}\n`;
       msg += `· Quantity: ${it.quantity} pcs\n`;
       msg += `· Front Print: ${it.frontPrint === "none" ? "None" : DTF_PRINTS[it.frontPrint]?.label}\n`;
       msg += `· Back Print: ${it.backPrint === "none" ? "None" : DTF_PRINTS[it.backPrint]?.label}\n`;
       msg += `· Unit Price: ₹${calc.unitPrice} / pc\n`;
       msg += `· Subtotal: ₹${calc.itemSubtotal.toLocaleString()}\n\n`;
     });
-    msg += `*Total Units:* ${totals.totalQuantity} pcs\n`;
-    msg += `*Subtotal:* ₹${totals.subtotal.toLocaleString()}\n`;
-    msg += `*GST (5%):* ₹${gstAmount.toLocaleString()}\n`;
-    msg += `*Grand Total:* ₹${grandTotal.toLocaleString()}\n\n`;
+    msg += `Total Units: ${totals.totalQuantity} pcs\n`;
+    msg += `Subtotal: ₹${totals.subtotal.toLocaleString()}\n`;
+    msg += `GST (5%): ₹${gstAmount.toLocaleString()}\n`;
+    msg += `Grand Total: ₹${grandTotal.toLocaleString()}\n\n`;
     msg += `Please confirm bulk production timeline.`;
 
-    return encodeURIComponent(msg);
+    return msg;
   };
 
   const handleCopy = () => {
-    const text = decodeURIComponent(generateWhatsAppMessage());
+    const text = generateQuoteSummaryText();
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
@@ -441,15 +440,6 @@ export default function PriceEstimatorPage() {
 
             {/* Action buttons */}
             <div className="space-y-2.5 pt-2">
-              <a
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${generateWhatsAppMessage()}`}
-                target="_blank"
-                rel="noreferrer"
-                className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 font-bold text-xs text-white text-center flex items-center justify-center gap-2 shadow transition"
-              >
-                <PhoneCall className="w-4 h-4" /> Confirm Quote on WhatsApp
-              </a>
-
               <button
                 onClick={handleCopy}
                 className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 border border-brand-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
@@ -477,21 +467,22 @@ export default function PriceEstimatorPage() {
                     placeholder="Full Name"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full p-2 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    className="w-full p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                   <input
                     type="tel"
                     required
-                    placeholder="WhatsApp Number"
+                    placeholder="Phone Number (e.g. +91 9876543210)"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="w-full p-2 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    className="w-full p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs transition"
+                    className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition shadow-md"
                   >
+                    <Send className="w-4 h-4" />
                     {isSubmitting ? "Saving..." : "Submit Quote Request"}
                   </button>
                 </form>
