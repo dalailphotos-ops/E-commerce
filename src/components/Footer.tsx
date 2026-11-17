@@ -1,8 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/constants";
 import { Phone, Mail, MapPin } from "lucide-react";
 
 export default function Footer() {
+  const pathname = usePathname();
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
+
   return (
     <footer className="bg-brand-950 text-slate-400 border-t border-brand-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">

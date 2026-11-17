@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
   Menu,
@@ -17,6 +18,7 @@ import { BRAND_NAME } from "@/lib/constants";
 import { useCart } from "@/context/CartContext";
 
 export default function Navbar() {
+  const pathname = usePathname();
   const { itemCount } = useCart();
   const [mounted, setMounted] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +33,10 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  if (pathname?.startsWith("/admin")) {
+    return null;
+  }
 
   const displayCount = mounted ? itemCount : 0;
 

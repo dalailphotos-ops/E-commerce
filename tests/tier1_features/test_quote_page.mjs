@@ -1,7 +1,7 @@
 /**
  * Tier 1 Feature 8: Interactive Quote List & Checkout Page
  * Validates real-time quote item rendering, quantity edit/removal, cumulative tier math,
- * 5% GST display, and dual conversion submission channels (MongoDB RFQ + WhatsApp order).
+ * 5% GST display, and dual conversion submission channels (MongoDB RFQ + Direct Order).
  */
 
 import path from "node:path";
