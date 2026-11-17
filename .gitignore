@@ -22,3 +22,7 @@ Thumbs.db
 
 # Analysis scratch files
 scratch/
+artifacts/*.html
+artifacts/*.js
+artifacts/*.css
+*.tsbuildinfo

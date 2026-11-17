@@ -9,6 +9,20 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        paper: "#f6f5f1",
+        card: "#ffffff",
+        line: "#e2dfd8",
+        accent: {
+          DEFAULT: "#e8542b",
+          hover: "#d0451e",
+          light: "#ffedd5",
+        },
+        wa: "#1fa855",
+        ink: {
+          DEFAULT: "#0b1426",
+          2: "#1a2336",
+          muted: "#5c6373",
+        },
         brand: {
           50: "#f0f4f8",
           100: "#d9e2ec",
@@ -22,11 +36,13 @@ const config: Config = {
           900: "#0b1426",
           950: "#060b15",
         },
-        accent: {
-          DEFAULT: "#ea580c",
-          hover: "#c2410c",
-          light: "#ffedd5",
-        },
+      },
+      fontFamily: {
+        head: ["var(--font-archivo)", "sans-serif"],
+        body: ["var(--font-inter)", "sans-serif"],
+      },
+      borderRadius: {
+        card: "18px",
       },
     },
   },

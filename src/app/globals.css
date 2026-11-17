@@ -3,13 +3,24 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 15, 23, 42;
-  --background-rgb: 248, 250, 252;
+  --paper: #f6f5f1;
+  --accent: #e8542b;
+  --wa: #1fa855;
+  --line: #e2dfd8;
+  --card: #ffffff;
+  --ink: #0b1426;
+  --ink-2: #1a2336;
+  --muted: #5c6373;
+  --r: 18px;
+  --r-sm: 12px;
+
+  --foreground-rgb: 11, 20, 38;
+  --background-rgb: 246, 245, 241;
 }
 
 body {
-  color: rgb(var(--foreground-rgb));
-  background-color: rgb(var(--background-rgb));
+  color: var(--ink);
+  background-color: var(--paper);
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 

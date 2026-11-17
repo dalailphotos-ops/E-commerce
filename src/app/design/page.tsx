@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useRef, useEffect, Suspense } from "react";
+import { useState, useRef, useEffect, Suspense, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import {
   REVERSE_ENGINEERED_PRODUCTS,
   DTF_PRINTS,
@@ -9,6 +10,7 @@ import {
   GST_PERCENTAGE,
   GarmentProduct,
 } from "@/lib/constants";
+import { useCart } from "@/context/CartContext";
 import {
   Palette,
   Upload,
@@ -23,48 +25,116 @@ import {
   Download,
   FileCheck,
   Send,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  ShoppingBag,
+  Sliders,
+  Scissors,
+  CheckCircle2,
 } from "lucide-react";
+
+type StudioViewSide = "front" | "back" | "left" | "right";
+
+interface ArtworkTransform {
+  x: number; // percentage offset from center (-50 to 50)
+  y: number; // percentage offset from center (-50 to 50)
+  scale: number; // 0.5 to 2.0
+  rotation: number; // degrees (-180 to 180)
+}
 
 function DesignStudioContent() {
   const searchParams = useSearchParams();
   const initialProductId = searchParams.get("product") || REVERSE_ENGINEERED_PRODUCTS[0].id;
   const initialColorName = searchParams.get("color");
 
-  // State
+  const { addItem } = useCart();
+
+  // Selected base apparel
   const [selectedProduct, setSelectedProduct] = useState<GarmentProduct>(
     REVERSE_ENGINEERED_PRODUCTS.find((p) => p.id === initialProductId) ||
       REVERSE_ENGINEERED_PRODUCTS[0]
   );
-
   const [selectedColorIdx, setSelectedColorIdx] = useState<number>(0);
-  const [activeSide, setActiveSide] = useState<"front" | "back">("front");
-  const [quantity, setQuantity] = useState<number>(25);
+  const [activeSide, setActiveSide] = useState<StudioViewSide>("front");
 
-  // Print technique and placement
-  const [printSizeKey, setPrintSizeKey] = useState<string>("a3");
+  // Size matrix breakdown XS - XXL
+  const [sizeBreakdown, setSizeBreakdown] = useState<Record<string, number>>({
+    XS: 0,
+    S: 5,
+    M: 10,
+    L: 10,
+    XL: 0,
+    XXL: 0,
+  });
+
+  // Total quantity computed from size breakdown
+  const quantity = useMemo(() => {
+    const sum = Object.values(sizeBreakdown).reduce((acc, q) => acc + (Number(q) || 0), 0);
+    return Math.max(1, sum);
+  }, [sizeBreakdown]);
+
+  // Placed prints per location
+  const [frontPrintSize, setFrontPrintSize] = useState<string>("a3");
+  const [backPrintSize, setBackPrintSize] = useState<string>("none");
+  const [leftSleevePrintSize, setLeftSleevePrintSize] = useState<string>("none");
+  const [rightSleevePrintSize, setRightSleevePrintSize] = useState<string>("none");
+
   const [isEmbroidery, setIsEmbroidery] = useState<boolean>(false);
   const [hasNeckLabel, setHasNeckLabel] = useState<boolean>(true);
 
-  // Artwork & Canvas Elements
+  // Artwork uploaded per view
   const [frontUploadedImage, setFrontUploadedImage] = useState<string | null>(null);
   const [backUploadedImage, setBackUploadedImage] = useState<string | null>(null);
+  const [leftUploadedImage, setLeftUploadedImage] = useState<string | null>(null);
+  const [rightUploadedImage, setRightUploadedImage] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [isRemovingBg, setIsRemovingBg] = useState<boolean>(false);
 
-  // Custom Text overlay
+  // Transform states per view
+  const [transforms, setTransforms] = useState<Record<StudioViewSide, ArtworkTransform>>({
+    front: { x: 0, y: 0, scale: 1, rotation: 0 },
+    back: { x: 0, y: 0, scale: 1, rotation: 0 },
+    left: { x: 0, y: 0, scale: 1, rotation: 0 },
+    right: { x: 0, y: 0, scale: 1, rotation: 0 },
+  });
+
+  // Custom Typography overlay elements
   const [customText, setCustomText] = useState<string>("");
   const [textColor, setTextColor] = useState<string>("#ffffff");
-  const [textSize, setTextSize] = useState<number>(28);
+  const [textSize, setTextSize] = useState<number>(24);
   const [textElements, setTextElements] = useState<
-    Array<{ id: string; text: string; color: string; size: number; side: "front" | "back"; x: number; y: number }>
+    Array<{
+      id: string;
+      text: string;
+      color: string;
+      size: number;
+      side: StudioViewSide;
+      x: number;
+      y: number;
+    }>
   >([]);
 
-  // Customer quote submission state
+  // Dragging state on canvas
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef<{ startX: number; startY: number; initX: number; initY: number }>({
+    startX: 0,
+    startY: 0,
+    initX: 0,
+    initY: 0,
+  });
+
+  // Cart / Quote feedback state
+  const [addedToCartToast, setAddedToCartToast] = useState(false);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
 
-  // Initialize matching color if passed via query
+  // Canvas element ref for export / mockup download
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+  // Initialize matching color if query parameter exists
   useEffect(() => {
     if (initialColorName) {
       const idx = selectedProduct.colours.findIndex(
@@ -76,30 +146,229 @@ function DesignStudioContent() {
 
   const currentColor =
     selectedProduct.colours[selectedColorIdx] || selectedProduct.colours[0];
-  const activeGarmentPhoto =
-    activeSide === "front" ? currentColor.front : currentColor.back;
 
-  // Calculation Logic
+  // Active base garment photo for canvas preview
+  const activeGarmentPhoto =
+    activeSide === "back" ? currentColor.back : currentColor.front;
+
+  // Active uploaded artwork for current view
+  const currentActiveImage = useMemo(() => {
+    switch (activeSide) {
+      case "front":
+        return frontUploadedImage;
+      case "back":
+        return backUploadedImage;
+      case "left":
+        return leftUploadedImage;
+      case "right":
+        return rightUploadedImage;
+      default:
+        return frontUploadedImage;
+    }
+  }, [activeSide, frontUploadedImage, backUploadedImage, leftUploadedImage, rightUploadedImage]);
+
+  // Set active image helper
+  const setCurrentActiveImage = (url: string | null) => {
+    if (activeSide === "front") setFrontUploadedImage(url);
+    else if (activeSide === "back") setBackUploadedImage(url);
+    else if (activeSide === "left") setLeftUploadedImage(url);
+    else if (activeSide === "right") setRightUploadedImage(url);
+  };
+
+  // Get active print size key for current side
+  const activePrintSizeKey = useMemo(() => {
+    switch (activeSide) {
+      case "front":
+        return frontPrintSize;
+      case "back":
+        return backPrintSize;
+      case "left":
+        return leftSleevePrintSize;
+      case "right":
+        return rightSleevePrintSize;
+      default:
+        return "a3";
+    }
+  }, [activeSide, frontPrintSize, backPrintSize, leftSleevePrintSize, rightSleevePrintSize]);
+
+  // Update active print size
+  const setActivePrintSizeKey = (sizeKey: string) => {
+    if (activeSide === "front") setFrontPrintSize(sizeKey);
+    else if (activeSide === "back") setBackPrintSize(sizeKey);
+    else if (activeSide === "left") setLeftSleevePrintSize(sizeKey);
+    else if (activeSide === "right") setRightSleevePrintSize(sizeKey);
+  };
+
+  // Update transform for active side
+  const updateActiveTransform = (patch: Partial<ArtworkTransform>) => {
+    setTransforms((prev) => ({
+      ...prev,
+      [activeSide]: {
+        ...prev[activeSide],
+        ...patch,
+      },
+    }));
+  };
+
+  // Zone coordinates mapping from selectedProduct.zones
+  const currentZone = useMemo(() => {
+    const defaultZone: [number, number, number, number, number] = [300, 375, 300, 420, 0];
+    if (!selectedProduct.zones) return defaultZone;
+
+    if (activeSide === "front") return selectedProduct.zones.front || defaultZone;
+    if (activeSide === "back") return selectedProduct.zones.back || defaultZone;
+    if (activeSide === "left") return selectedProduct.zones.left || [500, 258, 72, 72, -24];
+    if (activeSide === "right") return selectedProduct.zones.right || [100, 258, 72, 72, 24];
+    return defaultZone;
+  }, [selectedProduct, activeSide]);
+
+  // Calculate pixel bounds & percentages
+  const zoneStyle = useMemo(() => {
+    const [cx, cy, w, h, rot] = currentZone;
+    const leftPct = ((cx - w / 2) / 600) * 100;
+    const topPct = ((cy - h / 2) / 600) * 100;
+    const widthPct = (w / 600) * 100;
+    const heightPct = (h / 600) * 100;
+
+    return {
+      left: `${leftPct}%`,
+      top: `${topPct}%`,
+      width: `${widthPct}%`,
+      height: `${heightPct}%`,
+      transform: `rotate(${rot}deg)`,
+    };
+  }, [currentZone]);
+
+  // Live inch calculation based on active print size & transform scale
+  const currentInchDimensions = useMemo(() => {
+    const printConfig = DTF_PRINTS[activePrintSizeKey];
+    if (!printConfig) return '0" × 0"';
+    return printConfig.dimensions || printConfig.size || '11" × 16"';
+  }, [activePrintSizeKey]);
+
+  // Multi-location Pricing Engine
   const isBulk = quantity >= 10;
-  const baseGarmentPrice = (() => {
+
+  // Base garment price tier lookup
+  const baseGarmentPrice = useMemo(() => {
     const tier = [...selectedProduct.prices]
       .sort((a, b) => b.min - a.min)
       .find((t) => quantity >= t.min);
     return tier ? tier.price : selectedProduct.basePrice;
-  })();
+  }, [selectedProduct, quantity]);
 
-  const printUnitCost = isEmbroidery
-    ? isBulk ? 50 : 70
-    : DTF_PRINTS[printSizeKey]
-    ? isBulk ? DTF_PRINTS[printSizeKey].bulk : DTF_PRINTS[printSizeKey].single
-    : 0;
+  // Check if A2, A3, or A4 print is selected anywhere -> Free neck label rule
+  const hasLargePrint = useMemo(() => {
+    const largeKeys = ["a2", "a3", "a4"];
+    return (
+      largeKeys.includes(frontPrintSize) ||
+      largeKeys.includes(backPrintSize) ||
+      largeKeys.includes(leftSleevePrintSize) ||
+      largeKeys.includes(rightSleevePrintSize)
+    );
+  }, [frontPrintSize, backPrintSize, leftSleevePrintSize, rightSleevePrintSize]);
 
+  // Print placement cost calculations
+  const placedPrints = useMemo(() => {
+    const list: Array<{
+      position: "front" | "back" | "left" | "right" | "neck";
+      sizeKey: string;
+      sizeLabel: string;
+      dimensions: string;
+      unitCost: number;
+      isWaived: boolean;
+    }> = [];
+
+    // Front
+    if (frontPrintSize !== "none" && DTF_PRINTS[frontPrintSize]) {
+      const p = DTF_PRINTS[frontPrintSize];
+      list.push({
+        position: "front",
+        sizeKey: frontPrintSize,
+        sizeLabel: `Front: ${p.label}`,
+        dimensions: p.dimensions || p.size,
+        unitCost: isBulk ? p.bulk : p.single,
+        isWaived: false,
+      });
+    }
+
+    // Back
+    if (backPrintSize !== "none" && DTF_PRINTS[backPrintSize]) {
+      const p = DTF_PRINTS[backPrintSize];
+      list.push({
+        position: "back",
+        sizeKey: backPrintSize,
+        sizeLabel: `Back: ${p.label}`,
+        dimensions: p.dimensions || p.size,
+        unitCost: isBulk ? p.bulk : p.single,
+        isWaived: false,
+      });
+    }
+
+    // Left Sleeve
+    if (leftSleevePrintSize !== "none" && DTF_PRINTS[leftSleevePrintSize]) {
+      const p = DTF_PRINTS[leftSleevePrintSize];
+      list.push({
+        position: "left",
+        sizeKey: leftSleevePrintSize,
+        sizeLabel: `Left Sleeve: ${p.label}`,
+        dimensions: p.dimensions || p.size,
+        unitCost: isBulk ? p.bulk : p.single,
+        isWaived: false,
+      });
+    }
+
+    // Right Sleeve
+    if (rightSleevePrintSize !== "none" && DTF_PRINTS[rightSleevePrintSize]) {
+      const p = DTF_PRINTS[rightSleevePrintSize];
+      list.push({
+        position: "right",
+        sizeKey: rightSleevePrintSize,
+        sizeLabel: `Right Sleeve: ${p.label}`,
+        dimensions: p.dimensions || p.size,
+        unitCost: isBulk ? p.bulk : p.single,
+        isWaived: false,
+      });
+    }
+
+    // Neck Label
+    if (hasNeckLabel) {
+      const isWaived = hasLargePrint;
+      list.push({
+        position: "neck",
+        sizeKey: "label",
+        sizeLabel: "Custom Neck Label Branding",
+        dimensions: '2.5" × 1"',
+        unitCost: isWaived ? 0 : 15,
+        isWaived,
+      });
+    }
+
+    return list;
+  }, [
+    frontPrintSize,
+    backPrintSize,
+    leftSleevePrintSize,
+    rightSleevePrintSize,
+    hasNeckLabel,
+    hasLargePrint,
+    isBulk,
+  ]);
+
+  const totalPrintsUnitCost = useMemo(() => {
+    if (isEmbroidery) {
+      return isBulk ? 50 : 70;
+    }
+    return placedPrints.reduce((sum, p) => sum + p.unitCost, 0);
+  }, [isEmbroidery, isBulk, placedPrints]);
+
+  const printUnitCost = totalPrintsUnitCost;
   const unitPrice = baseGarmentPrice + printUnitCost;
   const subtotal = unitPrice * quantity;
   const gstAmount = Math.round((subtotal * GST_PERCENTAGE) / 100);
   const total = subtotal + gstAmount;
 
-  // Cloudinary image upload handler
+  // File Upload with fallback
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -117,21 +386,16 @@ function DesignStudioContent() {
 
       const data = await res.json();
       if (data.url) {
-        if (activeSide === "front") {
-          setFrontUploadedImage(data.url);
-        } else {
-          setBackUploadedImage(data.url);
-        }
+        setCurrentActiveImage(data.url);
+      } else {
+        throw new Error("No URL returned from upload endpoint");
       }
     } catch (err) {
-      console.error("Upload error:", err);
-      // Fallback to local data URL if API error
+      console.warn("Upload fallback triggered via FileReader:", err);
       const reader = new FileReader();
       reader.onload = (uploadEvent) => {
-        if (activeSide === "front") {
-          setFrontUploadedImage(uploadEvent.target?.result as string);
-        } else {
-          setBackUploadedImage(uploadEvent.target?.result as string);
+        if (uploadEvent.target?.result) {
+          setCurrentActiveImage(uploadEvent.target.result as string);
         }
       };
       reader.readAsDataURL(file);
@@ -140,6 +404,70 @@ function DesignStudioContent() {
     }
   };
 
+  // Client-Side Background Removal Tool
+  const handleRemoveBackground = () => {
+    if (!currentActiveImage) return;
+
+    setIsRemovingBg(true);
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.src = currentActiveImage;
+    img.onload = () => {
+      try {
+        const offscreen = document.createElement("canvas");
+        offscreen.width = img.width;
+        offscreen.height = img.height;
+        const ctx = offscreen.getContext("2d");
+        if (!ctx) return;
+
+        ctx.drawImage(img, 0, 0);
+        const imgData = ctx.getImageData(0, 0, img.width, img.height);
+        const d = imgData.data;
+
+        // Sample top-left corner color as background key
+        const bgR = d[0];
+        const bgG = d[1];
+        const bgB = d[2];
+        const tolerance = 40;
+
+        for (let i = 0; i < d.length; i += 4) {
+          const r = d[i];
+          const g = d[i + 1];
+          const b = d[i + 2];
+
+          // Check if pixel is close to sampled background or near white (235+)
+          const diffBg = Math.hypot(r - bgR, g - bgG, b - bgB);
+          const isWhiteBg = r > 235 && g > 235 && b > 235;
+
+          if (diffBg < tolerance || isWhiteBg) {
+            d[i + 3] = 0; // Alpha transparent
+          }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        const processedUrl = offscreen.toDataURL("image/png");
+        setCurrentActiveImage(processedUrl);
+      } catch (err) {
+        console.error("Client background removal error:", err);
+      } finally {
+        setIsRemovingBg(false);
+      }
+    };
+    img.onerror = () => setIsRemovingBg(false);
+  };
+
+  // Clear Artwork Action
+  const handleClearArt = () => {
+    if (activeSide === "front") setFrontUploadedImage(null);
+    else if (activeSide === "back") setBackUploadedImage(null);
+    else if (activeSide === "left") setLeftUploadedImage(null);
+    else if (activeSide === "right") setRightUploadedImage(null);
+
+    setTextElements((prev) => prev.filter((t) => t.side !== activeSide));
+    updateActiveTransform({ x: 0, y: 0, scale: 1, rotation: 0 });
+  };
+
+  // Custom text overlays
   const handleAddText = () => {
     if (!customText.trim()) return;
     setTextElements((prev) => [
@@ -150,28 +478,138 @@ function DesignStudioContent() {
         color: textColor,
         size: textSize,
         side: activeSide,
-        x: 50,
-        y: 50,
+        x: 0,
+        y: 0,
       },
     ]);
     setCustomText("");
   };
 
-  const handleClearArt = () => {
-    if (activeSide === "front") setFrontUploadedImage(null);
-    else setBackUploadedImage(null);
-    setTextElements((prev) => prev.filter((t) => t.side !== activeSide));
+  // Interactive Drag & Move on Canvas
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    dragStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initX: transforms[activeSide].x,
+      initY: transforms[activeSide].y,
+    };
   };
 
-  // Submit quote to MongoDB
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging) return;
+    const deltaX = ((e.clientX - dragStartRef.current.startX) / 300) * 100;
+    const deltaY = ((e.clientY - dragStartRef.current.startY) / 300) * 100;
+
+    // Clamping to -40% to +40%
+    const newX = Math.max(-40, Math.min(40, dragStartRef.current.initX + deltaX));
+    const newY = Math.max(-40, Math.min(40, dragStartRef.current.initY + deltaY));
+
+    updateActiveTransform({ x: Math.round(newX), y: Math.round(newY) });
+  };
+
+  const handleMouseUp = () => setIsDragging(false);
+
+  // Client-Side Mockup PNG Download
+  const handleDownloadMockup = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = 800;
+    canvas.height = 800;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Background fill
+    ctx.fillStyle = "#f6f5f1";
+    ctx.fillRect(0, 0, 800, 800);
+
+    // Load garment photo
+    const garmentImg = new Image();
+    garmentImg.crossOrigin = "anonymous";
+    garmentImg.src = activeGarmentPhoto;
+    garmentImg.onload = () => {
+      ctx.drawImage(garmentImg, 50, 50, 700, 700);
+
+      // Render artwork if exists
+      if (currentActiveImage) {
+        const artImg = new Image();
+        artImg.crossOrigin = "anonymous";
+        artImg.src = currentActiveImage;
+        artImg.onload = () => {
+          const t = transforms[activeSide];
+          const artW = 280 * t.scale;
+          const artH = 280 * t.scale;
+          const posX = 400 + (t.x * 3) - artW / 2;
+          const posY = 380 + (t.y * 3) - artH / 2;
+
+          ctx.save();
+          ctx.translate(posX + artW / 2, posY + artH / 2);
+          ctx.rotate((t.rotation * Math.PI) / 180);
+          ctx.drawImage(artImg, -artW / 2, -artH / 2, artW, artH);
+          ctx.restore();
+
+          finishDownload();
+        };
+        artImg.onerror = () => finishDownload();
+      } else {
+        finishDownload();
+      }
+    };
+
+    const finishDownload = () => {
+      // Tech pack branding stamp
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "bold 16px sans-serif";
+      ctx.fillText("ASSON CLOTHING BRAND — TECH PACK SPEC", 60, 760);
+      ctx.font = "12px sans-serif";
+      ctx.fillStyle = "#64748b";
+      ctx.fillText(
+        `${selectedProduct.name} · ${currentColor.name} · ${activeSide.toUpperCase()} · ${currentInchDimensions}`,
+        60,
+        780
+      );
+
+      const link = document.createElement("a");
+      link.download = `asson-${selectedProduct.slug}-${activeSide}-mockup.png`;
+      link.href = canvas.toDataURL("image/png");
+      link.click();
+    };
+  };
+
+  // Add customized apparel to CartContext
+  const handleAddToCart = () => {
+    addItem({
+      productId: selectedProduct.id,
+      productName: selectedProduct.name,
+      productSpec: selectedProduct.spec,
+      color: currentColor.name,
+      colorHex: currentColor.hex,
+      sizes: { ...sizeBreakdown },
+      quantity,
+      unitPrice,
+      prints: placedPrints.map((p) => ({
+        position: p.position,
+        sizeKey: p.sizeKey,
+        sizeLabel: p.sizeLabel,
+        dimensions: p.dimensions,
+        cost: p.unitCost,
+        isWaived: p.isWaived,
+      })),
+      mockupFrontUrl: frontUploadedImage || undefined,
+      mockupBackUrl: backUploadedImage || undefined,
+    });
+
+    setAddedToCartToast(true);
+    setTimeout(() => setAddedToCartToast(false), 3500);
+  };
+
+  // Save to /api/designs and /api/quotes
   const handleSubmitQuote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName || !customerPhone) return;
 
     setIsSubmitting(true);
     try {
-      // 1. Save design session
-      const designRes = await fetch("/api/designs", {
+      await fetch("/api/designs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -181,15 +619,19 @@ function DesignStudioContent() {
           colorHex: currentColor.hex,
           frontPreviewUrl: frontUploadedImage,
           backPreviewUrl: backUploadedImage,
-          uploadedAssets: [frontUploadedImage, backUploadedImage].filter(Boolean),
+          uploadedAssets: [
+            frontUploadedImage,
+            backUploadedImage,
+            leftUploadedImage,
+            rightUploadedImage,
+          ].filter(Boolean),
           printType: isEmbroidery ? "Embroidery" : "DTF",
-          printSize: printSizeKey,
+          printSize: frontPrintSize,
           estimatedPrice: total,
           customerPhone,
         }),
       });
 
-      // 2. Save quote record
       await fetch("/api/quotes", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -204,7 +646,7 @@ function DesignStudioContent() {
               color: currentColor.name,
               quantity,
               printType: isEmbroidery ? "Embroidery" : "DTF",
-              printSize: printSizeKey,
+              printSize: frontPrintSize,
               designPreviewUrl: frontUploadedImage || backUploadedImage,
               unitPrice,
               totalPrice: total,
@@ -235,23 +677,23 @@ function DesignStudioContent() {
               <Palette className="w-4 h-4" />
             </span>
             <span className="text-xs font-bold text-accent uppercase tracking-widest">
-              Live Mockup Builder
+              Live Mockup & DTF Customizer
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
             Asson Design Studio
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Upload custom artwork, adjust print dimensions, configure volume tiers,
-            and get instant factory pricing.
+            4-zone interactive canvas, real DTF inch measurements, live volume tiers,
+            and free neck label branding.
           </p>
         </div>
 
-        {/* View Switcher Pill */}
-        <div className="flex bg-slate-200 p-1 rounded-xl">
+        {/* 4-Zone View Switcher Pill */}
+        <div className="flex bg-slate-200 p-1 rounded-xl gap-1">
           <button
             onClick={() => setActiveSide("front")}
-            className={`px-5 py-1.5 rounded-lg text-xs font-bold transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
               activeSide === "front"
                 ? "bg-white text-slate-900 shadow"
                 : "text-slate-600 hover:text-slate-900"
@@ -261,13 +703,33 @@ function DesignStudioContent() {
           </button>
           <button
             onClick={() => setActiveSide("back")}
-            className={`px-5 py-1.5 rounded-lg text-xs font-bold transition ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
               activeSide === "back"
                 ? "bg-white text-slate-900 shadow"
                 : "text-slate-600 hover:text-slate-900"
             }`}
           >
             Back View
+          </button>
+          <button
+            onClick={() => setActiveSide("left")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              activeSide === "left"
+                ? "bg-white text-slate-900 shadow"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Left Sleeve
+          </button>
+          <button
+            onClick={() => setActiveSide("right")}
+            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
+              activeSide === "right"
+                ? "bg-white text-slate-900 shadow"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            Right Sleeve
           </button>
         </div>
       </div>
@@ -276,7 +738,12 @@ function DesignStudioContent() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Column: Canvas Preview */}
         <div className="lg:col-span-7 space-y-4">
-          <div className="bg-slate-100 border border-slate-200 rounded-3xl overflow-hidden aspect-square relative shadow-inner flex items-center justify-center">
+          <div
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            className="bg-slate-100 border border-slate-200 rounded-3xl overflow-hidden aspect-square relative shadow-inner flex items-center justify-center select-none"
+          >
             {/* Garment Base Photo */}
             <img
               src={activeGarmentPhoto}
@@ -284,38 +751,34 @@ function DesignStudioContent() {
               className="w-full h-full object-cover select-none pointer-events-none"
             />
 
-            {/* Print Placement Zone (Active boundary) */}
+            {/* Print Placement Zone (Active boundary derived from selectedProduct.zones) */}
             <div
-              className="absolute border-2 border-dashed border-amber-400/80 rounded-lg pointer-events-none flex flex-col items-center justify-center"
-              style={{
-                width: "48%",
-                height: "56%",
-                top: "22%",
-                left: "26%",
-              }}
+              className="absolute border-2 border-dashed border-amber-400/80 rounded-lg pointer-events-none flex flex-col items-center justify-center transition-all duration-200"
+              style={zoneStyle}
             >
-              <span className="absolute top-1 text-[9px] font-bold text-amber-500 bg-black/60 px-2 py-0.5 rounded-full uppercase">
-                {activeSide.toUpperCase()} PRINT ZONE (
-                {DTF_PRINTS[printSizeKey]?.size || printSizeKey})
+              <span className="absolute top-1 text-[9px] font-bold text-amber-500 bg-black/60 px-2 py-0.5 rounded-full uppercase whitespace-nowrap">
+                {activeSide.toUpperCase()} PRINT ZONE ({currentInchDimensions})
               </span>
 
-              {/* Uploaded Artwork Preview on Canvas */}
-              {((activeSide === "front" && frontUploadedImage) ||
-                (activeSide === "back" && backUploadedImage)) && (
-                <div className="relative max-w-[85%] max-h-[85%] overflow-hidden pointer-events-auto group">
+              {/* Uploaded Artwork on Canvas with Drag / Scale / Rotate Transform */}
+              {currentActiveImage && (
+                <div
+                  onMouseDown={handleMouseDown}
+                  style={{
+                    transform: `translate(${transforms[activeSide].x}px, ${transforms[activeSide].y}px) scale(${transforms[activeSide].scale}) rotate(${transforms[activeSide].rotation}deg)`,
+                    cursor: isDragging ? "grabbing" : "grab",
+                  }}
+                  className="relative max-w-[85%] max-h-[85%] overflow-visible pointer-events-auto group"
+                >
                   <img
-                    src={
-                      (activeSide === "front"
-                        ? frontUploadedImage
-                        : backUploadedImage) as string
-                    }
+                    src={currentActiveImage}
                     alt="Uploaded Artwork"
-                    className="object-contain max-h-56 filter drop-shadow-md"
+                    className="object-contain max-h-56 filter drop-shadow-md pointer-events-none"
                   />
                   <button
                     onClick={handleClearArt}
                     title="Remove artwork"
-                    className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow"
+                    className="absolute -top-3 -right-3 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow hover:bg-red-700"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -339,8 +802,30 @@ function DesignStudioContent() {
                 ))}
             </div>
 
-            {/* Clear button if art exists */}
-            {(frontUploadedImage || backUploadedImage || textElements.length > 0) && (
+            {/* Quick Canvas Floating Action Tools */}
+            <div className="absolute top-4 left-4 flex gap-2">
+              <button
+                onClick={handleDownloadMockup}
+                title="Download Mockup PNG"
+                className="bg-white/90 hover:bg-white text-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-slate-200 flex items-center gap-1.5 transition"
+              >
+                <Download className="w-3.5 h-3.5 text-brand-900" /> Export Mockup
+              </button>
+              {currentActiveImage && (
+                <button
+                  onClick={handleRemoveBackground}
+                  disabled={isRemovingBg}
+                  title="Remove solid white background"
+                  className="bg-white/90 hover:bg-white text-amber-700 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-slate-200 flex items-center gap-1.5 transition"
+                >
+                  <Scissors className="w-3.5 h-3.5" />
+                  {isRemovingBg ? "Removing..." : "Remove BG"}
+                </button>
+              )}
+            </div>
+
+            {/* Clear Button */}
+            {(currentActiveImage || textElements.some((t) => t.side === activeSide)) && (
               <button
                 onClick={handleClearArt}
                 className="absolute top-4 right-4 bg-white/90 hover:bg-white text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-slate-200 flex items-center gap-1.5 transition"
@@ -350,11 +835,55 @@ function DesignStudioContent() {
             )}
           </div>
 
+          {/* Transform Adjuster Bar (Drag, Scale, Rotate) */}
+          {currentActiveImage && (
+            <div className="bg-white p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold flex items-center gap-1">
+                    <ZoomIn className="w-3 h-3 text-brand-900" /> Artwork Scale
+                  </span>
+                  <span>{Math.round(transforms[activeSide].scale * 100)}%</span>
+                </div>
+                <input
+                  type="range"
+                  min="0.5"
+                  max="1.8"
+                  step="0.05"
+                  value={transforms[activeSide].scale}
+                  onChange={(e) =>
+                    updateActiveTransform({ scale: parseFloat(e.target.value) || 1 })
+                  }
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold flex items-center gap-1">
+                    <RotateCw className="w-3 h-3 text-brand-900" /> Rotation
+                  </span>
+                  <span>{transforms[activeSide].rotation}°</span>
+                </div>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="5"
+                  value={transforms[activeSide].rotation}
+                  onChange={(e) =>
+                    updateActiveTransform({ rotation: parseInt(e.target.value) || 0 })
+                  }
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+            </div>
+          )}
+
           {/* Color Swatches bar */}
           <div className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
             <span className="text-xs font-bold text-slate-700 uppercase">
-              Colour:{" "}
-              <strong className="text-slate-900">{currentColor.name}</strong>
+              Colour: <strong className="text-slate-900">{currentColor.name}</strong>
             </span>
             <div className="flex gap-2">
               {selectedProduct.colours.map((col, idx) => (
@@ -366,7 +895,7 @@ function DesignStudioContent() {
                   className={`w-6 h-6 rounded-full border border-black/20 transition ${
                     selectedColorIdx === idx
                       ? "ring-2 ring-amber-500 scale-110 shadow"
-                      : ""
+                      : "hover:scale-105"
                   }`}
                 />
               ))}
@@ -379,7 +908,7 @@ function DesignStudioContent() {
           {/* Step 1: Garment Selection */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              1. Select Base Apparel Silhouette
+              1. Base Apparel Silhouette
             </span>
             <select
               value={selectedProduct.id}
@@ -404,9 +933,14 @@ function DesignStudioContent() {
 
           {/* Step 2: Upload Artwork & Add Typography */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              2. Upload Artwork to Cloudinary
-            </span>
+            <div className="flex justify-between items-center">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                2. Upload Artwork to Cloudinary
+              </span>
+              <span className="text-[11px] text-amber-600 font-semibold uppercase">
+                Active: {activeSide} View
+              </span>
+            </div>
 
             <div className="flex gap-3">
               <label className="flex-1 border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50">
@@ -458,10 +992,10 @@ function DesignStudioContent() {
             </div>
           </div>
 
-          {/* Step 3: Print Technique & Placement */}
+          {/* Step 3: Print Technique & Multi-Location Configuration */}
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
             <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              3. Printing Method & Dimensions
+              3. Printing Technique & Dimensions
             </span>
 
             {/* Technique Switch */}
@@ -490,40 +1024,128 @@ function DesignStudioContent() {
               </button>
             </div>
 
-            {/* Print Dimensions Selection */}
+            {/* Print Dimensions Selection for Active Side */}
             {!isEmbroidery && (
               <div className="space-y-1.5">
-                <label className="text-xs text-slate-500 block">
-                  Select Print Dimension:
-                </label>
+                <div className="flex justify-between items-center text-xs">
+                  <label className="text-slate-600 font-medium">
+                    Dimension for {activeSide.toUpperCase()} print:
+                  </label>
+                  <span className="font-bold text-slate-800">{currentInchDimensions}</span>
+                </div>
                 <select
-                  value={printSizeKey}
-                  onChange={(e) => setPrintSizeKey(e.target.value)}
+                  value={activePrintSizeKey}
+                  onChange={(e) => setActivePrintSizeKey(e.target.value)}
                   className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800"
                 >
-                  {Object.entries(DTF_PRINTS).map(([key, item]) => (
-                    <option key={key} value={key}>
-                      {item.label} ({item.size}) — +₹
-                      {isBulk ? item.bulk : item.single} / pc
-                    </option>
-                  ))}
+                  <option value="none">No Print on this zone (₹0)</option>
+                  {Object.entries(DTF_PRINTS)
+                    .filter(([key]) => {
+                      if (activeSide === "left" || activeSide === "right") {
+                        // Sleeves support pocket logo, A6, A5
+                        return ["logo", "a6", "a5"].includes(key);
+                      }
+                      return key !== "label";
+                    })
+                    .map(([key, item]) => (
+                      <option key={key} value={key}>
+                        {item.label} ({item.size}) — +₹
+                        {isBulk ? item.bulk : item.single} / pc
+                      </option>
+                    ))}
                 </select>
               </div>
             )}
 
-            {/* Free Neck Label Checkbox */}
-            <label className="flex items-center gap-2 pt-1 text-xs text-slate-700 font-medium cursor-pointer">
-              <input
-                type="checkbox"
-                checked={hasNeckLabel}
-                onChange={(e) => setHasNeckLabel(e.target.checked)}
-                className="rounded text-amber-500 focus:ring-amber-400"
-              />
-              <span>Include FREE Custom Brand Neck Label (Branding)</span>
-            </label>
+            {/* Free Neck Label Rule Checkbox */}
+            <div className="pt-2 border-t border-slate-100">
+              <label className="flex items-center gap-2 text-xs text-slate-700 font-medium cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hasNeckLabel}
+                  onChange={(e) => setHasNeckLabel(e.target.checked)}
+                  className="rounded text-amber-500 focus:ring-amber-400"
+                />
+                <span className="flex-1">
+                  Include Custom Brand Neck Label
+                  {hasLargePrint ? (
+                    <span className="ml-1.5 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">
+                      FREE (Waived with A2/A3/A4)
+                    </span>
+                  ) : (
+                    <span className="ml-1.5 text-slate-500 text-[10px]">
+                      (+₹15 / pc)
+                    </span>
+                  )}
+                </span>
+              </label>
+            </div>
           </div>
 
-          {/* Step 4: Quantity & Pricing Summary */}
+          {/* Step 4: Size Matrix Breakdown (XS-XXL) */}
+          <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+                4. Order Size Matrix (XS – XXL)
+              </span>
+              <span className="text-xs font-black text-brand-900 bg-amber-100 px-2.5 py-0.5 rounded-full">
+                Total: {quantity} Pieces
+              </span>
+            </div>
+
+            <div className="grid grid-cols-6 gap-2">
+              {SIZES.map((sz) => (
+                <div key={sz} className="text-center">
+                  <label className="text-[11px] font-bold text-slate-600 block mb-1">
+                    {sz}
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="1000"
+                    value={sizeBreakdown[sz] ?? 0}
+                    onChange={(e) => {
+                      const val = Math.max(0, parseInt(e.target.value) || 0);
+                      setSizeBreakdown((prev) => ({ ...prev, [sz]: val }));
+                    }}
+                    className="w-full text-center p-1.5 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-brand-900"
+                  />
+                </div>
+              ))}
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() =>
+                  setSizeBreakdown({ XS: 0, S: 5, M: 10, L: 10, XL: 0, XXL: 0 })
+                }
+                className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold transition"
+              >
+                Sample (25 pcs)
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setSizeBreakdown({ XS: 5, S: 10, M: 15, L: 15, XL: 5, XXL: 0 })
+                }
+                className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold transition"
+              >
+                Wholesale (50 pcs)
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setSizeBreakdown({ XS: 10, S: 20, M: 35, L: 25, XL: 10, XXL: 0 })
+                }
+                className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold transition"
+              >
+                Brand Drop (100 pcs)
+              </button>
+            </div>
+          </div>
+
+          {/* Step 5: Pricing Summary & Export Actions */}
           <div className="bg-brand-900 text-white rounded-2xl p-6 space-y-4">
             <div>
               <div className="flex justify-between items-center mb-1">
@@ -540,7 +1162,18 @@ function DesignStudioContent() {
                 max="300"
                 step="5"
                 value={quantity}
-                onChange={(e) => setQuantity(parseInt(e.target.value) || 10)}
+                onChange={(e) => {
+                  const newTotal = parseInt(e.target.value) || 10;
+                  const half = Math.floor(newTotal / 2);
+                  setSizeBreakdown({
+                    XS: 0,
+                    S: 0,
+                    M: half,
+                    L: newTotal - half,
+                    XL: 0,
+                    XXL: 0,
+                  });
+                }}
                 className="w-full accent-amber-400 cursor-pointer"
               />
               <div className="flex justify-between text-[11px] text-slate-400 mt-1">
@@ -559,7 +1192,7 @@ function DesignStudioContent() {
                 <span>₹{baseGarmentPrice} / pc</span>
               </div>
               <div className="flex justify-between text-brand-200">
-                <span>Print / Craft Cost:</span>
+                <span>Prints / Craft Cost:</span>
                 <span>+₹{printUnitCost} / pc</span>
               </div>
               <div className="flex justify-between font-bold text-white text-sm pt-1">
@@ -580,13 +1213,42 @@ function DesignStudioContent() {
               </div>
             </div>
 
-            {/* Save to MongoDB Quote Drawer */}
+            {/* Add to Quote List Button */}
+            <div className="space-y-2 pt-2">
+              <button
+                type="button"
+                onClick={handleAddToCart}
+                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition shadow-md"
+              >
+                <ShoppingBag className="w-4 h-4" /> Add to Quote List (Cart)
+              </button>
+
+              {addedToCartToast && (
+                <div className="p-2.5 bg-emerald-900/90 border border-emerald-600 rounded-xl text-xs text-emerald-200 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5 font-semibold">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    Added to Quote List!
+                  </span>
+                  <Link
+                    href="/quote"
+                    className="underline text-white font-bold hover:text-amber-300"
+                  >
+                    View Quote →
+                  </Link>
+                </div>
+              )}
+            </div>
+
+            {/* Save to Remote Quote Drawer */}
             {submittedSuccess ? (
               <div className="p-3 bg-emerald-950/80 border border-emerald-700 rounded-xl text-center text-xs text-emerald-300 font-semibold flex items-center justify-center gap-2">
                 <FileCheck className="w-4 h-4" /> Quote requested & saved! Our team will contact you.
               </div>
             ) : (
-              <form onSubmit={handleSubmitQuote} className="pt-2 space-y-2">
+              <form onSubmit={handleSubmitQuote} className="pt-2 border-t border-brand-800 space-y-2">
+                <span className="text-[11px] font-bold text-brand-300 uppercase block">
+                  Or Save Design & Request Direct Callback
+                </span>
                 <div className="grid grid-cols-2 gap-2">
                   <input
                     type="text"
@@ -608,7 +1270,7 @@ function DesignStudioContent() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition shadow-md"
+                  className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 transition border border-brand-700"
                 >
                   <Send className="w-4 h-4" />
                   {isSubmitting ? "Submitting..." : "Save Design & Request Quote"}

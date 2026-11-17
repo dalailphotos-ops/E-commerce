@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 52" fill="none">
+  <rect width="48" height="48" y="2" rx="12" fill="url(#brandGrad)"/>
+  <path d="M24 10L14 38H19.5L21.5 32.5H26.5L28.5 38H34L24 10ZM22.5 28L24 22L25.5 28H22.5Z" fill="#FFFFFF"/>
+  <text x="60" y="28" font-family="'Archivo', system-ui, -apple-system, sans-serif" font-weight="900" font-size="20" fill="#0B1426" letter-spacing="1.5">ASSON</text>
+  <text x="60" y="42" font-family="'Inter', system-ui, -apple-system, sans-serif" font-weight="700" font-size="9" fill="#E8542B" letter-spacing="2">THE CLOTHING LAB</text>
+  <defs>
+    <linearGradient id="brandGrad" x1="0" y1="2" x2="48" y2="50" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8542B"/>
+      <stop offset="1" stop-color="#F59E0B"/>
+    </linearGradient>
+  </defs>
+</svg>
