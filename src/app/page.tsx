@@ -35,67 +35,56 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Heading, Badges, CTAs */}
-            <div className="lg:col-span-7 space-y-6">
-              <div className="flex items-center gap-4">
-                <Image
-                  src="/logo-white.svg"
-                  alt="Asson"
-                  width={140}
-                  height={46}
-                  className="h-10 sm:h-11 w-auto object-contain"
-                  priority
-                />
-              </div>
-
+            <div className="lg:col-span-7 space-y-5 sm:space-y-6">
               {/* Primary Authoritative Hero Pill */}
-              <div className="inline-flex flex-wrap items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-800/80 border border-brand-700 text-amber-300 text-xs font-semibold tracking-wide">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-800/80 border border-brand-700 text-amber-300 text-xs font-semibold tracking-wide max-w-full">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span>Direct-to-Film Custom Printing & Premium Blanks • Tirupur Factory Hub</span>
-                <span className="hidden sm:inline text-amber-400/60">•</span>
-                <span className="text-amber-200">South India's Custom Apparel Hub · Low 10 pc MOQ</span>
+                <span className="font-bold">South India's Custom Apparel Hub</span>
+                <span className="text-amber-400/60">•</span>
+                <span className="text-amber-200 whitespace-nowrap">Low 10 pc MOQ</span>
               </div>
 
-              <h1 className="text-4xl sm:text-6xl font-black tracking-tight leading-tight">
-                Craft Custom Apparel. <br />
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15]">
+                Craft Custom Apparel. <br className="hidden sm:inline" />
                 <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent">
                   From 10 to 10,000 Pieces.
                 </span>
               </h1>
 
-              <p className="text-lg text-slate-300 max-w-2xl font-normal leading-relaxed">
+              <p className="text-base sm:text-lg text-slate-300 max-w-2xl font-normal leading-relaxed">
                 Direct factory manufacturing for streetwear labels, colleges, creator drops,
                 and corporate merchandise. Premium 250 GSM French Terry, vintage acid wash,
                 and high-definition DTF printing shipped anywhere in India.
               </p>
 
               {/* Action buttons */}
-              <div className="flex flex-wrap gap-4 pt-2">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2">
                 <Link
                   href="/design"
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-accent to-amber-500 hover:from-accent-hover hover:to-amber-600 font-bold text-white shadow-xl shadow-orange-950/40 flex items-center gap-2 text-base transition transform hover:-translate-y-0.5"
+                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-accent to-amber-500 hover:from-accent-hover hover:to-amber-600 font-bold text-white shadow-xl shadow-orange-950/40 flex items-center justify-center gap-2 text-sm sm:text-base transition transform hover:-translate-y-0.5 whitespace-nowrap"
                 >
-                  <Palette className="w-5 h-5" />
+                  <Palette className="w-5 h-5 shrink-0" />
                   Launch Design Studio
                 </Link>
 
                 <Link
                   href="/price-estimator"
-                  className="px-6 py-3.5 rounded-xl bg-brand-800 hover:bg-brand-700 text-white font-semibold border border-brand-700 shadow-md flex items-center gap-2 text-base transition"
+                  className="px-6 py-3.5 rounded-xl bg-brand-800 hover:bg-brand-700 text-white font-semibold border border-brand-700 shadow-md flex items-center justify-center gap-2 text-sm sm:text-base transition whitespace-nowrap"
                 >
-                  <Calculator className="w-5 h-5" />
+                  <Calculator className="w-5 h-5 shrink-0" />
                   Instant Price Estimator
                 </Link>
 
                 <Link
                   href="/shop"
-                  className="px-6 py-3.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold border border-slate-700 text-base transition"
+                  className="px-6 py-3.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold border border-slate-700 text-sm sm:text-base transition text-center whitespace-nowrap"
                 >
                   View Blanks
                 </Link>
               </div>
 
               {/* Trust value points */}
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-brand-800/80 text-xs text-slate-300">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-6 border-t border-brand-800/80 text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>MOQ 10 Pieces</span>
@@ -112,7 +101,7 @@ export default function HomePage() {
             </div>
 
             {/* Right Column: Hero Preview Card */}
-            <div className="lg:col-span-5">
+            <div className="lg:col-span-5 w-full max-w-md mx-auto lg:max-w-none mt-8 lg:mt-0">
               <div className="bg-brand-800/50 backdrop-blur-md border border-brand-700/60 rounded-2xl p-6 shadow-2xl relative">
                 <div className="flex items-center justify-between pb-4 border-b border-brand-700/60">
                   <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">
@@ -331,7 +320,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
             {/* Method 1: DTF Print */}
             <div className="p-6 rounded-2xl bg-brand-900/60 border border-brand-800 space-y-3 flex flex-col justify-between">
               <div>

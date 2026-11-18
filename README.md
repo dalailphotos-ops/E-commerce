@@ -58,11 +58,28 @@ When deploying to **Vercel**, add the following environment variables under **Pr
 | :--- | :---: | :--- | :--- |
 | `MONGODB_URI` | **Yes** | MongoDB connection string (Atlas recommended) | `mongodb+srv://<user>:<password>@cluster0.mongodb.net/asson_ecommerce?retryWrites=true&w=majority` |
 | `CLOUDINARY_URL` | **Yes** | Single Cloudinary Connection URL | `cloudinary://<api_key>:<api_secret>@<cloud_name>` *(from Cloudinary Dashboard)* |
-| `ADMIN_EMAIL` | **Yes** | Email used to log into `/admin` | `admin@assonclothing.com` (or your personal/company email) |
-| `ADMIN_PASSWORD` | **Yes** | Password used to log into `/admin` | Choose any strong password (e.g. `MySecurePass2026!`) |
-| `NEXT_PUBLIC_APP_URL` | Optional | Production website URL | `https://assonclothing.vercel.app` (defaults to current host) |
+| `ADMIN_EMAIL` | **Yes** | Staff Admin Email (Quotes, Inquiries, Studio Designs, Blank Uploads) | `admin@assonclothing.com` (default) |
+| `ADMIN_PASSWORD` | **Yes** | Staff Admin Password | Choose any secure password |
+| `SUPERADMIN_EMAIL` | Optional | Superadmin Email (Developer Console, Seeder, Backups) | `superadmin@assonclothing.com` (default) |
+| `SUPERADMIN_PASSWORD` | Optional | Superadmin Password | Choose any secure password |
+| `NEXT_PUBLIC_APP_URL` | Optional | Production website URL | `https://asson-cloths.vercel.app` (defaults to current host) |
 
 *(Note: In Cloudinary Dashboard, copy the single `CLOUDINARY_URL` under Dashboard > Product Environment Credentials > API Environment variable).*
+
+---
+
+## 👥 Admin Roles: Staff Admin vs Superadmin
+
+The admin portal at `/admin` includes role-based access control (RBAC):
+
+1. **Staff Admin (`ADMIN_EMAIL` / `ADMIN_PASSWORD`)**:
+   - Clean, executive operational dashboard.
+   - Day-to-day business operations: view & manage Quotes, Bulk Enquiries, Studio Designs, and Blank T-Shirt photo uploads.
+   - All developer-related texts, seed buttons, and raw database/environment diagnostics are completely hidden.
+
+2. **Superadmin (`SUPERADMIN_EMAIL` / `SUPERADMIN_PASSWORD`)**:
+   - Unlocks the **Superadmin Developer Console**.
+   - Includes 1-Click Database Catalog Seeder (`/api/seed`), Quotes JSON Data Export/Backup, Collection metrics, and System Diagnostics.
 
 ---
 

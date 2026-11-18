@@ -53,30 +53,30 @@ export default function Navbar() {
       <div className="bg-[#0b1426] text-slate-200 text-xs py-2 px-4 border-b border-slate-800/80">
         <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
           {/* Left contact info */}
-          <div className="flex items-center gap-4 text-[11px] sm:text-xs">
+          <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs">
             <a
               href="tel:+918089963691"
-              className="flex items-center gap-1.5 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
             >
-              <Phone className="w-3.5 h-3.5 text-accent" />
+              <Phone className="w-3.5 h-3.5 text-accent shrink-0" />
               <span>+91 80899 63691</span>
             </a>
             <a
               href="mailto:orders@assonclothing.com"
-              className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors"
+              className="hidden sm:flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors whitespace-nowrap"
             >
-              <Mail className="w-3.5 h-3.5 text-amber-400" />
+              <Mail className="w-3.5 h-3.5 text-amber-400 shrink-0" />
               <span>orders@assonclothing.com</span>
             </a>
           </div>
 
           {/* Right quick actions */}
-          <div className="flex items-center gap-4 text-[11px] sm:text-xs">
+          <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs">
             <Link
               href="/quote"
-              className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors"
+              className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors whitespace-nowrap"
             >
-              <ShoppingBag className="w-3.5 h-3.5 text-slate-300" />
+              <ShoppingBag className="w-3.5 h-3.5 text-slate-300 shrink-0" />
               <span>Quote List</span>
               <span
                 data-quote-count
@@ -87,7 +87,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/quote"
-              className="hidden sm:inline-flex items-center font-semibold text-amber-300 hover:text-amber-200 transition-colors"
+              className="hidden sm:inline-flex items-center font-semibold text-amber-300 hover:text-amber-200 transition-colors whitespace-nowrap"
             >
               Get a Quote →
             </Link>
@@ -97,9 +97,9 @@ export default function Navbar() {
 
       {/* Main Sticky Header */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <div className="relative flex items-center">
               <Image
                 src="/logo-white.svg"
@@ -110,8 +110,8 @@ export default function Navbar() {
                 priority
               />
             </div>
-            <div className="hidden sm:block border-l border-brand-800 pl-2.5">
-              <span className="block text-[9px] sm:text-[10px] text-amber-300 font-bold tracking-widest uppercase">
+            <div className="hidden 2xl:block border-l border-brand-800 pl-2.5">
+              <span className="block text-[9px] text-amber-300 font-bold tracking-widest uppercase whitespace-nowrap">
                 The Clothing Lab
               </span>
               <span className="sr-only">{BRAND_NAME.toUpperCase()}</span>
@@ -119,65 +119,62 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <nav className="hidden xl:flex items-center gap-5 text-sm font-medium">
+          <nav className="hidden xl:flex items-center gap-3.5 2xl:gap-5 text-xs 2xl:text-sm font-medium whitespace-nowrap">
             <Link
               href="/shop"
-              className="text-slate-200 hover:text-white transition-colors"
+              className="whitespace-nowrap text-slate-200 hover:text-white transition-colors py-1"
             >
               Shop Blanks
             </Link>
             <Link
               href="/design"
-              className="text-amber-300 hover:text-amber-200 flex items-center gap-1.5 font-semibold transition-colors"
+              className="whitespace-nowrap text-amber-300 hover:text-amber-200 font-semibold transition-colors py-1"
             >
-              <Palette className="w-4 h-4" />
               Design Studio
             </Link>
             <Link
               href="/dropshipping"
-              className="text-slate-200 hover:text-white transition-colors"
+              className="whitespace-nowrap text-slate-200 hover:text-white transition-colors py-1"
             >
               Dropshipping
             </Link>
             <Link
               href="/bulk-orders"
-              className="text-slate-200 hover:text-white flex items-center gap-1.5 transition-colors"
+              className="whitespace-nowrap text-slate-200 hover:text-white transition-colors py-1"
             >
-              <Layers className="w-4 h-4" />
               Bulk Orders
             </Link>
             <Link
               href="/printing"
-              className="text-slate-200 hover:text-white transition-colors"
+              className="whitespace-nowrap text-slate-200 hover:text-white transition-colors py-1"
             >
               Printing
             </Link>
             <Link
               href="/price-estimator"
-              className="text-slate-200 hover:text-white flex items-center gap-1.5 transition-colors"
+              className="whitespace-nowrap text-slate-200 hover:text-white transition-colors py-1"
             >
-              <Calculator className="w-4 h-4" />
               Price Estimator
             </Link>
             <Link
               href="/contact"
-              className="text-slate-200 hover:text-white transition-colors"
+              className="whitespace-nowrap text-slate-200 hover:text-white transition-colors py-1"
             >
               Contact
             </Link>
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="hidden md:flex items-center gap-2.5">
+          <div className="hidden md:flex items-center gap-2 sm:gap-2.5 shrink-0">
             <Link
               href="/quote"
-              className="px-3 py-2 text-xs font-semibold rounded-lg bg-brand-800 text-slate-200 hover:bg-brand-700 hover:text-white border border-brand-700 transition-colors flex items-center gap-1.5"
+              className="whitespace-nowrap px-2.5 sm:px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-lg bg-brand-800 text-slate-200 hover:bg-brand-700 hover:text-white border border-brand-700 transition-colors flex items-center gap-1.5 shrink-0"
             >
-              <FileText className="w-4 h-4" />
+              <FileText className="w-3.5 h-3.5 shrink-0" />
               <span>Quote List</span>
               <span
                 data-quote-count
-                className="ml-1 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[10px] font-bold rounded-full bg-accent text-white"
+                className="ml-0.5 inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 text-[10px] font-bold rounded-full bg-accent text-white"
               >
                 {displayCount}
               </span>
@@ -185,9 +182,9 @@ export default function Navbar() {
 
             <Link
               href="/design"
-              className="px-3.5 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-colors flex items-center gap-1.5"
+              className="whitespace-nowrap px-3 sm:px-3.5 py-1.5 sm:py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-md transition-colors flex items-center gap-1.5 shrink-0"
             >
-              <Palette className="w-4 h-4" />
+              <Palette className="w-3.5 h-3.5 shrink-0" />
               <span>Design Studio</span>
             </Link>
           </div>
