@@ -23,7 +23,11 @@ export const metadata: Metadata = {
   description:
     "Custom apparel manufacturer offering bulk t-shirt production, oversized tees, acid wash, French Terry, print-on-demand, and real-time customizer studio.",
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/icon.png",
   },
 };
 

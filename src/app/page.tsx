@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   Palette,
   Calculator,
@@ -35,6 +36,17 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Heading, Badges, CTAs */}
             <div className="lg:col-span-7 space-y-6">
+              <div className="flex items-center gap-4">
+                <Image
+                  src="/logo-white.svg"
+                  alt="Asson"
+                  width={140}
+                  height={46}
+                  className="h-10 sm:h-11 w-auto object-contain"
+                  priority
+                />
+              </div>
+
               {/* Primary Authoritative Hero Pill */}
               <div className="inline-flex flex-wrap items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-800/80 border border-brand-700 text-amber-300 text-xs font-semibold tracking-wide">
                 <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
@@ -742,9 +754,18 @@ export default function HomePage() {
           <div className="absolute top-0 right-0 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
           <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-8">
             <div className="space-y-3 max-w-xl">
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
-                Get In Touch
-              </span>
+              <div className="flex items-center gap-3">
+                <Image
+                  src="/logo-white.svg"
+                  alt="Asson"
+                  width={110}
+                  height={36}
+                  className="h-8 w-auto object-contain"
+                />
+                <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                  Get In Touch
+                </span>
+              </div>
               <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
                 Got an Idea? Let’s Make It Wearable.
               </h2>

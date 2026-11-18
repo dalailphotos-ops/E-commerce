@@ -4,17 +4,22 @@
 
 :root {
   --paper: #f6f5f1;
-  --accent: #e8542b;
+  --primary: #3d0000;
+  --primary-dark: #1a0000;
+  --secondary: #c5a059;
+  --secondary-light: #fbf8f1;
+  --accent: #d97706;
+  --accent-hover: #b45309;
   --wa: #1fa855;
   --line: #e2dfd8;
   --card: #ffffff;
-  --ink: #0b1426;
-  --ink-2: #1a2336;
-  --muted: #5c6373;
+  --ink: #1a0505;
+  --ink-2: #2d0a0a;
+  --muted: #665454;
   --r: 18px;
   --r-sm: 12px;
 
-  --foreground-rgb: 11, 20, 38;
+  --foreground-rgb: 26, 5, 5;
   --background-rgb: 246, 245, 241;
 }
 

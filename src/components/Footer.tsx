@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/constants";
 import { Phone, Mail, MapPin } from "lucide-react";
@@ -18,14 +19,16 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
           {/* Column 1: Brand Info */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded bg-gradient-to-tr from-accent to-amber-500 flex items-center justify-center font-bold text-white text-lg">
-                A
-              </div>
-              <span className="font-bold text-lg text-white tracking-wider">
-                {BRAND_NAME}
-              </span>
-            </div>
+            <Link href="/" className="inline-block group">
+              <Image
+                src="/logo-white.svg"
+                alt={BRAND_NAME}
+                width={130}
+                height={42}
+                className="h-8 sm:h-9 w-auto object-contain transition-opacity group-hover:opacity-90"
+              />
+              <span className="sr-only">{BRAND_NAME}</span>
+            </Link>
             <p className="text-xs font-semibold text-amber-400">
               Asson Clothing Brand — The Clothing Lab
             </p>

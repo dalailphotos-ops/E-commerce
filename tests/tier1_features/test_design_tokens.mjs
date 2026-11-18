@@ -43,14 +43,24 @@ export default async function (t) {
     );
   });
 
-  await t.test("Feature 1.3: Brand accent (#e8542b) and WhatsApp (#1fa855) tokens defined", () => {
+  await t.test("Feature 1.3: Brand primary (#3d0000), secondary (#c5a059), accent (#d97706), and WhatsApp (#1fa855) tokens defined", () => {
     const cssInspector = inspectFile(GLOBALS_CSS);
     assert(cssInspector !== null, "globals.css must exist");
     const vars = cssInspector.extractCssVariables();
     assertEqual(
+      vars["--primary"]?.toLowerCase(),
+      "#3d0000",
+      "CSS variable --primary must be #3d0000"
+    );
+    assertEqual(
+      vars["--secondary"]?.toLowerCase(),
+      "#c5a059",
+      "CSS variable --secondary must be #c5a059"
+    );
+    assertEqual(
       vars["--accent"]?.toLowerCase(),
-      "#e8542b",
-      "CSS variable --accent must be #e8542b"
+      "#d97706",
+      "CSS variable --accent must be #d97706"
     );
     assertEqual(
       vars["--wa"]?.toLowerCase(),
@@ -63,6 +73,18 @@ export default async function (t) {
     assert(
       twInspector.containsText("paper:") && twInspector.containsText("#f6f5f1"),
       "tailwind.config.ts must extend theme colors with paper #f6f5f1"
+    );
+    assert(
+      twInspector.containsText("primary:") && twInspector.containsText("#3d0000"),
+      "tailwind.config.ts must extend theme colors with primary #3d0000"
+    );
+    assert(
+      twInspector.containsText("secondary:") && twInspector.containsText("#c5a059"),
+      "tailwind.config.ts must extend theme colors with secondary #c5a059"
+    );
+    assert(
+      twInspector.containsText("accent:") && twInspector.containsText("#d97706"),
+      "tailwind.config.ts must extend theme colors with accent #d97706"
     );
     assert(
       twInspector.containsText("wa:") && twInspector.containsText("#1fa855"),

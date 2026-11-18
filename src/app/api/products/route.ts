@@ -45,3 +45,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    await connectToDatabase();
+    const body = await req.json();
+    const filter = body.id ? { id: body.id } : body.slug ? { slug: body.slug } : null;
+    if (!filter) {
+      return NextResponse.json({ error: "Missing product id or slug" }, { status: 400 });
+    }
+    const updated = await Product.findOneAndUpdate(filter, { $set: body }, { new: true, upsert: true });
+    return NextResponse.json(updated);
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

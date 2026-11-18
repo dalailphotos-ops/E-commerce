@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutDashboard,
   FileText,
@@ -29,6 +30,10 @@ import {
   TrendingUp,
   Building,
   Calendar,
+  Upload,
+  Camera,
+  Plus,
+  Image as ImageIcon,
 } from "lucide-react";
 import { REVERSE_ENGINEERED_PRODUCTS, formatINR } from "@/lib/constants";
 
@@ -45,9 +50,20 @@ export default function AdminPage() {
   const [quotes, setQuotes] = useState<any[]>([]);
   const [enquiries, setEnquiries] = useState<any[]>([]);
   const [designs, setDesigns] = useState<any[]>([]);
+  const [catalogProducts, setCatalogProducts] = useState<any[]>(REVERSE_ENGINEERED_PRODUCTS);
   const [loading, setLoading] = useState(false);
   const [seeding, setSeeding] = useState(false);
   const [seedMessage, setSeedMessage] = useState<string | null>(null);
+
+  // Blank T-Shirt Upload Modal State
+  const [selectedProductForUpload, setSelectedProductForUpload] = useState<any | null>(null);
+  const [uploadColorIdx, setUploadColorIdx] = useState<number>(0);
+  const [frontBlankUrl, setFrontBlankUrl] = useState<string>("");
+  const [backBlankUrl, setBackBlankUrl] = useState<string>("");
+  const [uploadingFront, setUploadingFront] = useState(false);
+  const [uploadingBack, setUploadingBack] = useState(false);
+  const [savingBlank, setSavingBlank] = useState(false);
+  const [blankSaveSuccess, setBlankSaveSuccess] = useState<string | null>(null);
 
   // Login form states
   const [loginEmail, setLoginEmail] = useState("");
@@ -119,25 +135,140 @@ export default function AdminPage() {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const [qRes, eRes, dRes] = await Promise.all([
+      const [qRes, eRes, dRes, pRes] = await Promise.all([
         fetch("/api/quotes"),
         fetch("/api/enquiries"),
         fetch("/api/designs"),
+        fetch("/api/products"),
       ]);
 
-      const [qData, eData, dData] = await Promise.all([
+      const [qData, eData, dData, pData] = await Promise.all([
         qRes.json(),
         eRes.json(),
         dRes.json(),
+        pRes.json(),
       ]);
 
       setQuotes(Array.isArray(qData) ? qData : []);
       setEnquiries(Array.isArray(eData) ? eData : []);
       setDesigns(Array.isArray(dData) ? dData : []);
+      if (Array.isArray(pData) && pData.length > 0) {
+        setCatalogProducts(pData);
+      }
     } catch (err) {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const openBlankUploadModal = (product: any, colorIdx: number = 0) => {
+    setSelectedProductForUpload(product);
+    setUploadColorIdx(colorIdx);
+    const rawColours = product.colours || product.colors || [];
+    const color = rawColours[colorIdx] || {};
+    setFrontBlankUrl(color.front || color.photoFront || "");
+    setBackBlankUrl(color.back || color.photoBack || "");
+    setBlankSaveSuccess(null);
+  };
+
+  const handleColorChange = (idx: number) => {
+    if (!selectedProductForUpload) return;
+    setUploadColorIdx(idx);
+    const rawColours = selectedProductForUpload.colours || selectedProductForUpload.colors || [];
+    const color = rawColours[idx] || {};
+    setFrontBlankUrl(color.front || color.photoFront || "");
+    setBackBlankUrl(color.back || color.photoBack || "");
+  };
+
+  const handleUploadBlankImage = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    side: "front" | "back"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (side === "front") setUploadingFront(true);
+    else setUploadingBack(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("folder", "asson_blanks");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (res.ok && data.url) {
+        if (side === "front") setFrontBlankUrl(data.url);
+        else setBackBlankUrl(data.url);
+      } else {
+        alert(data.error || "Failed to upload image");
+      }
+    } catch (err: any) {
+      alert(err.message || "Upload failed");
+    } finally {
+      if (side === "front") setUploadingFront(false);
+      else setUploadingBack(false);
+    }
+  };
+
+  const handleSaveBlankImages = async () => {
+    if (!selectedProductForUpload) return;
+    setSavingBlank(true);
+    setBlankSaveSuccess(null);
+
+    try {
+      const rawColours = selectedProductForUpload.colours || selectedProductForUpload.colors || [];
+      const updatedColours = rawColours.map((c: any, idx: number) => {
+        if (idx === uploadColorIdx) {
+          return {
+            ...c,
+            front: frontBlankUrl || c.front || c.photoFront,
+            back: backBlankUrl || c.back || c.photoBack,
+            photoFront: frontBlankUrl || c.photoFront || c.front,
+            photoBack: backBlankUrl || c.photoBack || c.back,
+          };
+        }
+        return c;
+      });
+
+      const payload = {
+        id: selectedProductForUpload.id,
+        slug: selectedProductForUpload.slug,
+        colours: updatedColours,
+        colors: updatedColours,
+      };
+
+      const res = await fetch("/api/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        setBlankSaveSuccess("Blank images uploaded to Cloudinary & saved to Catalog!");
+        setCatalogProducts((prev) =>
+          prev.map((p) =>
+            p.id === selectedProductForUpload.id
+              ? { ...p, colours: updatedColours, colors: updatedColours }
+              : p
+          )
+        );
+        setTimeout(() => {
+          setSelectedProductForUpload(null);
+          setBlankSaveSuccess(null);
+        }, 1500);
+      } else {
+        const err = await res.json();
+        alert(err.error || "Failed to update product in database");
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to save product");
+    } finally {
+      setSavingBlank(false);
     }
   };
 
@@ -210,8 +341,15 @@ export default function AdminPage() {
 
         <div className="w-full max-w-md relative z-10 space-y-6">
           <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center mx-auto shadow-xl shadow-amber-500/20 text-slate-950 font-black text-2xl">
-              A
+            <div className="flex justify-center mb-1">
+              <Image
+                src="/logo-white.svg"
+                alt="Asson"
+                width={160}
+                height={52}
+                className="h-12 w-auto object-contain"
+                priority
+              />
             </div>
             <div>
               <h1 className="text-2xl font-black text-white tracking-tight">
@@ -290,9 +428,13 @@ export default function AdminPage() {
       {/* Mobile Header Bar */}
       <div className="md:hidden bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-black flex items-center justify-center text-sm shadow">
-            A
-          </div>
+          <Image
+            src="/icon.svg"
+            alt="Asson Admin"
+            width={32}
+            height={32}
+            className="w-8 h-8 rounded-lg shadow"
+          />
           <div>
             <span className="font-extrabold text-sm text-white block leading-tight">
               Asson Admin
@@ -321,13 +463,14 @@ export default function AdminPage() {
           {/* Logo & System Badge */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 text-slate-950 font-black flex items-center justify-center text-base shadow-lg shadow-amber-500/20">
-                A
-              </div>
+              <Image
+                src="/logo-white.svg"
+                alt="ASSON ADMIN"
+                width={110}
+                height={36}
+                className="h-7 w-auto object-contain"
+              />
               <div>
-                <span className="font-black text-white text-base tracking-tight block">
-                  ASSON ADMIN
-                </span>
                 <span className="text-[10px] text-amber-400 font-bold uppercase tracking-widest flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   Console v1.2

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, CheckCircle2, Factory, Sparkles, Award } from "lucide-react";
 import { BRAND_NAME } from "@/lib/constants";
 
@@ -12,6 +13,16 @@ export default function AboutPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
       {/* Hero Section */}
       <div className="text-center max-w-3xl mx-auto space-y-4">
+        <div className="flex justify-center mb-1">
+          <Image
+            src="/logo.svg"
+            alt={BRAND_NAME}
+            width={160}
+            height={52}
+            className="h-12 w-auto object-contain"
+            priority
+          />
+        </div>
         <span className="text-xs font-bold text-accent uppercase tracking-widest inline-flex items-center gap-1.5 bg-orange-50 px-3 py-1 rounded-full border border-orange-200">
           <Factory className="w-3.5 h-3.5 text-accent" /> Asson Factory & Textile Lab
         </span>

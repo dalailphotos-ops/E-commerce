@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import {
@@ -99,16 +100,21 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 sm:h-20">
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg bg-gradient-to-tr from-accent to-amber-500 flex items-center justify-center font-bold text-xl text-white shadow-lg">
-              A
+            <div className="relative flex items-center">
+              <Image
+                src="/logo-white.svg"
+                alt={BRAND_NAME}
+                width={124}
+                height={40}
+                className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105"
+                priority
+              />
             </div>
-            <div>
-              <span className="font-extrabold text-base sm:text-lg tracking-wider text-white group-hover:text-amber-300 transition-colors">
-                {BRAND_NAME.toUpperCase()}
-              </span>
-              <span className="block text-[9px] sm:text-[10px] text-brand-300 tracking-widest uppercase">
+            <div className="hidden sm:block border-l border-brand-800 pl-2.5">
+              <span className="block text-[9px] sm:text-[10px] text-amber-300 font-bold tracking-widest uppercase">
                 The Clothing Lab
               </span>
+              <span className="sr-only">{BRAND_NAME.toUpperCase()}</span>
             </div>
           </Link>
 
@@ -215,6 +221,18 @@ export default function Navbar() {
       {/* Mobile Drawer */}
       {isOpen && (
         <div className="xl:hidden bg-brand-950 border-t border-brand-800 px-4 pt-3 pb-6 space-y-1">
+          <div className="flex items-center justify-between pb-3 mb-2 border-b border-brand-800 px-1">
+            <Image
+              src="/logo-white.svg"
+              alt={BRAND_NAME}
+              width={100}
+              height={32}
+              className="h-7 w-auto object-contain"
+            />
+            <span className="text-[10px] text-amber-300 font-bold uppercase tracking-wider">
+              The Clothing Lab
+            </span>
+          </div>
           <Link
             href="/shop"
             onClick={() => setIsOpen(false)}
