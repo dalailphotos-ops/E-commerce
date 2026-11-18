@@ -32,6 +32,8 @@ import {
   Sliders,
   Scissors,
   CheckCircle2,
+  Camera,
+  Shirt,
 } from "lucide-react";
 
 type StudioViewSide = "front" | "back" | "left" | "right";
@@ -144,12 +146,51 @@ function DesignStudioContent() {
     }
   }, [initialColorName, selectedProduct]);
 
+  const [customBlankPhoto, setCustomBlankPhoto] = useState<{
+    front: string | null;
+    back: string | null;
+  }>({ front: null, back: null });
+  const [isUploadingBlank, setIsUploadingBlank] = useState(false);
+
   const currentColor =
     selectedProduct.colours[selectedColorIdx] || selectedProduct.colours[0];
 
-  // Active base garment photo for canvas preview
+  // Active base garment photo for canvas preview (custom uploaded blank or catalog default)
   const activeGarmentPhoto =
-    activeSide === "back" ? currentColor.back : currentColor.front;
+    (activeSide === "back" ? customBlankPhoto.back : customBlankPhoto.front) ||
+    (activeSide === "back" ? currentColor.back : currentColor.front);
+
+  const handleUploadCustomBlank = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingBlank(true);
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("folder", "asson_custom_blanks");
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: data,
+      });
+      const result = await res.json();
+      if (res.ok && result.url) {
+        setCustomBlankPhoto((prev) => ({
+          ...prev,
+          [activeSide === "back" ? "back" : "front"]: result.url,
+        }));
+      } else {
+        alert(result.error || "Failed to upload blank garment image");
+      }
+    } catch (err: any) {
+      alert(err.message || "Failed to upload blank");
+    } finally {
+      setIsUploadingBlank(false);
+    }
+  };
 
   // Active uploaded artwork for current view
   const currentActiveImage = useMemo(() => {
@@ -929,6 +970,35 @@ function DesignStudioContent() {
                 </option>
               ))}
             </select>
+
+            {/* Custom Blank Upload Action */}
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
+              <label className="cursor-pointer text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1.5 transition">
+                <Camera className="w-3.5 h-3.5" />
+                <span>
+                  {isUploadingBlank
+                    ? "Uploading Blank to Cloudinary..."
+                    : `Upload Custom Blank Photo (${activeSide.toUpperCase()})`}
+                </span>
+                <input
+                  type="file"
+                  accept="image/png, image/jpeg, image/webp"
+                  onChange={handleUploadCustomBlank}
+                  className="hidden"
+                  disabled={isUploadingBlank}
+                />
+              </label>
+
+              {(customBlankPhoto.front || customBlankPhoto.back) && (
+                <button
+                  type="button"
+                  onClick={() => setCustomBlankPhoto({ front: null, back: null })}
+                  className="text-[11px] text-slate-400 hover:text-red-500 font-semibold"
+                >
+                  Reset to Catalog Blank
+                </button>
+              )}
+            </div>
           </div>
 
           {/* Step 2: Upload Artwork & Add Typography */}

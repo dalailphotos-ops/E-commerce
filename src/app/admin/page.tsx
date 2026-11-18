@@ -1232,78 +1232,315 @@ export default function AdminPage() {
 
           {/* TAB 5: BLANKS CATALOG */}
           {activeTab === "catalog" && (
-            <div className="space-y-4">
-              <span className="text-xs text-slate-400 font-semibold block">
-                Authoritative 6-product blank silhouette catalog defined in `src/lib/constants.ts`
-              </span>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                {REVERSE_ENGINEERED_PRODUCTS.map((p) => (
-                  <div
-                    key={p.id}
-                    className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4"
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-sm font-extrabold text-white">
+                    Wholesale Blank Silhouettes & Image Management
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    View and upload official blank t-shirt photos (Front & Back) directly to Cloudinary for your live catalog.
+                  </p>
+                </div>
+                {catalogProducts.length > 0 && (
+                  <button
+                    onClick={() => openBlankUploadModal(catalogProducts[0], 0)}
+                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow transition self-start sm:self-auto"
                   >
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
-                          {p.fit} • {p.gsm} GSM
+                    <Camera className="w-4 h-4" />
+                    Upload Blank T-Shirt Images
+                  </button>
+                )}
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {catalogProducts.map((p) => {
+                  const pColors = p.colours || p.colors || [];
+                  const activeColor = pColors[0] || {};
+                  const frontImg = activeColor.front || activeColor.photoFront;
+                  const backImg = activeColor.back || activeColor.photoBack;
+
+                  return (
+                    <div
+                      key={p.id}
+                      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 hover:border-slate-700 transition"
+                    >
+                      {/* Header info */}
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
+                            {p.fit} • {p.gsm} GSM
+                          </span>
+                          <h4 className="text-base font-black text-white mt-0.5">
+                            {p.name}
+                          </h4>
+                          <p className="text-xs text-slate-400 mt-1">{p.fabric}</p>
+                        </div>
+                        <span className="text-sm font-black text-amber-400 bg-amber-950/60 border border-amber-800 px-2.5 py-1 rounded-xl shrink-0">
+                          ₹{p.basePrice}/pc base
                         </span>
-                        <h4 className="text-base font-black text-white mt-0.5">
-                          {p.name}
-                        </h4>
-                        <p className="text-xs text-slate-400 mt-1">
-                          {p.fabric}
-                        </p>
                       </div>
-                      <span className="text-sm font-black text-amber-400 bg-amber-950/60 border border-amber-800 px-2.5 py-1 rounded-xl shrink-0">
-                        ₹{p.basePrice}/pc base
-                      </span>
-                    </div>
 
-                    {/* Volume Tier Table */}
-                    <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Volume Pricing Tiers
-                      </span>
-                      <div className="grid grid-cols-5 gap-1 text-center text-xs">
-                        {p.tiers.map((t, tIdx) => (
-                          <div
-                            key={tIdx}
-                            className="p-2 bg-slate-950 border border-slate-800 rounded-lg"
+                      {/* Blank Photos Preview Bar */}
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                            Blank Garment Photos ({activeColor.name || "Default"})
+                          </span>
+                          <button
+                            onClick={() => openBlankUploadModal(p, 0)}
+                            className="text-xs text-amber-400 hover:text-amber-300 font-bold flex items-center gap-1 transition"
                           >
-                            <span className="text-[10px] text-slate-400 block">
-                              {t.label}
-                            </span>
-                            <span className="font-black text-white text-xs mt-0.5 block">
-                              ₹{t.price}
+                            <Upload className="w-3.5 h-3.5" />
+                            Upload / Change Photos
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="h-36 rounded-xl bg-slate-950 border border-slate-800/80 p-2 flex flex-col items-center justify-center relative group overflow-hidden">
+                            {frontImg ? (
+                              <img
+                                src={frontImg}
+                                alt={`${p.name} Front`}
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            ) : (
+                              <div className="text-center text-slate-600 text-xs">
+                                <Camera className="w-6 h-6 mx-auto mb-1 text-slate-700" />
+                                No Front Image
+                              </div>
+                            )}
+                            <span className="absolute bottom-1 left-2 text-[9px] font-bold uppercase tracking-wider bg-slate-900/80 text-slate-300 px-1.5 py-0.5 rounded">
+                              Front
                             </span>
                           </div>
-                        ))}
-                      </div>
-                    </div>
 
-                    {/* Available Color Swatches */}
-                    <div className="space-y-1.5">
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                        Available Stock Colors ({p.colors?.length || 0})
-                      </span>
-                      <div className="flex flex-wrap gap-2">
-                        {p.colors?.map((c, cIdx) => (
-                          <div
-                            key={cIdx}
-                            className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300"
-                          >
-                            <span
-                              className="w-3 h-3 rounded-full border border-slate-700 shrink-0"
-                              style={{ backgroundColor: c.hex }}
-                            />
-                            <span>{c.name}</span>
+                          <div className="h-36 rounded-xl bg-slate-950 border border-slate-800/80 p-2 flex flex-col items-center justify-center relative group overflow-hidden">
+                            {backImg ? (
+                              <img
+                                src={backImg}
+                                alt={`${p.name} Back`}
+                                className="max-h-full max-w-full object-contain"
+                              />
+                            ) : (
+                              <div className="text-center text-slate-600 text-xs">
+                                <Camera className="w-6 h-6 mx-auto mb-1 text-slate-700" />
+                                No Back Image
+                              </div>
+                            )}
+                            <span className="absolute bottom-1 left-2 text-[9px] font-bold uppercase tracking-wider bg-slate-900/80 text-slate-300 px-1.5 py-0.5 rounded">
+                              Back
+                            </span>
                           </div>
-                        ))}
+                        </div>
+                      </div>
+
+                      {/* Volume Tier Table */}
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                          Volume Pricing Tiers
+                        </span>
+                        <div className="grid grid-cols-5 gap-1 text-center text-xs">
+                          {(p.tiers || p.prices || []).map((t: any, tIdx: number) => (
+                            <div
+                              key={tIdx}
+                              className="p-2 bg-slate-950 border border-slate-800 rounded-lg"
+                            >
+                              <span className="text-[10px] text-slate-400 block">
+                                {t.label}
+                              </span>
+                              <span className="font-black text-white text-xs mt-0.5 block">
+                                ₹{t.price}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Available Color Swatches with Quick Upload per color */}
+                      <div className="space-y-1.5">
+                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                          Available Colors ({pColors.length}) — Click to upload for that color:
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {pColors.map((c: any, cIdx: number) => (
+                            <button
+                              key={cIdx}
+                              onClick={() => openBlankUploadModal(p, cIdx)}
+                              title={`Click to edit images for ${c.name}`}
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 hover:border-amber-400 hover:text-white transition group"
+                            >
+                              <span
+                                className="w-3 h-3 rounded-full border border-slate-700 shrink-0"
+                                style={{ backgroundColor: c.hex }}
+                              />
+                              <span>{c.name}</span>
+                              <Upload className="w-2.5 h-2.5 text-slate-500 group-hover:text-amber-400 transition ml-0.5" />
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Modal for Blank T-Shirt Image Upload */}
+          {selectedProductForUpload && (
+            <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 shadow-2xl relative my-8">
+                {/* Modal Header */}
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
+                      Cloudinary Asset Manager
+                    </span>
+                    <h3 className="text-lg font-black text-white mt-0.5">
+                      Upload Blank T-Shirt Images
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {selectedProductForUpload.name}
+                    </p>
                   </div>
-                ))}
+                  <button
+                    onClick={() => setSelectedProductForUpload(null)}
+                    className="text-slate-400 hover:text-white p-1"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {blankSaveSuccess && (
+                  <div className="p-3.5 rounded-xl bg-emerald-950/80 border border-emerald-800 text-emerald-300 text-xs font-semibold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>{blankSaveSuccess}</span>
+                  </div>
+                )}
+
+                {/* Color Selector */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-bold text-slate-300 block">
+                    Target Color Variant
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {(selectedProductForUpload.colours || selectedProductForUpload.colors || []).map(
+                      (c: any, idx: number) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleColorChange(idx)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition ${
+                            uploadColorIdx === idx
+                              ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
+                              : "bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800"
+                          }`}
+                        >
+                          <span
+                            className="w-3 h-3 rounded-full border border-black/20 shrink-0"
+                            style={{ backgroundColor: c.hex }}
+                          />
+                          <span>{c.name}</span>
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+
+                {/* Dual Upload Cards (Front & Back) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Front Photo */}
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                      <span>Front View</span>
+                      {frontBlankUrl && (
+                        <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Ready
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="h-40 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden p-2 relative group">
+                      {frontBlankUrl ? (
+                        <img
+                          src={frontBlankUrl}
+                          alt="Front Preview"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      ) : (
+                        <div className="text-center text-slate-600 text-xs">
+                          <ImageIcon className="w-8 h-8 mx-auto mb-1 text-slate-700" />
+                          Select front photo
+                        </div>
+                      )}
+                    </div>
+
+                    <label className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-white text-center cursor-pointer transition flex items-center justify-center gap-2">
+                      <Upload className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{uploadingFront ? "Uploading to Cloudinary..." : "Select Front Photo"}</span>
+                      <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp"
+                        onChange={(e) => handleUploadBlankImage(e, "front")}
+                        className="hidden"
+                        disabled={uploadingFront}
+                      />
+                    </label>
+                  </div>
+
+                  {/* Back Photo */}
+                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                      <span>Back View</span>
+                      {backBlankUrl && (
+                        <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
+                          <Check className="w-3 h-3" /> Ready
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="h-40 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden p-2 relative group">
+                      {backBlankUrl ? (
+                        <img
+                          src={backBlankUrl}
+                          alt="Back Preview"
+                          className="max-h-full max-w-full object-contain"
+                        />
+                      ) : (
+                        <div className="text-center text-slate-600 text-xs">
+                          <ImageIcon className="w-8 h-8 mx-auto mb-1 text-slate-700" />
+                          Select back photo
+                        </div>
+                      )}
+                    </div>
+
+                    <label className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-white text-center cursor-pointer transition flex items-center justify-center gap-2">
+                      <Upload className="w-3.5 h-3.5 text-amber-400" />
+                      <span>{uploadingBack ? "Uploading to Cloudinary..." : "Select Back Photo"}</span>
+                      <input
+                        type="file"
+                        accept="image/png, image/jpeg, image/webp"
+                        onChange={(e) => handleUploadBlankImage(e, "back")}
+                        className="hidden"
+                        disabled={uploadingBack}
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                {/* Save Button */}
+                <div className="pt-2">
+                  <button
+                    type="button"
+                    onClick={handleSaveBlankImages}
+                    disabled={savingBlank || (!frontBlankUrl && !backBlankUrl)}
+                    className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    <Database className="w-4 h-4 text-slate-950" />
+                    {savingBlank ? "Saving to Database..." : "Save Blank Photos to Cloudinary & Catalog"}
+                  </button>
+                </div>
               </div>
             </div>
           )}
