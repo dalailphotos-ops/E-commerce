@@ -3,6 +3,8 @@ import { connectToDatabase } from "@/lib/mongodb";
 import Product from "@/models/Product";
 import { REVERSE_ENGINEERED_PRODUCTS } from "@/lib/constants";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);

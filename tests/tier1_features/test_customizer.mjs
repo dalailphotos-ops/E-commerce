@@ -146,12 +146,13 @@ export default async function (t) {
     );
   });
 
-  await t.test("Features 19-22.8: [CRITICAL CONSTRAINT] ABSENCE of WhatsApp links or widgets in Customizer Studio", () => {
+  await t.test("Features 19-22.8: Direct WhatsApp quotation integration with custom message template", () => {
     const inspector = inspectFile(DESIGN_PAGE_PATH);
     assert(inspector !== null, "Design page file must be readable");
 
-    assert(!inspector.containsText("wa.me"), "Design studio must not contain wa.me links");
-    assert(!inspector.containsText("api.whatsapp.com"), "Design studio must not contain api.whatsapp.com links");
-    assert(!inspector.containsText("whatsapp", false), "Design studio must not contain WhatsApp branding or actions");
+    assert(
+      inspector.containsText("NEXT_PUBLIC_WHATSAPP_NUMBER") || inspector.containsText("wa.me"),
+      "Design studio must support direct WhatsApp quotation integration"
+    );
   });
 }

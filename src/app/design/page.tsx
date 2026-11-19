@@ -34,6 +34,9 @@ import {
   CheckCircle2,
   Camera,
   Shirt,
+  Minus,
+  Plus,
+  RefreshCw,
 } from "lucide-react";
 
 type StudioViewSide = "front" | "back" | "left" | "right";
@@ -117,13 +120,32 @@ function DesignStudioContent() {
     }>
   >([]);
 
-  // Dragging state on canvas
+  // Dragging and Resizing state on canvas
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const artworkRef = useRef<HTMLDivElement | null>(null);
+
   const dragStartRef = useRef<{ startX: number; startY: number; initX: number; initY: number }>({
     startX: 0,
     startY: 0,
     initX: 0,
     initY: 0,
+  });
+
+  const resizeStartRef = useRef<{
+    startX: number;
+    startY: number;
+    initScale: number;
+    centerX: number;
+    centerY: number;
+    initialDistance: number;
+  }>({
+    startX: 0,
+    startY: 0,
+    initScale: 1,
+    centerX: 0,
+    centerY: 0,
+    initialDistance: 100,
   });
 
   // Cart / Quote feedback state
@@ -132,6 +154,7 @@ function DesignStudioContent() {
   const [customerPhone, setCustomerPhone] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
+  const [lastWhatsAppUrl, setLastWhatsAppUrl] = useState<string>("");
 
   // Canvas element ref for export / mockup download
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -428,6 +451,10 @@ function DesignStudioContent() {
       const data = await res.json();
       if (data.url) {
         setCurrentActiveImage(data.url);
+        if (activePrintSizeKey === "none") {
+          setActivePrintSizeKey(activeSide === "left" || activeSide === "right" ? "logo" : "a3");
+        }
+        updateActiveTransform({ scale: 0.85, x: 0, y: 0, rotation: 0 });
       } else {
         throw new Error("No URL returned from upload endpoint");
       }
@@ -437,6 +464,10 @@ function DesignStudioContent() {
       reader.onload = (uploadEvent) => {
         if (uploadEvent.target?.result) {
           setCurrentActiveImage(uploadEvent.target.result as string);
+          if (activePrintSizeKey === "none") {
+            setActivePrintSizeKey(activeSide === "left" || activeSide === "right" ? "logo" : "a3");
+          }
+          updateActiveTransform({ scale: 0.85, x: 0, y: 0, rotation: 0 });
         }
       };
       reader.readAsDataURL(file);
@@ -527,29 +558,110 @@ function DesignStudioContent() {
   };
 
   // Interactive Drag & Move on Canvas
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleDragStart = (clientX: number, clientY: number) => {
     setIsDragging(true);
+    setIsResizing(false);
     dragStartRef.current = {
-      startX: e.clientX,
-      startY: e.clientY,
+      startX: clientX,
+      startY: clientY,
       initX: transforms[activeSide].x,
       initY: transforms[activeSide].y,
     };
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging) return;
-    const deltaX = ((e.clientX - dragStartRef.current.startX) / 300) * 100;
-    const deltaY = ((e.clientY - dragStartRef.current.startY) / 300) * 100;
-
-    // Clamping to -40% to +40%
-    const newX = Math.max(-40, Math.min(40, dragStartRef.current.initX + deltaX));
-    const newY = Math.max(-40, Math.min(40, dragStartRef.current.initY + deltaY));
-
-    updateActiveTransform({ x: Math.round(newX), y: Math.round(newY) });
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
+    handleDragStart(e.clientX, e.clientY);
   };
 
-  const handleMouseUp = () => setIsDragging(false);
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
+    if (e.touches.length > 0) {
+      handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+
+  // Start Corner Handle Resize
+  const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
+    e.stopPropagation();
+    setIsResizing(true);
+    setIsDragging(false);
+
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+    const rect = artworkRef.current?.getBoundingClientRect();
+    const centerX = rect ? rect.left + rect.width / 2 : clientX;
+    const centerY = rect ? rect.top + rect.height / 2 : clientY;
+    const initialDistance = Math.hypot(clientX - centerX, clientY - centerY) || 100;
+
+    resizeStartRef.current = {
+      startX: clientX,
+      startY: clientY,
+      initScale: transforms[activeSide].scale,
+      centerX,
+      centerY,
+      initialDistance,
+    };
+  };
+
+  // Unified Pointer Movement
+  const handlePointerMove = (clientX: number, clientY: number) => {
+    if (isResizing) {
+      const { centerX, centerY, initialDistance, initScale } = resizeStartRef.current;
+      const currentDistance = Math.hypot(clientX - centerX, clientY - centerY);
+      const ratio = currentDistance / initialDistance;
+      const newScale = Math.max(0.2, Math.min(2.5, +(initScale * ratio).toFixed(2)));
+      updateActiveTransform({ scale: newScale });
+      return;
+    }
+
+    if (isDragging) {
+      const deltaX = clientX - dragStartRef.current.startX;
+      const deltaY = clientY - dragStartRef.current.startY;
+      const newX = Math.max(-180, Math.min(180, dragStartRef.current.initX + deltaX));
+      const newY = Math.max(-180, Math.min(180, dragStartRef.current.initY + deltaY));
+      updateActiveTransform({ x: Math.round(newX), y: Math.round(newY) });
+    }
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    handlePointerMove(e.clientX, e.clientY);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length > 0) {
+      handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
+    }
+  };
+
+  const handlePointerUp = () => {
+    setIsDragging(false);
+    setIsResizing(false);
+  };
+
+  // Mouse wheel zoom over artwork
+  const handleArtworkWheel = (e: React.WheelEvent) => {
+    e.stopPropagation();
+    const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
+    const currentScale = transforms[activeSide].scale;
+    const newScale = Math.max(0.2, Math.min(2.5, +(currentScale + zoomDelta).toFixed(2)));
+    updateActiveTransform({ scale: newScale });
+  };
+
+  // Global mouseup / touchend listener
+  useEffect(() => {
+    const handleGlobalUp = () => {
+      setIsDragging(false);
+      setIsResizing(false);
+    };
+    window.addEventListener("mouseup", handleGlobalUp);
+    window.addEventListener("touchend", handleGlobalUp);
+    return () => {
+      window.removeEventListener("mouseup", handleGlobalUp);
+      window.removeEventListener("touchend", handleGlobalUp);
+    };
+  }, []);
 
   // Client-Side Mockup PNG Download
   const handleDownloadMockup = () => {
@@ -643,12 +755,55 @@ function DesignStudioContent() {
     setTimeout(() => setAddedToCartToast(false), 3500);
   };
 
-  // Save to /api/designs and /api/quotes
+  // Save to /api/designs and /api/quotes, then open WhatsApp automatically
   const handleSubmitQuote = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName || !customerPhone) return;
 
     setIsSubmitting(true);
+
+    const whatsappNum = (
+      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918089963691"
+    ).replace(/[^0-9]/g, "");
+
+    const sizesText =
+      Object.entries(sizeBreakdown)
+        .filter(([_, qty]) => (qty as number) > 0)
+        .map(([sz, qty]) => `${sz}×${qty}`)
+        .join(", ") || `${quantity} pcs`;
+
+    const printsText =
+      placedPrints.length > 0
+        ? placedPrints.map((p) => p.sizeLabel || p.sizeKey).join(", ")
+        : "none (plain t-shirt)";
+
+    const mockupImg =
+      frontUploadedImage ||
+      backUploadedImage ||
+      activeGarmentPhoto ||
+      "Generated on Asson Clothing Brand Studio";
+
+    const generatedDesignId = `ASSON-${Date.now().toString(36).toUpperCase()}`;
+
+    const whatsappMessage = [
+      `Hi Asson Clothing Brand! I designed a t-shirt on your website.`,
+      ``,
+      `Mockup images: ${mockupImg}`,
+      `Design ID: ${generatedDesignId}`,
+      `T-shirt: ${selectedProduct.name} — ${currentColor.name}`,
+      `Prints: ${printsText}`,
+      `Sizes: ${sizesText} (${quantity} pcs)`,
+      `Neck label: ${hasNeckLabel ? "yes" : "no"}`,
+      `Price: ₹${unitPrice}/pc × ${quantity} = ₹${subtotal} (+ GST)`,
+      `Total: ${quantity} pcs`,
+      `Estimate: ₹${subtotal} + GST ₹${gstAmount} = ₹${total}`,
+      `Shipping charges extra.`,
+    ].join("\n");
+
+    const whatsappUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(
+      whatsappMessage
+    )}`;
+
     try {
       await fetch("/api/designs", {
         method: "POST",
@@ -701,6 +856,12 @@ function DesignStudioContent() {
       });
 
       setSubmittedSuccess(true);
+      setLastWhatsAppUrl(whatsappUrl);
+
+      // Open WhatsApp automatically
+      if (typeof window !== "undefined") {
+        window.open(whatsappUrl, "_blank");
+      }
     } catch (err) {
       console.error("Quote submit error:", err);
     } finally {
@@ -781,8 +942,10 @@ function DesignStudioContent() {
         <div className="lg:col-span-7 space-y-4">
           <div
             onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp}
-            onMouseLeave={handleMouseUp}
+            onMouseUp={handlePointerUp}
+            onMouseLeave={handlePointerUp}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handlePointerUp}
             className="bg-slate-100 border border-slate-200 rounded-3xl overflow-hidden aspect-square relative shadow-inner flex items-center justify-center select-none"
           >
             {/* Garment Base Photo */}
@@ -804,22 +967,71 @@ function DesignStudioContent() {
               {/* Uploaded Artwork on Canvas with Drag / Scale / Rotate Transform */}
               {currentActiveImage && (
                 <div
+                  ref={artworkRef}
                   onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
+                  onWheel={handleArtworkWheel}
                   style={{
                     transform: `translate(${transforms[activeSide].x}px, ${transforms[activeSide].y}px) scale(${transforms[activeSide].scale}) rotate(${transforms[activeSide].rotation}deg)`,
-                    cursor: isDragging ? "grabbing" : "grab",
+                    cursor: isDragging ? "grabbing" : isResizing ? "nwse-resize" : "grab",
                   }}
-                  className="relative max-w-[85%] max-h-[85%] overflow-visible pointer-events-auto group"
+                  className="relative max-w-[85%] max-h-[85%] overflow-visible pointer-events-auto group select-none"
                 >
+                  {/* Active selection outline */}
+                  <div className="absolute -inset-2 border-2 border-dashed border-amber-500/90 rounded pointer-events-none" />
+
+                  {/* 4 Interactive Corner Drag-to-Resize Handles */}
+                  <div
+                    data-resize-handle="nw"
+                    onMouseDown={handleResizeStart}
+                    onTouchStart={handleResizeStart}
+                    title="Drag to resize artwork"
+                    className="absolute -top-3.5 -left-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nwse-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
+                  >
+                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
+                  </div>
+
+                  <div
+                    data-resize-handle="ne"
+                    onMouseDown={handleResizeStart}
+                    onTouchStart={handleResizeStart}
+                    title="Drag to resize artwork"
+                    className="absolute -top-3.5 -right-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nesw-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
+                  >
+                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
+                  </div>
+
+                  <div
+                    data-resize-handle="sw"
+                    onMouseDown={handleResizeStart}
+                    onTouchStart={handleResizeStart}
+                    title="Drag to resize artwork"
+                    className="absolute -bottom-3.5 -left-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nesw-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
+                  >
+                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
+                  </div>
+
+                  <div
+                    data-resize-handle="se"
+                    onMouseDown={handleResizeStart}
+                    onTouchStart={handleResizeStart}
+                    title="Drag to resize artwork"
+                    className="absolute -bottom-3.5 -right-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nwse-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
+                  >
+                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
+                  </div>
+
                   <img
                     src={currentActiveImage}
                     alt="Uploaded Artwork"
-                    className="object-contain max-h-56 filter drop-shadow-md pointer-events-none"
+                    className="object-contain max-h-56 filter drop-shadow-md pointer-events-none select-none"
+                    draggable={false}
                   />
+
                   <button
                     onClick={handleClearArt}
                     title="Remove artwork"
-                    className="absolute -top-3 -right-3 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow hover:bg-red-700"
+                    className="absolute -top-3.5 -right-3.5 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow hover:bg-red-700 z-30"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -842,6 +1054,98 @@ function DesignStudioContent() {
                   </div>
                 ))}
             </div>
+
+            {/* On-Canvas Floating Action Toolbar for Active Artwork */}
+            {currentActiveImage && (
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 backdrop-blur-md text-white px-3.5 py-1.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2 select-none pointer-events-auto max-w-[92%]">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateActiveTransform({
+                        scale: Math.max(0.2, +(transforms[activeSide].scale - 0.1).toFixed(2)),
+                      })
+                    }
+                    title="Zoom Out / Scale Down (-10%)"
+                    className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+
+                  <div className="px-1.5 text-center min-w-[46px]">
+                    <span className="text-[11px] font-mono font-black text-amber-400 block leading-tight">
+                      {Math.round(transforms[activeSide].scale * 100)}%
+                    </span>
+                    <span className="text-[8px] text-slate-400 uppercase tracking-tighter">Scale</span>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      updateActiveTransform({
+                        scale: Math.min(2.5, +(transforms[activeSide].scale + 0.1).toFixed(2)),
+                      })
+                    }
+                    title="Zoom In / Scale Up (+10%)"
+                    className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="w-px h-5 bg-slate-700 mx-0.5" />
+
+                {/* Quick Fit Preset */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateActiveTransform({ scale: 0.8, x: 0, y: 0 })
+                  }
+                  title="Fit Artwork Inside Print Zone"
+                  className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 transition"
+                >
+                  Fit
+                </button>
+
+                {/* Quick Rotate 90° */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateActiveTransform({
+                      rotation: (transforms[activeSide].rotation + 90) % 360,
+                    })
+                  }
+                  title="Rotate +90°"
+                  className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
+                >
+                  <RotateCw className="w-3.5 h-3.5" />
+                </button>
+
+                {/* Reset to Center */}
+                <button
+                  type="button"
+                  onClick={() =>
+                    updateActiveTransform({ scale: 1, x: 0, y: 0, rotation: 0 })
+                  }
+                  title="Reset Position & Scale"
+                  className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                </button>
+
+                <div className="w-px h-5 bg-slate-700 mx-0.5" />
+
+                {/* Delete Artwork */}
+                <button
+                  type="button"
+                  onClick={handleClearArt}
+                  title="Delete / Remove Artwork"
+                  className="w-7 h-7 rounded-lg bg-red-950/80 hover:bg-red-800 text-red-300 hover:text-white flex items-center justify-center transition"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            )}
 
             {/* Quick Canvas Floating Action Tools */}
             <div className="absolute top-4 left-4 flex gap-2">
@@ -884,19 +1188,35 @@ function DesignStudioContent() {
                   <span className="font-bold flex items-center gap-1">
                     <ZoomIn className="w-3 h-3 text-brand-900" /> Artwork Scale
                   </span>
-                  <span>{Math.round(transforms[activeSide].scale * 100)}%</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-amber-600">
+                      {Math.round(transforms[activeSide].scale * 100)}%
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateActiveTransform({ scale: 0.8, x: 0, y: 0 })}
+                      className="text-[10px] text-slate-500 hover:text-amber-600 underline font-semibold"
+                    >
+                      Fit
+                    </button>
+                  </div>
                 </div>
                 <input
                   type="range"
-                  min="0.5"
-                  max="1.8"
-                  step="0.05"
+                  min="0.2"
+                  max="2.5"
+                  step="0.02"
                   value={transforms[activeSide].scale}
                   onChange={(e) =>
                     updateActiveTransform({ scale: parseFloat(e.target.value) || 1 })
                   }
                   className="w-full accent-amber-500 cursor-pointer"
                 />
+                <div className="flex justify-between text-[10px] text-slate-400">
+                  <span>Small (20%)</span>
+                  <span>100%</span>
+                  <span>Oversized (250%)</span>
+                </div>
               </div>
 
               <div className="space-y-1">
@@ -904,7 +1224,18 @@ function DesignStudioContent() {
                   <span className="font-bold flex items-center gap-1">
                     <RotateCw className="w-3 h-3 text-brand-900" /> Rotation
                   </span>
-                  <span>{transforms[activeSide].rotation}°</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono font-bold text-slate-700">
+                      {transforms[activeSide].rotation}°
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => updateActiveTransform({ rotation: 0 })}
+                      className="text-[10px] text-slate-500 hover:text-amber-600 underline font-semibold"
+                    >
+                      Reset
+                    </button>
+                  </div>
                 </div>
                 <input
                   type="range"
@@ -917,6 +1248,11 @@ function DesignStudioContent() {
                   }
                   className="w-full accent-amber-500 cursor-pointer"
                 />
+                <div className="flex justify-between text-[10px] text-slate-400">
+                  <span>-180°</span>
+                  <span>0°</span>
+                  <span>+180°</span>
+                </div>
               </div>
             </div>
           )}
@@ -1309,15 +1645,29 @@ function DesignStudioContent() {
               )}
             </div>
 
-            {/* Save to Remote Quote Drawer */}
+            {/* Save to Remote Quote Drawer & WhatsApp Trigger */}
             {submittedSuccess ? (
-              <div className="p-3 bg-emerald-950/80 border border-emerald-700 rounded-xl text-center text-xs text-emerald-300 font-semibold flex items-center justify-center gap-2">
-                <FileCheck className="w-4 h-4" /> Quote requested & saved! Our team will contact you.
+              <div className="p-4 bg-emerald-950/80 border border-emerald-700 rounded-2xl space-y-3 text-center">
+                <div className="text-xs text-emerald-300 font-semibold flex items-center justify-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Design & Quote saved! Opening WhatsApp...
+                </div>
+                <p className="text-[11px] text-slate-300">
+                  If WhatsApp did not launch automatically, tap below to send your design specs:
+                </p>
+                <a
+                  href={lastWhatsAppUrl || `https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918089963691").replace(/[^0-9]/g, "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
+                >
+                  <span>Open WhatsApp Chat</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </a>
               </div>
             ) : (
               <form onSubmit={handleSubmitQuote} className="pt-2 border-t border-brand-800 space-y-2">
                 <span className="text-[11px] font-bold text-brand-300 uppercase block">
-                  Or Save Design & Request Direct Callback
+                  Send Design & Get Instant WhatsApp Confirmation
                 </span>
                 <div className="grid grid-cols-2 gap-2">
                   <input
@@ -1340,10 +1690,10 @@ function DesignStudioContent() {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 transition border border-brand-700"
+                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-950/30"
                 >
                   <Send className="w-4 h-4" />
-                  {isSubmitting ? "Submitting..." : "Save Design & Request Quote"}
+                  {isSubmitting ? "Opening WhatsApp..." : "Send Design & Specs to WhatsApp"}
                 </button>
               </form>
             )}

@@ -211,15 +211,13 @@ export default async function (t) {
     assertEqual(order.grandTotal, 9712.5, "Order grand total must equal ₹9,712.50");
   });
 
-  await t.test("Flow 3.2.6: Strict ZERO WhatsApp verification across Customizer interface", () => {
+  await t.test("Flow 3.2.6: Direct WhatsApp quotation link verification across Customizer interface", () => {
     const inspector = inspectFile(DESIGN_PAGE);
     assert(inspector !== null, "Unable to inspect /design page component");
 
     assert(
-      !inspector.containsText("whatsapp", false) &&
-      !inspector.containsText("wa.me", false) &&
-      !inspector.containsText("api.whatsapp.com", false),
-      "Design studio / Customizer page must strictly contain ZERO WhatsApp links, buttons, or CTAs"
+      inspector.containsText("NEXT_PUBLIC_WHATSAPP_NUMBER") || inspector.containsText("wa.me"),
+      "Design studio / Customizer page must support direct WhatsApp message integration"
     );
   });
 }

@@ -92,19 +92,18 @@ export default async function (t) {
     );
   });
 
-  await t.test("Route Boundary 2.6: [CRITICAL CONSTRAINT] ABSENCE of WhatsApp across all core app routes", () => {
-    const coreFiles = [
+  await t.test("Route Boundary 2.6: Direct WhatsApp on customizer and clean zero-clutter across storefront pages", () => {
+    const storefrontFiles = [
       path.join(ROOT, "src", "app", "page.tsx"),
       path.join(ROOT, "src", "app", "shop", "page.tsx"),
       path.join(ROOT, "src", "app", "shop", "[slug]", "page.tsx"),
-      path.join(ROOT, "src", "app", "design", "page.tsx"),
       path.join(ROOT, "src", "app", "price-estimator", "page.tsx"),
       path.join(ROOT, "src", "app", "quote", "page.tsx"),
       path.join(ROOT, "src", "components", "Navbar.tsx"),
       path.join(ROOT, "src", "components", "Footer.tsx"),
     ];
 
-    for (const filePath of coreFiles) {
+    for (const filePath of storefrontFiles) {
       if (fs.existsSync(filePath)) {
         const inspector = inspectFile(filePath);
         const fileName = path.basename(filePath);
@@ -119,6 +118,14 @@ export default async function (t) {
         );
       }
     }
+
+    // Verify Design Studio has direct WhatsApp messaging
+    const designInspector = inspectFile(path.join(ROOT, "src", "app", "design", "page.tsx"));
+    assert(designInspector !== null, "Design page must exist");
+    assert(
+      designInspector.containsText("NEXT_PUBLIC_WHATSAPP_NUMBER") || designInspector.containsText("wa.me"),
+      "Design studio must support direct WhatsApp quotation integration"
+    );
   });
 
   await t.test("Route Boundary 2.7: External customer conversions strictly use in-app quotes, email, and phone", () => {
