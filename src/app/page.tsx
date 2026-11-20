@@ -30,23 +30,23 @@ export default function HomePage() {
   return (
     <div className="space-y-20 pb-20">
       {/* 1. Hero Section */}
-      <section className="relative bg-gradient-to-b from-brand-900 via-brand-950 to-slate-900 text-white overflow-hidden py-24 sm:py-32">
+      <section className="relative bg-[#0A0A0A] border-b border-[#1F1F1F] text-white overflow-hidden py-24 sm:py-32">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#f59e0b_1px,transparent_1px)] [background-size:16px_16px]" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             {/* Left Column: Heading, Badges, CTAs */}
             <div className="lg:col-span-7 space-y-5 sm:space-y-6">
               {/* Primary Authoritative Hero Pill */}
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-800/80 border border-brand-700 text-amber-300 text-xs font-semibold tracking-wide max-w-full">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141414] border border-neutral-700 text-white font-mono uppercase tracking-widest text-xs font-semibold tracking-wide max-w-full">
+                <Sparkles className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
                 <span className="font-bold">South India's Custom Apparel Hub</span>
-                <span className="text-amber-400/60">•</span>
-                <span className="text-amber-200 whitespace-nowrap">Low 10 pc MOQ</span>
+                <span className="text-neutral-400/60">•</span>
+                <span className="text-neutral-300 whitespace-nowrap">Low 10 pc MOQ</span>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15]">
                 Craft Custom Apparel. <br className="hidden sm:inline" />
-                <span className="bg-gradient-to-r from-amber-300 via-orange-400 to-amber-200 bg-clip-text text-transparent">
+                <span className="text-white">
                   From 10 to 10,000 Pieces.
                 </span>
               </h1>
@@ -61,7 +61,7 @@ export default function HomePage() {
               <div className="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 pt-2">
                 <Link
                   href="/design"
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-accent to-amber-500 hover:from-accent-hover hover:to-amber-600 font-bold text-white shadow-xl shadow-orange-950/40 flex items-center justify-center gap-2 text-sm sm:text-base transition transform hover:-translate-y-0.5 whitespace-nowrap"
+                  className="px-6 py-3.5 rounded-xl bg-white hover:bg-neutral-200 text-black font-mono font-bold uppercase tracking-wider shadow-lg flex items-center justify-center gap-2 text-sm sm:text-base transition transform hover:-translate-y-0.5 whitespace-nowrap"
                 >
                   <Palette className="w-5 h-5 shrink-0" />
                   Launch Design Studio
@@ -69,7 +69,7 @@ export default function HomePage() {
 
                 <Link
                   href="/price-estimator"
-                  className="px-6 py-3.5 rounded-xl bg-brand-800 hover:bg-brand-700 text-white font-semibold border border-brand-700 shadow-md flex items-center justify-center gap-2 text-sm sm:text-base transition whitespace-nowrap"
+                  className="px-6 py-3.5 rounded-xl bg-[#1A1A1A] hover:bg-[#262626] text-white font-mono uppercase tracking-wider border border-neutral-700 shadow-md flex items-center justify-center gap-2 text-sm sm:text-base transition whitespace-nowrap"
                 >
                   <Calculator className="w-5 h-5 shrink-0" />
                   Instant Price Estimator
@@ -77,14 +77,14 @@ export default function HomePage() {
 
                 <Link
                   href="/shop"
-                  className="px-6 py-3.5 rounded-xl bg-slate-800/60 hover:bg-slate-800 text-slate-300 hover:text-white font-semibold border border-slate-700 text-sm sm:text-base transition text-center whitespace-nowrap"
+                  className="px-6 py-3.5 rounded-xl bg-[#121212] hover:bg-[#1E1E1E] text-neutral-300 hover:text-white font-mono uppercase tracking-wider border border-neutral-800 text-sm sm:text-base transition text-center whitespace-nowrap"
                 >
                   View Blanks
                 </Link>
               </div>
 
               {/* Trust value points */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-6 border-t border-brand-800/80 text-xs text-slate-300">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 pt-6 border-t border-[#1F1F1F] text-xs text-slate-300">
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   <span>MOQ 10 Pieces</span>
@@ -102,9 +102,9 @@ export default function HomePage() {
 
             {/* Right Column: Hero Preview Card */}
             <div className="lg:col-span-5 w-full max-w-md mx-auto lg:max-w-none mt-8 lg:mt-0">
-              <div className="bg-brand-800/50 backdrop-blur-md border border-brand-700/60 rounded-2xl p-6 shadow-2xl relative">
+              <div className="bg-[#121212] backdrop-blur-md border border-[#262626] rounded-2xl p-6 shadow-2xl relative">
                 <div className="flex items-center justify-between pb-4 border-b border-brand-700/60">
-                  <span className="text-xs font-bold text-amber-300 uppercase tracking-wider">
+                  <span className="text-xs font-bold text-white uppercase tracking-wider">
                     Factory Highlight
                   </span>
                   <span className="text-xs px-2.5 py-1 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-800">
@@ -113,7 +113,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="py-6 flex flex-col items-center">
-                  <div className="w-52 h-52 relative rounded-xl overflow-hidden shadow-inner bg-brand-900 border border-brand-700">
+                  <div className="w-52 h-52 relative rounded-xl overflow-hidden shadow-inner bg-[#0A0A0A] border border-[#262626]">
                     <img
                       src={REVERSE_ENGINEERED_PRODUCTS[0].colours[0].front}
                       alt="Oversized 250 GSM Tee"
@@ -127,7 +127,7 @@ export default function HomePage() {
                     100% Super Combed Cotton · Double Needle Stitch
                   </p>
                   <div className="mt-4 flex items-baseline gap-2">
-                    <span className="text-2xl font-black text-amber-400">
+                    <span className="text-2xl font-black text-neutral-400">
                       ₹{REVERSE_ENGINEERED_PRODUCTS[0].basePrice}
                     </span>
                     <span className="text-xs text-slate-400">
@@ -205,7 +205,7 @@ export default function HomePage() {
                 <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                 For Online Stores & Creators
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 group-hover:text-brand-800 transition-colors">
+              <h3 className="text-2xl font-bold text-neutral-900 group-hover:text-neutral-600 transition-colors">
                 Custom DTF Printing & Dropshipping
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
@@ -253,7 +253,7 @@ export default function HomePage() {
                 <Shirt className="w-3.5 h-3.5 text-slate-600" />
                 For Brands, Events & Teams
               </div>
-              <h3 className="text-2xl font-bold text-slate-900 group-hover:text-brand-800 transition-colors">
+              <h3 className="text-2xl font-bold text-neutral-900 group-hover:text-neutral-600 transition-colors">
                 Plain Blanks & Wholesale Bulk
               </h3>
               <p className="text-slate-600 text-sm leading-relaxed">
@@ -297,11 +297,11 @@ export default function HomePage() {
       </section>
 
       {/* 4. 5 Printing Methods Showcase */}
-      <section className="bg-brand-950 text-white py-20 border-y border-brand-800">
+      <section className="bg-[#0A0A0A] text-white py-20 border-y border-[#1F1F1F]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-4">
             <div>
-              <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+              <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
                 Printing & Embellishment
               </span>
               <h2 className="text-3xl sm:text-4xl font-extrabold mt-1">
@@ -314,7 +314,7 @@ export default function HomePage() {
             </div>
             <Link
               href="/services"
-              className="text-xs font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1.5 transition"
+              className="text-xs font-bold text-neutral-400 hover:text-white flex items-center gap-1.5 transition"
             >
               Compare techniques & specs <ArrowRight className="w-4 h-4" />
             </Link>
@@ -322,15 +322,15 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 sm:gap-6">
             {/* Method 1: DTF Print */}
-            <div className="p-6 rounded-2xl bg-brand-900/60 border border-brand-800 space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl bg-[#121212] border border-[#262626] space-y-3 flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center font-bold text-sm mb-4">
+                <div className="w-10 h-10 rounded-lg bg-white/20 text-neutral-400 flex items-center justify-center font-bold text-sm mb-4">
                   DTF
                 </div>
                 <div className="flex items-center justify-between">
                   <h3 className="text-base font-bold text-white">Direct To Film (DTF)</h3>
                 </div>
-                <span className="inline-block px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[10px] font-bold mt-1">
+                <span className="inline-block px-2 py-0.5 rounded bg-white/10 text-white text-[10px] font-bold mt-1">
                   No minimum
                 </span>
                 <p className="text-xs text-slate-400 leading-relaxed mt-2.5">
@@ -340,14 +340,14 @@ export default function HomePage() {
               </div>
               <Link
                 href="/services#dtf"
-                className="text-[11px] font-semibold text-amber-400 hover:text-amber-300 flex items-center gap-1 pt-3 border-t border-brand-800"
+                className="text-[11px] font-semibold text-neutral-400 hover:text-white flex items-center gap-1 pt-3 border-t border-[#1F1F1F]"
               >
                 Learn DTF specs <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {/* Method 2: Screen Printing */}
-            <div className="p-6 rounded-2xl bg-brand-900/60 border border-brand-800 space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl bg-[#121212] border border-[#262626] space-y-3 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center font-bold text-sm mb-4">
                   SP
@@ -363,14 +363,14 @@ export default function HomePage() {
               </div>
               <Link
                 href="/services#screen"
-                className="text-[11px] font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 pt-3 border-t border-brand-800"
+                className="text-[11px] font-semibold text-blue-400 hover:text-blue-300 flex items-center gap-1 pt-3 border-t border-[#1F1F1F]"
               >
                 Learn Screen specs <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {/* Method 3: Puff 3D */}
-            <div className="p-6 rounded-2xl bg-brand-900/60 border border-brand-800 space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl bg-[#121212] border border-[#262626] space-y-3 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-lg bg-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-sm mb-4">
                   3D
@@ -386,14 +386,14 @@ export default function HomePage() {
               </div>
               <Link
                 href="/services#puff"
-                className="text-[11px] font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1 pt-3 border-t border-brand-800"
+                className="text-[11px] font-semibold text-purple-400 hover:text-purple-300 flex items-center gap-1 pt-3 border-t border-[#1F1F1F]"
               >
                 Learn Puff specs <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {/* Method 4: Computerized Embroidery */}
-            <div className="p-6 rounded-2xl bg-brand-900/60 border border-brand-800 space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl bg-[#121212] border border-[#262626] space-y-3 flex flex-col justify-between">
               <div>
                 <div className="w-10 h-10 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-sm mb-4">
                   EM
@@ -409,20 +409,20 @@ export default function HomePage() {
               </div>
               <Link
                 href="/services#embroidery"
-                className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 pt-3 border-t border-brand-800"
+                className="text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 flex items-center gap-1 pt-3 border-t border-[#1F1F1F]"
               >
                 Learn Embroidery specs <ArrowRight className="w-3 h-3" />
               </Link>
             </div>
 
             {/* Method 5: Relabeling & Custom Packaging */}
-            <div className="p-6 rounded-2xl bg-brand-900/60 border border-brand-800 space-y-3 flex flex-col justify-between">
+            <div className="p-6 rounded-2xl bg-[#121212] border border-[#262626] space-y-3 flex flex-col justify-between">
               <div>
-                <div className="w-10 h-10 rounded-lg bg-orange-500/20 text-orange-400 flex items-center justify-center font-bold text-sm mb-4">
+                <div className="w-10 h-10 rounded-lg bg-neutral-700/20 text-orange-400 flex items-center justify-center font-bold text-sm mb-4">
                   TAG
                 </div>
                 <h3 className="text-base font-bold text-white">Custom Relabeling</h3>
-                <span className="inline-block px-2 py-0.5 rounded bg-orange-500/10 text-orange-300 text-[10px] font-bold mt-1">
+                <span className="inline-block px-2 py-0.5 rounded bg-neutral-700/10 text-orange-300 text-[10px] font-bold mt-1">
                   Free with A2/A3/A4
                 </span>
                 <p className="text-xs text-slate-400 leading-relaxed mt-2.5">
@@ -432,7 +432,7 @@ export default function HomePage() {
               </div>
               <Link
                 href="/services#relabeling"
-                className="text-[11px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 pt-3 border-t border-brand-800"
+                className="text-[11px] font-semibold text-orange-400 hover:text-orange-300 flex items-center gap-1 pt-3 border-t border-[#1F1F1F]"
               >
                 Learn Relabeling specs <ArrowRight className="w-3 h-3" />
               </Link>
@@ -443,11 +443,11 @@ export default function HomePage() {
 
       {/* 5. 10s Presets / Quick Quote Estimator Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-gradient-to-r from-brand-900 via-brand-800 to-amber-950 p-8 sm:p-12 text-white shadow-xl">
+        <div className="rounded-3xl bg-[#121212] border border-[#262626] p-8 sm:p-12 text-white shadow-xl">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             {/* Left pitch */}
             <div className="lg:col-span-5 space-y-4">
-              <span className="text-xs font-bold text-amber-300 uppercase tracking-widest">
+              <span className="text-xs font-bold text-white uppercase tracking-widest">
                 Transparent Pricing
               </span>
               <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
@@ -460,7 +460,7 @@ export default function HomePage() {
               <div className="flex flex-wrap gap-3 pt-2">
                 <Link
                   href="/price-estimator"
-                  className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-600 font-bold text-slate-950 text-center text-sm shadow transition flex items-center gap-2"
+                  className="px-6 py-3 rounded-xl bg-white hover:bg-amber-600 font-bold text-slate-950 text-center text-sm shadow transition flex items-center gap-2"
                 >
                   <Calculator className="w-4 h-4" /> Open Price Estimator
                 </Link>
@@ -478,7 +478,7 @@ export default function HomePage() {
               {/* Preset 1: Plain T-Shirt */}
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex flex-col justify-between hover:bg-white/15 transition">
                 <div>
-                  <span className="text-xs text-amber-300 font-semibold uppercase tracking-wider">
+                  <span className="text-xs text-white font-semibold uppercase tracking-wider">
                     Plain Blank
                   </span>
                   <h4 className="text-base font-bold text-white mt-1">Plain T-Shirt</h4>
@@ -487,7 +487,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-4 flex items-baseline justify-between pt-3 border-t border-white/10">
-                  <span className="text-2xl font-black text-amber-400">₹265</span>
+                  <span className="text-2xl font-black text-neutral-400">₹265</span>
                   <span className="text-xs text-slate-300">per pc at 10 pcs</span>
                 </div>
               </div>
@@ -495,7 +495,7 @@ export default function HomePage() {
               {/* Preset 2: A3 Back Print */}
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex flex-col justify-between hover:bg-white/15 transition">
                 <div>
-                  <span className="text-xs text-amber-300 font-semibold uppercase tracking-wider">
+                  <span className="text-xs text-white font-semibold uppercase tracking-wider">
                     Single Location
                   </span>
                   <h4 className="text-base font-bold text-white mt-1">A3 Back Print</h4>
@@ -504,7 +504,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-4 flex items-baseline justify-between pt-3 border-t border-white/10">
-                  <span className="text-2xl font-black text-amber-400">₹365</span>
+                  <span className="text-2xl font-black text-neutral-400">₹365</span>
                   <span className="text-xs text-slate-300">per pc at 10 pcs</span>
                 </div>
               </div>
@@ -512,7 +512,7 @@ export default function HomePage() {
               {/* Preset 3: A3 Back + Chest Logo */}
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex flex-col justify-between hover:bg-white/15 transition">
                 <div>
-                  <span className="text-xs text-amber-300 font-semibold uppercase tracking-wider">
+                  <span className="text-xs text-white font-semibold uppercase tracking-wider">
                     Dual Location
                   </span>
                   <h4 className="text-base font-bold text-white mt-1">A3 Back + Chest Logo</h4>
@@ -521,7 +521,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-4 flex items-baseline justify-between pt-3 border-t border-white/10">
-                  <span className="text-2xl font-black text-amber-400">₹375</span>
+                  <span className="text-2xl font-black text-neutral-400">₹375</span>
                   <span className="text-xs text-slate-300">per pc at 10 pcs</span>
                 </div>
               </div>
@@ -529,7 +529,7 @@ export default function HomePage() {
               {/* Preset 4: A3 Back + A4 Chest */}
               <div className="p-4 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/15 flex flex-col justify-between hover:bg-white/15 transition">
                 <div>
-                  <span className="text-xs text-amber-300 font-semibold uppercase tracking-wider">
+                  <span className="text-xs text-white font-semibold uppercase tracking-wider">
                     Full Coverage
                   </span>
                   <h4 className="text-base font-bold text-white mt-1">A3 Back + A4 Chest</h4>
@@ -538,7 +538,7 @@ export default function HomePage() {
                   </p>
                 </div>
                 <div className="mt-4 flex items-baseline justify-between pt-3 border-t border-white/10">
-                  <span className="text-2xl font-black text-amber-400">₹435</span>
+                  <span className="text-2xl font-black text-neutral-400">₹435</span>
                   <span className="text-xs text-slate-300">per pc at 10 pcs</span>
                 </div>
               </div>
@@ -751,7 +751,7 @@ export default function HomePage() {
                   height={36}
                   className="h-8 w-auto object-contain"
                 />
-                <span className="text-xs font-bold text-amber-400 uppercase tracking-widest">
+                <span className="text-xs font-bold text-neutral-400 uppercase tracking-widest">
                   Get In Touch
                 </span>
               </div>
@@ -768,14 +768,14 @@ export default function HomePage() {
                   href="tel:+918089963691"
                   className="flex items-center gap-2 hover:text-white transition"
                 >
-                  <Phone className="w-4 h-4 text-amber-400 shrink-0" />
+                  <Phone className="w-4 h-4 text-neutral-400 shrink-0" />
                   <span>+91 80899 63691</span>
                 </a>
                 <a
                   href="mailto:orders@assonclothing.com"
                   className="flex items-center gap-2 hover:text-white transition"
                 >
-                  <Mail className="w-4 h-4 text-amber-400 shrink-0" />
+                  <Mail className="w-4 h-4 text-neutral-400 shrink-0" />
                   <span>orders@assonclothing.com</span>
                 </a>
               </div>

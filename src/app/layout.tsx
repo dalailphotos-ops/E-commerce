@@ -3,6 +3,7 @@ import { Archivo, Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import FloatingWhatsApp from "@/components/FloatingWhatsApp";
 import { CartProvider } from "@/context/CartContext";
 import { BRAND_NAME, BRAND_TAGLINE } from "@/lib/constants";
 
@@ -21,7 +22,7 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: `${BRAND_NAME} — ${BRAND_TAGLINE}`,
   description:
-    "Custom apparel manufacturer offering bulk t-shirt production, oversized tees, acid wash, French Terry, print-on-demand, and real-time customizer studio.",
+    "International streetwear manufacturing lab based in Calicut, Kerala, India. Heavyweight blanks, 250 GSM French Terry, oversized acid wash drops, custom DTF, and print-on-demand.",
   icons: {
     icon: [
       { url: "/favicon.ico" },
@@ -45,6 +46,7 @@ export default function RootLayout({
           <Navbar />
           <main className="flex-1">{children}</main>
           <Footer />
+          <FloatingWhatsApp />
         </CartProvider>
       </body>
     </html>

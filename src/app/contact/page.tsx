@@ -1,8 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, AlertCircle } from "lucide-react";
-import { BRAND_NAME } from "@/lib/constants";
+import { Phone, Mail, MapPin, Clock, Send, CheckCircle2, AlertCircle, Instagram } from "lucide-react";
+import {
+  BRAND_NAME,
+  BRAND_TAGLINE,
+  BUSINESS_PHONE,
+  SUPPORT_EMAIL,
+  ORDERS_EMAIL,
+  BUSINESS_LOCATION,
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_LINK,
+} from "@/lib/constants";
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -35,7 +44,7 @@ export default function ContactPage() {
 
       setStatus({
         type: "success",
-        message: "Your enquiry has been received! Our manufacturing lab team will contact you shortly by phone or email.",
+        message: "Your enquiry has been received! Our streetwear manufacturing lab team will contact you shortly by phone or email.",
       });
       setFormData({
         name: "",
@@ -55,70 +64,92 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14 space-y-12">
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto space-y-3">
-        <span className="text-xs font-bold text-accent uppercase tracking-widest">Official Direct Channels</span>
-        <h1 className="text-3xl sm:text-5xl font-black text-slate-900 tracking-tight">Contact Our Factory Lab</h1>
-        <p className="text-sm text-slate-600">
-          Get in touch with Asson Clothing Brand for custom apparel manufacturing, bulk orders, and print-on-demand fulfillment.
+        <span className="text-xs font-mono font-bold text-neutral-500 uppercase tracking-widest">
+          {BRAND_NAME} Manufacturing Lab
+        </span>
+        <h1 className="text-3xl sm:text-5xl font-black text-neutral-900 tracking-tight uppercase">
+          Contact Our Lab
+        </h1>
+        <p className="text-sm font-mono text-neutral-500 uppercase tracking-wider">
+          {BRAND_TAGLINE} — International streetwear manufacturing, heavyweight blanks, and custom drops based in {BUSINESS_LOCATION}.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Contact Info Cards */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-slate-900">Direct Contact Information</h2>
+          <div className="bg-white rounded-2xl border border-neutral-200 p-6 sm:p-8 shadow-sm space-y-6">
+            <h2 className="text-lg font-bold text-neutral-900 font-mono uppercase tracking-wide">
+              Official Channels
+            </h2>
 
             <div className="space-y-4">
               <a
                 href="tel:+918089963691"
-                className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-300 transition group"
+                className="flex items-start gap-4 p-4 rounded-xl bg-neutral-50 border border-neutral-200/80 hover:border-neutral-400 transition group"
               >
-                <div className="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-black text-white flex items-center justify-center shrink-0">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-500 font-semibold uppercase block">Official Phone</span>
-                  <span className="text-base font-bold text-slate-900 group-hover:text-accent transition">+91 80899 63691</span>
-                  <span className="text-xs text-slate-500 block mt-0.5">Direct line to manufacturing specialists</span>
+                  <span className="text-xs text-neutral-500 font-mono font-semibold uppercase block">Official Phone</span>
+                  <span className="text-base font-bold text-neutral-900 group-hover:text-black transition">{BUSINESS_PHONE}</span>
+                  <span className="text-xs text-neutral-500 block mt-0.5">+91 80899 63691 (Direct desk)</span>
                 </div>
               </a>
 
               <a
-                href="mailto:orders@assonclothing.com"
-                className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100 hover:border-slate-300 transition group"
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="flex items-start gap-4 p-4 rounded-xl bg-neutral-50 border border-neutral-200/80 hover:border-neutral-400 transition group"
               >
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-lg bg-black text-white flex items-center justify-center shrink-0">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-500 font-semibold uppercase block">Official Email</span>
-                  <span className="text-base font-bold text-slate-900 group-hover:text-accent transition">orders@assonclothing.com</span>
-                  <span className="text-xs text-slate-500 block mt-0.5">Send tech packs, vector files, & purchase orders</span>
+                  <span className="text-xs text-neutral-500 font-mono font-semibold uppercase block">Support & Orders Email</span>
+                  <span className="text-base font-bold text-neutral-900 group-hover:text-black transition">{SUPPORT_EMAIL}</span>
+                  <span className="text-xs text-neutral-500 block mt-0.5">orders@assonclothing.com</span>
                 </div>
               </a>
 
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+              <a
+                href={INSTAGRAM_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-4 p-4 rounded-xl bg-neutral-50 border border-neutral-200/80 hover:border-neutral-400 transition group"
+              >
+                <div className="w-10 h-10 rounded-lg bg-black text-white flex items-center justify-center shrink-0">
+                  <Instagram className="w-5 h-5" />
+                </div>
+                <div>
+                  <span className="text-xs text-neutral-500 font-mono font-semibold uppercase block">Instagram Official</span>
+                  <span className="text-base font-bold text-neutral-900 group-hover:text-black transition">@{INSTAGRAM_HANDLE}</span>
+                  <span className="text-xs text-neutral-500 block mt-0.5">Follow our drop releases & factory behind-the-scenes</span>
+                </div>
+              </a>
+
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-neutral-50 border border-neutral-200/80">
+                <div className="w-10 h-10 rounded-lg bg-black text-white flex items-center justify-center shrink-0">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-500 font-semibold uppercase block">Factory Lab Location</span>
-                  <span className="text-sm font-bold text-slate-900 block">Watani Complex, Manjeri Rd, Kizhisseri</span>
-                  <span className="text-xs text-slate-600 block mt-0.5">Malappuram, Kerala 673641, South India</span>
+                  <span className="text-xs text-neutral-500 font-mono font-semibold uppercase block">Manufacturing Location</span>
+                  <span className="text-sm font-bold text-neutral-900 block">{BUSINESS_LOCATION}</span>
+                  <span className="text-xs text-neutral-600 block mt-0.5">South India Apparel & Printing Facilities</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center shrink-0">
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-neutral-50 border border-neutral-200/80">
+                <div className="w-10 h-10 rounded-lg bg-black text-white flex items-center justify-center shrink-0">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <span className="text-xs text-slate-500 font-semibold uppercase block">Operating Lab Hours</span>
-                  <span className="text-sm font-bold text-slate-900 block">Monday to Saturday: 9:00 AM – 7:00 PM IST</span>
-                  <span className="text-xs text-slate-600 block mt-0.5">Sunday: Factory floor closed</span>
+                  <span className="text-xs text-neutral-500 font-mono font-semibold uppercase block">Operating Lab Hours</span>
+                  <span className="text-sm font-bold text-neutral-900 block">Monday to Saturday: 9:00 AM – 7:30 PM IST</span>
+                  <span className="text-xs text-neutral-600 block mt-0.5">Sunday: Factory floor offline</span>
                 </div>
               </div>
             </div>
@@ -127,21 +158,29 @@ export default function ContactPage() {
 
         {/* Direct Enquiry Interactive Form */}
         <div className="lg:col-span-7">
-          <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-sm space-y-6">
+          <div className="bg-white rounded-2xl border border-neutral-200 p-8 shadow-sm space-y-6">
             <div>
-              <h2 className="text-2xl font-black text-slate-900">Send Direct Manufacturing Enquiry</h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Fill in your specifications below. Our production lab will evaluate your requirements and contact you with a formal quotation.
+              <h2 className="text-2xl font-black text-neutral-900 font-mono uppercase tracking-wide">
+                B2B Custom Drop Enquiry
+              </h2>
+              <p className="text-xs text-neutral-500 mt-1 font-mono">
+                Submit tech specs, quantities, and silhouette requirements. Our production team will respond within 24 hours.
               </p>
             </div>
 
             {status && (
               <div
-                className={`p-4 rounded-2xl flex items-center gap-3 text-xs font-semibold ${
-                  status.type === "success" ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-red-50 text-red-800 border border-red-200"
+                className={`p-4 rounded-xl flex items-center gap-3 text-xs font-semibold ${
+                  status.type === "success"
+                    ? "bg-neutral-900 text-white border border-neutral-800"
+                    : "bg-red-50 text-red-800 border border-red-200"
                 }`}
               >
-                {status.type === "success" ? <CheckCircle2 className="w-5 h-5 shrink-0" /> : <AlertCircle className="w-5 h-5 shrink-0" />}
+                {status.type === "success" ? (
+                  <CheckCircle2 className="w-5 h-5 text-white shrink-0" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0" />
+                )}
                 <span>{status.message}</span>
               </div>
             )}
@@ -149,115 +188,148 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Your Name *</label>
+                  <label htmlFor="name" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                    Your Name *
+                  </label>
                   <input
                     type="text"
+                    id="name"
                     required
-                    placeholder="e.g. Suresh Menon"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                    placeholder="e.g. Rahul Sharma"
+                    className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Phone Number *</label>
+                  <label htmlFor="email" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                    Email Address *
+                  </label>
                   <input
-                    type="tel"
+                    type="email"
+                    id="email"
                     required
-                    placeholder="+91 80899 63691"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    placeholder="name@brand.com"
+                    className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Email Address *</label>
+                  <label htmlFor="phone" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                    Phone Number *
+                  </label>
                   <input
-                    type="email"
+                    type="tel"
+                    id="phone"
                     required
-                    placeholder="orders@assonclothing.com"
-                    value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    placeholder="+91 98765 43210"
+                    className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                   />
                 </div>
+
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Company / Brand Name</label>
+                  <label htmlFor="company" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                    Brand / Label Name
+                  </label>
                   <input
                     type="text"
-                    placeholder="e.g. Apex Apparel Exports"
+                    id="company"
                     value={formData.company}
                     onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                    placeholder="e.g. Studio Streetwear"
+                    className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Apparel Type *</label>
+                  <label htmlFor="apparelType" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                    Garment Silhouette *
+                  </label>
                   <select
+                    id="apparelType"
                     value={formData.apparelType}
                     onChange={(e) => setFormData({ ...formData, apparelType: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-900"
+                    className="w-full px-3 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white"
                   >
                     <option value="Oversized Tee — 250 GSM French Terry">Oversized Tee (250 GSM)</option>
+                    <option value="Oversized Tee — 240 GSM Loopknit">Oversized Tee (240 GSM)</option>
+                    <option value="Oversized Acid Wash — 240 GSM">Acid Wash Tee (240 GSM)</option>
+                    <option value="Heavyweight Hoodie — 380 GSM">Heavyweight Hoodie (380 GSM)</option>
+                    <option value="Crewneck Sweatshirt — 350 GSM">Crewneck Sweatshirt (350 GSM)</option>
                     <option value="Regular Fit Tee — 190 GSM">Regular Fit Tee (190 GSM)</option>
-                    <option value="Acid Wash Oversized Tee — 250 GSM">Acid Wash Oversized Tee</option>
-                    <option value="Full Sleeve Oversized Tee — 250 GSM">Full Sleeve Oversized Tee</option>
-                    <option value="Custom Manufacturing / Blanks">Custom Blanks / Other</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Quantity *</label>
+                  <label htmlFor="quantity" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                    Quantity (Pcs) *
+                  </label>
                   <input
                     type="number"
-                    min="1"
+                    id="quantity"
+                    min="10"
+                    step="5"
                     required
                     value={formData.quantity}
-                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 1 })}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                    onChange={(e) => setFormData({ ...formData, quantity: parseInt(e.target.value) || 10 })}
+                    className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Printing Method</label>
+                  <label htmlFor="printingType" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                    Print Technique
+                  </label>
                   <select
+                    id="printingType"
                     value={formData.printingType}
                     onChange={(e) => setFormData({ ...formData, printingType: e.target.value })}
-                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-xs focus:outline-none focus:ring-2 focus:ring-brand-900"
+                    className="w-full px-3 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black bg-white"
                   >
-                    <option value="DTF (Direct-to-Film)">DTF (Direct-to-Film)</option>
-                    <option value="Screen Printing">Screen Printing</option>
-                    <option value="Screen Printing + 3D Puff">Screen Printing + 3D Puff</option>
+                    <option value="DTF (Direct-to-Film)">DTF (Direct to Film)</option>
+                    <option value="Screen Printing + Puff">Screen Printing + High Density Puff</option>
                     <option value="Computerized Embroidery">Computerized Embroidery</option>
-                    <option value="Plain Blanks (No Print)">Plain Blanks (No Print)</option>
+                    <option value="Plain Blanks Only">Plain Blanks (No Print)</option>
                   </select>
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Project Details & Specifications *</label>
+                <label htmlFor="details" className="block text-xs font-mono font-bold text-neutral-700 uppercase mb-1">
+                  Collection Details & Notes
+                </label>
                 <textarea
-                  required
+                  id="details"
                   rows={4}
-                  placeholder="Detail your requirements, color choices, print placements, timeline, and delivery expectations..."
                   value={formData.details}
                   onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                  placeholder="Specify sizing ratios (e.g. 10 S, 20 M, 15 L, 5 XL), artwork placements, wash preferences, and desired dispatch timeline..."
+                  className="w-full px-4 py-2.5 rounded-lg border border-neutral-300 text-sm focus:outline-none focus:ring-2 focus:ring-black focus:border-black resize-none"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-3.5 px-6 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-sm transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50"
+                className="w-full py-3.5 px-6 rounded-lg bg-black hover:bg-neutral-800 text-white font-mono font-bold text-xs uppercase tracking-widest shadow transition flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                {loading ? "Submitting Enquiry..." : "Submit Formal Enquiry"} <Send className="w-4 h-4" />
+                {loading ? (
+                  <span>Transmitting Specs...</span>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    <span>Send RFQ to Manufacturing Lab</span>
+                  </>
+                )}
               </button>
             </form>
           </div>

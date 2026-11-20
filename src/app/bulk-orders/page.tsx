@@ -77,7 +77,7 @@ export default function BulkOrdersPage() {
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
       {/* Header */}
       <div className="text-center max-w-2xl mx-auto space-y-3">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-100 text-brand-900 text-xs font-bold uppercase tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-neutral-100 text-black font-mono text-xs font-bold uppercase tracking-wider">
           <Layers className="w-3.5 h-3.5" /> High-Volume Apparel Manufacturing
         </div>
         <h1 className="text-3xl sm:text-5xl font-black text-slate-900">
@@ -278,7 +278,7 @@ export default function BulkOrdersPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-4 rounded-xl bg-brand-900 hover:bg-brand-800 text-white font-bold text-sm shadow-md transition"
+              className="w-full py-4 rounded-xl bg-black hover:bg-neutral-800 font-mono uppercase tracking-wider text-white font-bold text-sm shadow-md transition"
             >
               {isSubmitting ? "Submitting..." : "Send Bulk Order Enquiry"}
             </button>

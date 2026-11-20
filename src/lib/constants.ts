@@ -690,8 +690,16 @@ export const EMBROIDERY_RATES = [
 export const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 
 export const GST_PERCENTAGE = 5;
-export const BRAND_NAME = "Asson Clothing Brand";
-export const BRAND_TAGLINE = "The Clothing Lab — Custom Apparel & Streetwear Drops";
+export const BRAND_NAME = "ASSON Clothing";
+export const BRAND_TAGLINE = "Streetwear, made different";
+export const BUSINESS_PHONE = "+91 90729 97950";
+export const WHATSAPP_NUMBER = "+91 90729 97950";
+export const WHATSAPP_LINK = "https://wa.me/919072997950";
+export const SUPPORT_EMAIL = "assonclothingbrand@gmail.com";
+export const ORDERS_EMAIL = "orders@assonclothing.com";
+export const BUSINESS_LOCATION = "Calicut, Kerala, India";
+export const INSTAGRAM_HANDLE = "asson_clothing";
+export const INSTAGRAM_LINK = "https://instagram.com/asson_clothing";
 
 export function formatINR(amount: number): string {
   return new Intl.NumberFormat("en-IN", {

@@ -75,7 +75,7 @@ export default function DropshippingPage() {
           </Link>
           <a
             href="#apply"
-            className="px-6 py-3 rounded-xl bg-brand-900 hover:bg-brand-800 text-white font-semibold text-sm transition"
+            className="px-6 py-3 rounded-xl bg-black hover:bg-neutral-800 font-mono uppercase tracking-wider text-white font-semibold text-sm transition"
           >
             Apply for Dropship Account
           </a>
@@ -135,31 +135,31 @@ export default function DropshippingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
-            <span className="w-7 h-7 rounded-full bg-brand-900 text-white font-bold text-xs flex items-center justify-center">1</span>
+            <span className="w-7 h-7 rounded-full bg-black text-white font-mono font-bold text-xs flex items-center justify-center">1</span>
             <h4 className="font-bold text-sm text-slate-900">Choose Blanks</h4>
             <p className="text-xs text-slate-500">Pick from 250 GSM French Terry, 190 GSM combed cotton, or acid wash silhouettes.</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
-            <span className="w-7 h-7 rounded-full bg-brand-900 text-white font-bold text-xs flex items-center justify-center">2</span>
+            <span className="w-7 h-7 rounded-full bg-black text-white font-mono font-bold text-xs flex items-center justify-center">2</span>
             <h4 className="font-bold text-sm text-slate-900">Place Order</h4>
             <p className="text-xs text-slate-500">Upload customer order details, design files, and mockups through our portal or email orders@assonclothing.com.</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
-            <span className="w-7 h-7 rounded-full bg-brand-900 text-white font-bold text-xs flex items-center justify-center">3</span>
+            <span className="w-7 h-7 rounded-full bg-black text-white font-mono font-bold text-xs flex items-center justify-center">3</span>
             <h4 className="font-bold text-sm text-slate-900">Make Payment</h4>
             <p className="text-xs text-slate-500">Settle invoice via UPI or bank transfer. 5% GST is applied with full tax compliance.</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
-            <span className="w-7 h-7 rounded-full bg-brand-900 text-white font-bold text-xs flex items-center justify-center">4</span>
+            <span className="w-7 h-7 rounded-full bg-black text-white font-mono font-bold text-xs flex items-center justify-center">4</span>
             <h4 className="font-bold text-sm text-slate-900">Print & Pack</h4>
             <p className="text-xs text-slate-500">Our lab prints high-definition DTF, presses custom neck label, and packs in plain white-label polybags.</p>
           </div>
 
           <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-2">
-            <span className="w-7 h-7 rounded-full bg-brand-900 text-white font-bold text-xs flex items-center justify-center">5</span>
+            <span className="w-7 h-7 rounded-full bg-black text-white font-mono font-bold text-xs flex items-center justify-center">5</span>
             <h4 className="font-bold text-sm text-slate-900">Ship & Track</h4>
             <p className="text-xs text-slate-500">Dispatched via integrated courier partners with live tracking link synced to your order dashboard.</p>
           </div>
@@ -209,7 +209,7 @@ export default function DropshippingPage() {
                 placeholder="e.g. Rahul Sharma"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
             <div>
@@ -220,7 +220,7 @@ export default function DropshippingPage() {
                 placeholder="+91 80899 63691"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
           </div>
@@ -234,7 +234,7 @@ export default function DropshippingPage() {
                 placeholder="rahul@mybrand.com"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
             <div>
@@ -244,7 +244,7 @@ export default function DropshippingPage() {
                 placeholder="e.g. Outlaw Apparel / Instagram handle"
                 value={formData.company}
                 onChange={(e) => setFormData({ ...formData, company: e.target.value })}
-                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
           </div>
@@ -256,7 +256,7 @@ export default function DropshippingPage() {
               placeholder="Tell us about your brand aesthetic, target customer, and expected monthly volume..."
               value={formData.details}
               onChange={(e) => setFormData({ ...formData, details: e.target.value })}
-              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-brand-900"
+              className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
 

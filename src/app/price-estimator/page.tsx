@@ -380,7 +380,7 @@ export default function PriceEstimatorPage() {
                 {/* Item header */}
                 <div className="flex items-center justify-between pb-4 border-b border-slate-100">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-brand-900 text-white text-xs font-bold flex items-center justify-center">
+                    <span className="w-6 h-6 rounded-full bg-[#121212] text-white border border-[#262626] text-xs font-bold flex items-center justify-center">
                       {idx + 1}
                     </span>
                     <span className="font-bold text-slate-900 text-sm">
@@ -412,7 +412,7 @@ export default function PriceEstimatorPage() {
                       onChange={(e) =>
                         updateItem(item.id, { productId: e.target.value, colorIdx: 0 })
                       }
-                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-brand-900"
+                      className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-black"
                     >
                       {REVERSE_ENGINEERED_PRODUCTS.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -471,7 +471,7 @@ export default function PriceEstimatorPage() {
                           onChange={(e) =>
                             updateItemSize(item.id, sz, parseInt(e.target.value) || 0)
                           }
-                          className="w-full text-center p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-brand-900"
+                          className="w-full text-center p-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-black"
                         />
                       </div>
                     ))}
@@ -556,7 +556,7 @@ export default function PriceEstimatorPage() {
 
           <button
             onClick={handleAddItem}
-            className="w-full py-3.5 rounded-2xl border-2 border-dashed border-slate-300 hover:border-brand-900 text-slate-700 hover:text-brand-900 font-bold text-xs flex items-center justify-center gap-2 transition bg-white"
+            className="w-full py-3.5 rounded-2xl border-2 border-dashed border-slate-300 hover:border-black text-neutral-700 hover:text-black font-bold text-xs flex items-center justify-center gap-2 transition bg-white"
           >
             <Plus className="w-4 h-4" /> Add Another Silhouette / Product Style
           </button>
@@ -564,8 +564,8 @@ export default function PriceEstimatorPage() {
 
         {/* Right Column: Order Quote Summary & Export Channels */}
         <div className="lg:col-span-4 space-y-6">
-          <div className="bg-brand-900 text-white rounded-3xl p-6 shadow-xl space-y-5">
-            <h3 className="text-lg font-black tracking-tight text-white border-b border-brand-800 pb-3 flex items-center justify-between">
+          <div className="bg-[#121212] text-white border border-[#262626] rounded-3xl p-6 shadow-xl space-y-5">
+            <h3 className="text-lg font-black tracking-tight text-white border-b border-[#262626] pb-3 flex items-center justify-between">
               <span>Estimate Summary</span>
               <span className="text-xs px-2.5 py-1 rounded bg-amber-400 text-slate-950 font-bold">
                 {totals.totalQuantity} Pieces
@@ -588,7 +588,7 @@ export default function PriceEstimatorPage() {
                 <span className="text-emerald-400 font-bold">FREE (₹0)</span>
               </div>
 
-              <div className="pt-3 border-t border-brand-800 flex justify-between items-baseline">
+              <div className="pt-3 border-t border-[#262626] flex justify-between items-baseline">
                 <span className="font-extrabold text-base text-white">
                   Estimated Total:
                 </span>
@@ -599,7 +599,7 @@ export default function PriceEstimatorPage() {
             </div>
 
             {/* Export Channels Action Buttons */}
-            <div className="space-y-2 pt-2 border-t border-brand-800">
+            <div className="space-y-2 pt-2 border-t border-[#262626]">
               <span className="text-[11px] font-bold text-brand-300 uppercase block mb-1">
                 Export Quotation Channels
               </span>
@@ -626,7 +626,7 @@ export default function PriceEstimatorPage() {
               <button
                 type="button"
                 onClick={handleCopy}
-                className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 border border-brand-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
+                className="w-full py-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#262626] border border-neutral-700 border border-neutral-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
               >
                 <Copy className="w-4 h-4" />
                 {copied ? "Copied Quote Summary!" : "Copy Quote Summary"}
@@ -635,7 +635,7 @@ export default function PriceEstimatorPage() {
               {/* Email RFQ Link */}
               <a
                 href={emailMailtoUrl}
-                className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 border border-brand-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
+                className="w-full py-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#262626] border border-neutral-700 border border-neutral-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
               >
                 <Mail className="w-4 h-4" /> Email RFQ Quote
               </a>
@@ -644,14 +644,14 @@ export default function PriceEstimatorPage() {
               <button
                 type="button"
                 onClick={handlePrint}
-                className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 border border-brand-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
+                className="w-full py-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#262626] border border-neutral-700 border border-neutral-700 text-xs font-semibold text-slate-200 flex items-center justify-center gap-2 transition"
               >
                 <Printer className="w-4 h-4" /> Print / PDF Layout
               </button>
             </div>
 
             {/* Formal Quote form for direct database save */}
-            <div className="pt-3 border-t border-brand-800">
+            <div className="pt-3 border-t border-[#262626]">
               <span className="text-[11px] font-bold text-brand-300 block mb-2 uppercase">
                 Save to Database / Request Invoice
               </span>
@@ -668,7 +668,7 @@ export default function PriceEstimatorPage() {
                     placeholder="Full Name"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    className="w-full p-2.5 rounded-lg bg-[#0A0A0A] border border-[#262626] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                   <input
                     type="tel"
@@ -676,12 +676,12 @@ export default function PriceEstimatorPage() {
                     placeholder="Phone Number (e.g. +91 80899 63691)"
                     value={customerPhone}
                     onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="w-full p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                    className="w-full p-2.5 rounded-lg bg-[#0A0A0A] border border-[#262626] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
                   />
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-2.5 rounded-xl bg-brand-800 hover:bg-brand-700 border border-brand-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 transition"
+                    className="w-full py-2.5 rounded-xl bg-[#1A1A1A] hover:bg-[#262626] border border-neutral-700 border border-neutral-700 text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 transition"
                   >
                     <Send className="w-4 h-4" />
                     {isSubmitting ? "Saving..." : "Submit Quote Request"}
