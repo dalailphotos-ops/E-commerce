@@ -17,7 +17,8 @@ if (process.env.CLOUDINARY_URL) {
 export function isCloudinaryConfigured(): boolean {
   if (
     process.env.CLOUDINARY_URL &&
-    process.env.CLOUDINARY_URL.startsWith("cloudinary://")
+    process.env.CLOUDINARY_URL.startsWith("cloudinary://") &&
+    !process.env.CLOUDINARY_URL.includes("sample_key")
   ) {
     return true;
   }

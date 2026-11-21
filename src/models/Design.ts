@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IDesign extends Document {
+  designId?: string;
   title?: string;
   productId: string;
   productName: string;
@@ -22,6 +23,7 @@ export interface IDesign extends Document {
 
 const DesignSchema = new Schema<IDesign>(
   {
+    designId: { type: String, index: true },
     title: { type: String, default: "Custom Design" },
     productId: { type: String, required: true },
     productName: { type: String, required: true },

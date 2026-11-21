@@ -777,13 +777,24 @@ function DesignStudioContent() {
         ? placedPrints.map((p) => p.sizeLabel || p.sizeKey).join(", ")
         : "none (plain t-shirt)";
 
-    const mockupImg =
-      frontUploadedImage ||
-      backUploadedImage ||
-      activeGarmentPhoto ||
-      "Generated on Asson Clothing Brand Studio";
-
     const generatedDesignId = `ASSON-${Date.now().toString(36).toUpperCase()}`;
+
+    const appBaseUrl =
+      typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : process.env.NEXT_PUBLIC_APP_URL || "https://asson-cloths.vercel.app";
+
+    // Ensure Mockup images link is always a clean, normal-sized URL (never a raw base64 data URI)
+    let mockupImg = "";
+    if (
+      frontUploadedImage &&
+      frontUploadedImage.startsWith("https://res.cloudinary.com") &&
+      frontUploadedImage.length < 150
+    ) {
+      mockupImg = frontUploadedImage;
+    } else {
+      mockupImg = `${appBaseUrl}/api/mockup/${generatedDesignId}.png`;
+    }
 
     const whatsappMessage = [
       `Hi Asson Clothing Brand! I designed a t-shirt on your website.`,
@@ -809,6 +820,7 @@ function DesignStudioContent() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          designId: generatedDesignId,
           productId: selectedProduct.id,
           productName: selectedProduct.name,
           colorName: currentColor.name,
