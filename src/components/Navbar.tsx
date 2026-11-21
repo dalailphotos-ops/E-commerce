@@ -54,16 +54,16 @@ export default function Navbar() {
         isScrolled
           ? "is-scrolled shadow-lg border-b border-[#262626] bg-[#121212]/95 backdrop-blur-md"
           : "border-b border-[#1F1F1F] bg-[#121212]"
-      } text-white`}
+      } text-white w-full`}
     >
       {/* Top Announcement Bar */}
-      <div className="bg-[#0A0A0A] text-neutral-400 text-xs py-2 px-4 border-b border-[#1F1F1F]">
-        <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
+      <div className="bg-[#0A0A0A] text-neutral-400 text-xs py-2 px-3 sm:px-6 lg:px-8 border-b border-[#1F1F1F]">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 sm:gap-4 overflow-hidden">
           {/* Left contact info */}
-          <div className="flex items-center gap-3 sm:gap-5 text-[11px] sm:text-xs">
+          <div className="flex items-center gap-2.5 sm:gap-4 text-[11px] sm:text-xs truncate">
             <a
               href="tel:+918089963691"
-              className="flex items-center gap-1.5 hover:text-white transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 hover:text-white transition-colors shrink-0"
             >
               <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
               <span className="font-medium text-neutral-200">{BUSINESS_PHONE}</span>
@@ -71,26 +71,26 @@ export default function Navbar() {
             </a>
             <a
               href={`mailto:${SUPPORT_EMAIL}`}
-              className="hidden sm:flex items-center gap-1.5 text-neutral-300 hover:text-white transition-colors whitespace-nowrap"
+              className="hidden sm:flex items-center gap-1.5 text-neutral-300 hover:text-white transition-colors shrink-0"
             >
               <Mail className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
               <span>{SUPPORT_EMAIL}</span>
               <span className="sr-only">orders@assonclothing.com</span>
             </a>
-            <span className="hidden md:flex items-center gap-1 text-[11px] text-neutral-400">
+            <span className="hidden lg:flex items-center gap-1 text-[11px] text-neutral-400 shrink-0">
               <MapPin className="w-3 h-3 text-neutral-500" />
               <span>{BUSINESS_LOCATION}</span>
             </span>
           </div>
 
           {/* Right quick actions */}
-          <div className="flex items-center gap-3 sm:gap-4 text-[11px] sm:text-xs font-mono uppercase tracking-wider">
+          <div className="flex items-center gap-2.5 sm:gap-4 text-[11px] sm:text-xs font-mono uppercase tracking-wider shrink-0">
             <Link
               href="/quote"
-              className="flex items-center gap-1.5 text-neutral-300 hover:text-white transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 text-neutral-300 hover:text-white transition-colors shrink-0"
             >
               <ShoppingBag className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-              <span>Quote List</span>
+              <span className="hidden xs:inline">Quote List</span>
               <span
                 data-quote-count
                 className="ml-0.5 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 text-[10px] font-bold rounded-full bg-white text-black"
@@ -100,7 +100,7 @@ export default function Navbar() {
             </Link>
             <Link
               href="/quote"
-              className="hidden sm:inline-flex items-center font-bold text-white hover:text-neutral-300 transition-colors whitespace-nowrap underline underline-offset-4 decoration-neutral-700 hover:decoration-white"
+              className="hidden sm:inline-flex items-center font-bold text-white hover:text-neutral-300 transition-colors shrink-0 underline underline-offset-4 decoration-neutral-700 hover:decoration-white"
             >
               Get a Quote →
             </Link>
@@ -109,21 +109,22 @@ export default function Navbar() {
       </div>
 
       {/* Main Sticky Header */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 lg:gap-4">
           {/* Brand Logo */}
-          <Link href="/" className="flex items-center gap-3 group shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 sm:gap-3 group shrink-0">
             <div className="relative flex items-center">
               <Image
                 src="/logo-white.svg"
                 alt={BRAND_NAME}
                 width={130}
-                height={38}
+                height={45}
                 className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-105"
                 priority
               />
             </div>
-            <div className="hidden lg:block border-l border-neutral-800 pl-3">
+            {/* Tagline visible only on 2xl screens to avoid squeezing desktop links on 1280px-1440px laptops */}
+            <div className="hidden 2xl:block border-l border-neutral-800 pl-3">
               <span className="block text-[10px] font-mono tracking-widest text-neutral-400 uppercase font-bold">
                 {BRAND_TAGLINE}
               </span>
@@ -131,8 +132,8 @@ export default function Navbar() {
             </div>
           </Link>
 
-          {/* Desktop Nav */}
-          <nav className="hidden xl:flex items-center gap-5 text-xs font-mono uppercase tracking-widest whitespace-nowrap">
+          {/* Desktop Nav: responsive gap and tracking */}
+          <nav className="hidden xl:flex items-center gap-2.5 2xl:gap-5 text-[11px] 2xl:text-xs font-mono uppercase tracking-wider 2xl:tracking-widest whitespace-nowrap">
             <Link
               href="/shop"
               className="whitespace-nowrap text-neutral-300 hover:text-white transition-colors py-1 hover:underline underline-offset-8"
@@ -178,10 +179,10 @@ export default function Navbar() {
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="hidden md:flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="hidden md:flex items-center gap-2 sm:gap-2.5 shrink-0">
             <Link
               href="/quote"
-              className="whitespace-nowrap px-3 py-2 text-xs font-mono uppercase tracking-wider rounded-md bg-neutral-900 text-neutral-200 hover:bg-neutral-800 hover:text-white border border-neutral-700 transition-colors flex items-center gap-1.5 shrink-0"
+              className="whitespace-nowrap px-2.5 2xl:px-3 py-1.5 2xl:py-2 text-[11px] 2xl:text-xs font-mono uppercase tracking-wider rounded-md bg-neutral-900 text-neutral-200 hover:bg-neutral-800 hover:text-white border border-neutral-700 transition-colors flex items-center gap-1.5 shrink-0"
             >
               <FileText className="w-3.5 h-3.5 shrink-0 text-neutral-400" />
               <span>Quote List</span>
@@ -195,7 +196,7 @@ export default function Navbar() {
 
             <Link
               href="/design"
-              className="whitespace-nowrap px-4 py-2 text-xs font-mono font-bold uppercase tracking-wider rounded-md bg-white hover:bg-neutral-200 text-black shadow transition-all flex items-center gap-1.5 shrink-0"
+              className="whitespace-nowrap px-3 2xl:px-4 py-1.5 2xl:py-2 text-[11px] 2xl:text-xs font-mono font-bold uppercase tracking-wider rounded-md bg-white hover:bg-neutral-200 text-black shadow transition-all flex items-center gap-1.5 shrink-0"
             >
               <Palette className="w-3.5 h-3.5 shrink-0" />
               <span>Design Studio</span>
@@ -203,7 +204,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile / Tablet Hamburger Toggle */}
-          <div className="xl:hidden flex items-center gap-2">
+          <div className="xl:hidden flex items-center gap-1.5 sm:gap-2">
             <Link
               href="/quote"
               className="md:hidden p-2 rounded-md text-neutral-300 hover:text-white relative"
@@ -236,7 +237,7 @@ export default function Navbar() {
               src="/logo-white.svg"
               alt={BRAND_NAME}
               width={110}
-              height={32}
+              height={38}
               className="h-7 w-auto object-contain"
             />
             <span className="text-[10px] font-mono tracking-widest text-neutral-400 font-bold uppercase">

@@ -290,6 +290,7 @@ export default function PriceEstimatorPage() {
           productName: c.product.name,
           color: c.color.name,
           quantity: c.quantity,
+          sizes: { ...it.sizes },
           printType: "DTF",
           printSize: `Front: ${it.frontPrint}, Back: ${it.backPrint}`,
           unitPrice: c.unitPrice,

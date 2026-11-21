@@ -32,7 +32,7 @@ export default function Footer() {
                 src="/logo-white.svg"
                 alt={BRAND_NAME}
                 width={130}
-                height={38}
+                height={45}
                 className="h-8 sm:h-9 w-auto object-contain transition-opacity group-hover:opacity-90"
               />
               <span className="sr-only">{BRAND_NAME}</span>

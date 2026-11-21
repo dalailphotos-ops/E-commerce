@@ -32,6 +32,11 @@ export const metadata: Metadata = {
   },
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
 export default function RootLayout({
   children,
 }: {
@@ -40,11 +45,11 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${archivo.variable} ${inter.variable}`}>
       <body
-        className={`${inter.className} font-body min-h-screen flex flex-col bg-paper text-ink`}
+        className={`${inter.className} font-body min-h-screen flex flex-col bg-paper text-ink overflow-x-hidden w-full`}
       >
         <CartProvider>
           <Navbar />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 w-full overflow-x-hidden">{children}</main>
           <Footer />
           <FloatingWhatsApp />
         </CartProvider>

@@ -977,13 +977,37 @@ export default function AdminPage() {
                                         Color: {item.color}
                                       </span>
                                     )}
-                                    {item.sizes && (
-                                      <span className="text-amber-400">
-                                        Sizes: {Object.entries(item.sizes)
-                                          .filter(([_, qty]) => (qty as number) > 0)
-                                          .map(([sz, qty]) => `${sz}: ${qty}`)
-                                          .join(", ")}
-                                      </span>
+                                    {(() => {
+                                      const rawSizes = item.sizes;
+                                      let formatted = "";
+                                      if (rawSizes) {
+                                        if (rawSizes instanceof Map) {
+                                          formatted = Array.from(rawSizes.entries())
+                                            .filter(([_, qty]) => Number(qty) > 0)
+                                            .map(([sz, qty]) => `${sz}×${qty}`)
+                                            .join(", ");
+                                        } else if (typeof rawSizes === "object") {
+                                          formatted = Object.entries(rawSizes)
+                                            .filter(([_, qty]) => Number(qty) > 0)
+                                            .map(([sz, qty]) => `${sz}×${qty}`)
+                                            .join(", ");
+                                        }
+                                      }
+                                      return (
+                                        <span className="text-amber-400">
+                                          Sizes: {formatted || (item.quantity ? `${item.quantity} pcs (Assorted)` : "Standard")}
+                                        </span>
+                                      );
+                                    })()}
+                                    {item.designPreviewUrl && (
+                                      <a
+                                        href={item.designPreviewUrl}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="text-amber-400 hover:text-amber-300 underline font-semibold text-[11px] ml-1"
+                                      >
+                                        View Mockup ↗
+                                      </a>
                                     )}
                                   </div>
                                 </div>
@@ -1037,14 +1061,24 @@ export default function AdminPage() {
                     >
                       <div className="space-y-3">
                         <div className="w-full h-44 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden relative group">
-                          {d.previewUrl || d.artworkUrl ? (
+                          {d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0]) ? (
                             <img
-                              src={d.previewUrl || d.artworkUrl}
-                              alt="Custom artwork"
+                              src={d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0])}
+                              alt={d.title || d.productName || "Custom design"}
                               className="max-h-full max-w-full object-contain p-2"
                             />
                           ) : (
                             <Palette className="w-10 h-10 text-slate-700" />
+                          )}
+                          {(d.previewUrl || d.frontPreviewUrl) && (
+                            <a
+                              href={d.previewUrl || d.frontPreviewUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold text-white transition backdrop-blur-xs"
+                            >
+                              Open Full Mockup ↗
+                            </a>
                           )}
                         </div>
 
@@ -1053,7 +1087,7 @@ export default function AdminPage() {
                             {d.productName || d.productId}
                           </span>
                           <span className="text-[11px] text-slate-400 block">
-                            Customer: {d.customerName || "Anonymous Creator"}
+                            Customer: {d.customerName || "Customer"}
                           </span>
                           {d.customerPhone && (
                             <span className="text-[11px] text-amber-400 block">

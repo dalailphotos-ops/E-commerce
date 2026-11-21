@@ -663,69 +663,140 @@ function DesignStudioContent() {
     };
   }, []);
 
-  // Client-Side Mockup PNG Download
-  const handleDownloadMockup = () => {
-    const canvas = document.createElement("canvas");
-    canvas.width = 800;
-    canvas.height = 800;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+  // High-Fidelity Client-Side Composite Mockup Generator (Apparel + Artwork + Text)
+  const generateCompositeMockup = async (): Promise<string> => {
+    return new Promise((resolve) => {
+      try {
+        const canvas = document.createElement("canvas");
+        canvas.width = 800;
+        canvas.height = 800;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve("/logo.png");
+          return;
+        }
 
-    // Background fill
-    ctx.fillStyle = "#f6f5f1";
-    ctx.fillRect(0, 0, 800, 800);
+        // 1. Clean background fill
+        ctx.fillStyle = "#f6f5f1";
+        ctx.fillRect(0, 0, 800, 800);
 
-    // Load garment photo
-    const garmentImg = new Image();
-    garmentImg.crossOrigin = "anonymous";
-    garmentImg.src = activeGarmentPhoto;
-    garmentImg.onload = () => {
-      ctx.drawImage(garmentImg, 50, 50, 700, 700);
-
-      // Render artwork if exists
-      if (currentActiveImage) {
-        const artImg = new Image();
-        artImg.crossOrigin = "anonymous";
-        artImg.src = currentActiveImage;
-        artImg.onload = () => {
-          const t = transforms[activeSide];
-          const artW = 280 * t.scale;
-          const artH = 280 * t.scale;
-          const posX = 400 + (t.x * 3) - artW / 2;
-          const posY = 380 + (t.y * 3) - artH / 2;
-
-          ctx.save();
-          ctx.translate(posX + artW / 2, posY + artH / 2);
-          ctx.rotate((t.rotation * Math.PI) / 180);
-          ctx.drawImage(artImg, -artW / 2, -artH / 2, artW, artH);
-          ctx.restore();
-
-          finishDownload();
+        const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+          return new Promise((imgResolve) => {
+            if (!src) {
+              imgResolve(null);
+              return;
+            }
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            // Use image proxy for external URLs to prevent canvas tainting
+            let targetSrc = src;
+            if (
+              (src.startsWith("http://") || src.startsWith("https://")) &&
+              !src.includes("/api/proxy-image")
+            ) {
+              targetSrc = `/api/proxy-image?url=${encodeURIComponent(src)}`;
+            }
+            img.src = targetSrc;
+            img.onload = () => imgResolve(img);
+            img.onerror = () => {
+              // If proxy failed, retry directly without crossOrigin
+              const fallbackImg = new Image();
+              fallbackImg.src = src;
+              fallbackImg.onload = () => imgResolve(fallbackImg);
+              fallbackImg.onerror = () => imgResolve(null);
+            };
+          });
         };
-        artImg.onerror = () => finishDownload();
-      } else {
-        finishDownload();
+
+        const renderMockup = async () => {
+          try {
+            // 2. Load and draw garment photo
+            const garmentSource =
+              activeGarmentPhoto ||
+              (activeSide === "back" ? currentColor.back : currentColor.front);
+
+            const garmentImg = await loadImage(garmentSource);
+            if (garmentImg) {
+              ctx.drawImage(garmentImg, 50, 50, 700, 700);
+            } else {
+              // Stylized garment fallback silhouette
+              ctx.fillStyle = currentColor.hex || "#1e293b";
+              ctx.beginPath();
+              ctx.roundRect(160, 160, 480, 560, 24);
+              ctx.fill();
+            }
+
+            // 3. Load and draw artwork if present
+            const artSource = currentActiveImage || frontUploadedImage || backUploadedImage;
+            if (artSource) {
+              const artImg = await loadImage(artSource);
+              if (artImg) {
+                const t = transforms[activeSide] || { x: 0, y: 0, scale: 0.85, rotation: 0 };
+                const baseSize = 280;
+                const artW = baseSize * (t.scale || 0.85);
+                const artH = baseSize * (t.scale || 0.85);
+                const posX = 400 + (t.x || 0) * 3 - artW / 2;
+                const posY = 380 + (t.y || 0) * 3 - artH / 2;
+
+                ctx.save();
+                ctx.translate(posX + artW / 2, posY + artH / 2);
+                ctx.rotate(((t.rotation || 0) * Math.PI) / 180);
+                ctx.drawImage(artImg, -artW / 2, -artH / 2, artW, artH);
+                ctx.restore();
+              }
+            }
+
+            // 4. Draw Typography overlays for this side
+            const activeTextElements = textElements.filter((t) => t.side === activeSide);
+            activeTextElements.forEach((item, index) => {
+              ctx.save();
+              ctx.fillStyle = item.color || "#ffffff";
+              ctx.font = `bold ${Math.round((item.size || 24) * 1.6)}px sans-serif`;
+              ctx.textAlign = "center";
+              ctx.textBaseline = "middle";
+              ctx.shadowColor = "rgba(0,0,0,0.6)";
+              ctx.shadowBlur = 4;
+              ctx.fillText(item.text, 400 + (item.x || 0), 400 + (item.y || 0) + index * 40);
+              ctx.restore();
+            });
+
+            // 5. Tech pack footer stamp
+            ctx.fillStyle = "#1e293b";
+            ctx.font = "bold 16px sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText("ASSON CLOTHING BRAND — CUSTOM TECH PACK", 60, 755);
+            ctx.font = "12px sans-serif";
+            ctx.fillStyle = "#64748b";
+            ctx.fillText(
+              `${selectedProduct.name} · ${currentColor.name} · ${activeSide.toUpperCase()} · ${currentInchDimensions}`,
+              60,
+              775
+            );
+
+            // Export data URI
+            const dataUrl = canvas.toDataURL("image/png");
+            resolve(dataUrl);
+          } catch (canvasErr) {
+            console.error("Canvas composite export failed:", canvasErr);
+            resolve(currentActiveImage || activeGarmentPhoto || "/logo.png");
+          }
+        };
+
+        renderMockup();
+      } catch (err) {
+        console.error("Mockup generator error:", err);
+        resolve("/logo.png");
       }
-    };
+    });
+  };
 
-    const finishDownload = () => {
-      // Tech pack branding stamp
-      ctx.fillStyle = "#1e293b";
-      ctx.font = "bold 16px sans-serif";
-      ctx.fillText("ASSON CLOTHING BRAND — TECH PACK SPEC", 60, 760);
-      ctx.font = "12px sans-serif";
-      ctx.fillStyle = "#64748b";
-      ctx.fillText(
-        `${selectedProduct.name} · ${currentColor.name} · ${activeSide.toUpperCase()} · ${currentInchDimensions}`,
-        60,
-        780
-      );
-
-      const link = document.createElement("a");
-      link.download = `asson-${selectedProduct.slug}-${activeSide}-mockup.png`;
-      link.href = canvas.toDataURL("image/png");
-      link.click();
-    };
+  // Client-Side Mockup PNG Download
+  const handleDownloadMockup = async () => {
+    const dataUrl = await generateCompositeMockup();
+    const link = document.createElement("a");
+    link.download = `asson-${selectedProduct.slug}-${activeSide}-mockup.png`;
+    link.href = dataUrl;
+    link.click();
   };
 
   // Add customized apparel to CartContext
@@ -784,17 +855,8 @@ function DesignStudioContent() {
         ? window.location.origin
         : process.env.NEXT_PUBLIC_APP_URL || "https://asson-cloths.vercel.app";
 
-    // Ensure Mockup images link is always a clean, normal-sized URL (never a raw base64 data URI)
-    let mockupImg = "";
-    if (
-      frontUploadedImage &&
-      frontUploadedImage.startsWith("https://res.cloudinary.com") &&
-      frontUploadedImage.length < 150
-    ) {
-      mockupImg = frontUploadedImage;
-    } else {
-      mockupImg = `${appBaseUrl}/api/mockup/${generatedDesignId}.png`;
-    }
+    // Clean normal-sized URL for WhatsApp link
+    const mockupImg = `${appBaseUrl}/api/mockup/${generatedDesignId}.png`;
 
     const whatsappMessage = [
       `Hi Asson Clothing Brand! I designed a t-shirt on your website.`,
@@ -816,27 +878,57 @@ function DesignStudioContent() {
     )}`;
 
     try {
+      // 1. Generate full composite mockup image (garment + artwork + text overlay)
+      const compositeMockup = await generateCompositeMockup();
+
+      // 2. Upload to Cloudinary if available
+      let finalMockupUrl = compositeMockup;
+      try {
+        if (compositeMockup && compositeMockup.startsWith("data:image")) {
+          const blobRes = await fetch(compositeMockup);
+          const blob = await blobRes.blob();
+          const fd = new FormData();
+          fd.append("file", blob, `mockup-${generatedDesignId}.png`);
+          fd.append("folder", "asson_studio_designs");
+          const upRes = await fetch("/api/upload", { method: "POST", body: fd });
+          const upData = await upRes.json();
+          if (upData.url) {
+            finalMockupUrl = upData.url;
+          }
+        }
+      } catch (upErr) {
+        console.warn("Upload composite to /api/upload error, fallback to data URI:", upErr);
+      }
+
       await fetch("/api/designs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           designId: generatedDesignId,
+          title: `${selectedProduct.name} - ${currentColor.name}`,
           productId: selectedProduct.id,
           productName: selectedProduct.name,
           colorName: currentColor.name,
           colorHex: currentColor.hex,
-          frontPreviewUrl: frontUploadedImage,
-          backPreviewUrl: backUploadedImage,
+          previewUrl: finalMockupUrl,
+          frontPreviewUrl: finalMockupUrl,
+          backPreviewUrl: backUploadedImage || finalMockupUrl,
+          artworkUrl: frontUploadedImage || backUploadedImage || customBlankPhoto.front || customBlankPhoto.back || "",
           uploadedAssets: [
+            finalMockupUrl,
             frontUploadedImage,
             backUploadedImage,
+            customBlankPhoto.front,
+            customBlankPhoto.back,
             leftUploadedImage,
             rightUploadedImage,
           ].filter(Boolean),
           printType: isEmbroidery ? "Embroidery" : "DTF",
           printSize: frontPrintSize,
           estimatedPrice: total,
+          customerName,
           customerPhone,
+          customerEmail: `${customerPhone}@asson-lead.com`,
         }),
       });
 
@@ -853,9 +945,10 @@ function DesignStudioContent() {
               productName: selectedProduct.name,
               color: currentColor.name,
               quantity,
+              sizes: { ...sizeBreakdown },
               printType: isEmbroidery ? "Embroidery" : "DTF",
               printSize: frontPrintSize,
-              designPreviewUrl: frontUploadedImage || backUploadedImage,
+              designPreviewUrl: mockupImg,
               unitPrice,
               totalPrice: total,
             },
