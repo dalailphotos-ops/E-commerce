@@ -760,17 +760,41 @@ function DesignStudioContent() {
               ctx.restore();
             });
 
-            // 5. Tech pack footer stamp
+            // 5. Tech pack footer stamp with exact real dimensions and rotation
+            const tActive = transforms[activeSide] || { x: 0, y: 0, scale: 1, rotation: 0 };
+            const scalePct = Math.round((tActive.scale || 1) * 100);
+            const rotDeg = Math.round(tActive.rotation || 0);
+
+            const printConfig = DTF_PRINTS[activePrintSizeKey] || DTF_PRINTS.a3;
+            let baseW = 11;
+            let baseH = 16;
+            if (printConfig.size) {
+              const match = printConfig.size.match(/([0-9.]+)"\s*[×xX]\s*([0-9.]+)"/);
+              if (match) {
+                baseW = parseFloat(match[1]);
+                baseH = parseFloat(match[2]);
+              }
+            }
+            const realW = +(baseW * (tActive.scale || 1)).toFixed(2);
+            const realH = +(baseH * (tActive.scale || 1)).toFixed(2);
+            const realWCm = +(realW * 2.54).toFixed(1);
+            const realHCm = +(realH * 2.54).toFixed(1);
+
             ctx.fillStyle = "#1e293b";
-            ctx.font = "bold 16px sans-serif";
+            ctx.font = "bold 15px sans-serif";
             ctx.textAlign = "left";
-            ctx.fillText("ASSON CLOTHING BRAND — CUSTOM TECH PACK", 60, 755);
-            ctx.font = "12px sans-serif";
-            ctx.fillStyle = "#64748b";
+            ctx.fillText("ASSON CLOTHING BRAND — FACTORY PRINT TECH PACK", 50, 745);
+            ctx.font = "11px sans-serif";
+            ctx.fillStyle = "#475569";
             ctx.fillText(
-              `${selectedProduct.name} · ${currentColor.name} · ${activeSide.toUpperCase()} · ${currentInchDimensions}`,
-              60,
-              775
+              `${selectedProduct.name} · Color: ${currentColor.name} · Zone: ${activeSide.toUpperCase()} · Template: ${printConfig.label || "A3"}`,
+              50,
+              763
+            );
+            ctx.fillText(
+              `REAL PRINT SIZE: ${realW}" × ${realH}" (${realWCm} × ${realHCm} cm) · Scale: ${scalePct}% · Rotation: ${rotDeg}° · Offset: X:${Math.round(tActive.x)}px, Y:${Math.round(tActive.y)}px`,
+              50,
+              779
             );
 
             // Export data URI
@@ -900,6 +924,42 @@ function DesignStudioContent() {
         console.warn("Upload composite to /api/upload error, fallback to data URI:", upErr);
       }
 
+      // 3. Compute production Tech Pack measurements (real printable inches, cm, scale %, rotation)
+      const activeTransform = transforms[activeSide] || { x: 0, y: 0, scale: 1, rotation: 0 };
+      const printConfig = DTF_PRINTS[activePrintSizeKey] || DTF_PRINTS.a3;
+
+      let baseW = 11;
+      let baseH = 16;
+      if (printConfig.size) {
+        const match = printConfig.size.match(/([0-9.]+)"\s*[×xX]\s*([0-9.]+)"/);
+        if (match) {
+          baseW = parseFloat(match[1]);
+          baseH = parseFloat(match[2]);
+        }
+      }
+
+      const realW = +(baseW * (activeTransform.scale || 1)).toFixed(2);
+      const realH = +(baseH * (activeTransform.scale || 1)).toFixed(2);
+      const realWCm = +(realW * 2.54).toFixed(1);
+      const realHCm = +(realH * 2.54).toFixed(1);
+
+      const techPackData = {
+        viewSide: activeSide,
+        printSizeKey: activePrintSizeKey,
+        nominalSizeLabel: printConfig.label,
+        nominalDimensions: printConfig.dimensions || printConfig.size,
+        scalePercent: Math.round((activeTransform.scale || 1) * 100),
+        rotationDegrees: Math.round(activeTransform.rotation || 0),
+        realDimensionsInches: `${realW}" × ${realH}"`,
+        realDimensionsCm: `${realWCm} cm × ${realHCm} cm`,
+        offsetX: Math.round(activeTransform.x || 0),
+        offsetY: Math.round(activeTransform.y || 0),
+        technique: isEmbroidery ? "Computerized Embroidery" : "High-Definition DTF",
+        textElements: textElements
+          .filter((t) => t.side === activeSide)
+          .map((t) => ({ text: t.text, color: t.color, size: t.size })),
+      };
+
       await fetch("/api/designs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -925,6 +985,9 @@ function DesignStudioContent() {
           ].filter(Boolean),
           printType: isEmbroidery ? "Embroidery" : "DTF",
           printSize: frontPrintSize,
+          transforms,
+          techPack: techPackData,
+          textElements: techPackData.textElements,
           estimatedPrice: total,
           customerName,
           customerPhone,
@@ -947,8 +1010,9 @@ function DesignStudioContent() {
               quantity,
               sizes: { ...sizeBreakdown },
               printType: isEmbroidery ? "Embroidery" : "DTF",
-              printSize: frontPrintSize,
+              printSize: `${techPackData.nominalSizeLabel} (${techPackData.realDimensionsInches})`,
               designPreviewUrl: mockupImg,
+              techPack: techPackData,
               unitPrice,
               totalPrice: total,
             },

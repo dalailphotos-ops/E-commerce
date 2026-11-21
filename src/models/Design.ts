@@ -20,6 +20,22 @@ export interface IDesign extends Document {
   customerName?: string;
   customerEmail?: string;
   customerPhone?: string;
+  transforms?: Record<string, { x: number; y: number; scale: number; rotation: number }>;
+  techPack?: {
+    viewSide?: string;
+    printSizeKey?: string;
+    nominalSizeLabel?: string;
+    nominalDimensions?: string;
+    scalePercent?: number;
+    rotationDegrees?: number;
+    realDimensionsInches?: string;
+    realDimensionsCm?: string;
+    offsetX?: number;
+    offsetY?: number;
+    technique?: string;
+    textElements?: Array<{ text: string; color: string; size: number }>;
+  };
+  textElements?: Array<any>;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -45,6 +61,9 @@ const DesignSchema = new Schema<IDesign>(
     customerName: { type: String },
     customerEmail: { type: String },
     customerPhone: { type: String },
+    transforms: { type: Schema.Types.Mixed },
+    techPack: { type: Schema.Types.Mixed },
+    textElements: { type: Schema.Types.Mixed },
   },
   { timestamps: true, strict: false }
 );

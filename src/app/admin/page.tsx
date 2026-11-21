@@ -78,6 +78,7 @@ export default function AdminPage() {
     customer?: string;
     phone?: string;
     designId?: string;
+    design?: any;
   } | null>(null);
 
   // Open mockup safely (handles data URIs, blob URLs, and clean HTTP routes without browser block)
@@ -149,6 +150,69 @@ export default function AdminPage() {
     } catch (err) {
       console.error("Download failed:", err);
     }
+  };
+
+  // Download factory print tech pack spec (.txt)
+  const downloadTechPackSpec = (design: any) => {
+    if (!design) return;
+    const tp = design.techPack || {};
+    const nominal = tp.nominalDimensions || "11\" × 16\"";
+    const realIn = tp.realDimensionsInches || nominal;
+    const realCm = tp.realDimensionsCm || "Standard";
+    const scale = tp.scalePercent ? `${tp.scalePercent}%` : "100%";
+    const rot = tp.rotationDegrees !== undefined ? `${tp.rotationDegrees}°` : "0°";
+    const zone = (tp.viewSide || "front").toUpperCase();
+    const offX = tp.offsetX !== undefined ? `${tp.offsetX}px` : "0px (Centered)";
+    const offY = tp.offsetY !== undefined ? `${tp.offsetY}px` : "0px (Centered)";
+    const tech = tp.technique || design.printType || "High-Definition DTF";
+
+    const textLines = (tp.textElements || design.textElements || [])
+      .map((t: any, idx: number) => `Text Line ${idx + 1}       : "${t.text}" (Color: ${t.color}, Font Size: ${t.size}pt)`)
+      .join("\n");
+
+    const content = `==============================================================
+ASSON CLOTHING BRAND — FACTORY PRINT PRODUCTION TECH PACK
+==============================================================
+Design ID            : ${design.designId || design._id || "N/A"}
+Created Date         : ${design.createdAt ? new Date(design.createdAt).toLocaleString() : new Date().toLocaleString()}
+Customer Name        : ${design.customerName || "Customer"}
+Customer Phone       : ${design.customerPhone || "N/A"}
+Garment Silhouette   : ${design.productName || design.productId || "Custom Blank"}
+Garment Color        : ${design.colorName || design.color || "Standard"} (${design.colorHex || ""})
+
+--------------------------------------------------------------
+PRINT MEASUREMENTS & RIP SPECIFICATIONS
+--------------------------------------------------------------
+Print Location Zone  : ${zone} VIEW
+Print Technique      : ${tech}
+Nominal Template     : ${tp.nominalSizeLabel || design.printSize?.toUpperCase() || "A3"} (${nominal})
+User Scaling Ratio   : ${scale}
+REAL PRINT WIDTH     : ${realIn.split("×")[0]?.trim() || realIn}
+REAL PRINT HEIGHT    : ${realIn.split("×")[1]?.trim() || ""}
+METRIC PRINT SIZE    : ${realCm}
+ROTATION ANGLE       : ${rot} clockwise
+ZONE OFFSET          : X: ${offX}, Y: ${offY}
+
+${textLines ? `--------------------------------------------------------------\nCUSTOM TYPOGRAPHY / SLOGANS\n--------------------------------------------------------------\n${textLines}\n` : ""}
+==============================================================
+FACTORY RIP OPERATOR INSTRUCTIONS:
+1. Import customer artwork file into RIP software (Digital Factory / AcroRIP).
+2. Set target output print dimensions to: ${realIn} (${realCm}).
+3. Apply rotation of ${rot} clockwise.
+4. Position artwork on garment template at: ${zone} chest zone.
+5. DTF heat press parameters: 160°C for 15 seconds, warm peel, 5 sec post-press.
+==============================================================
+`;
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = `tech-pack-${design.designId || design._id || "spec"}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
   };
 
   // Login form states
@@ -1198,6 +1262,7 @@ export default function AdminPage() {
                                   customer: d.customerName || "Customer",
                                   phone: d.customerPhone,
                                   designId: d.designId || d._id,
+                                  design: d,
                                 });
                               }}
                               className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1.5 text-xs font-bold text-white transition backdrop-blur-xs cursor-pointer z-10"
@@ -1224,38 +1289,79 @@ export default function AdminPage() {
                           )}
                         </div>
 
+                        {/* Production Tech Pack Specs Badge */}
+                        <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5 text-[11px]">
+                          <div className="flex items-center justify-between font-bold">
+                            <span className="text-amber-400 flex items-center gap-1">
+                              <span>📐 Real Size:</span>
+                              <span className="text-white">
+                                {d.techPack?.realDimensionsInches || (d.printSize ? `${d.printSize.toUpperCase()} (11" × 16")` : '11" × 16"')}
+                              </span>
+                            </span>
+                            <span className="text-slate-400 text-[10px]">
+                              {d.techPack?.realDimensionsCm || "DTF Standard"}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
+                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 font-mono font-bold">
+                              Scale: {d.techPack?.scalePercent ? `${d.techPack.scalePercent}%` : "100%"}
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono font-bold">
+                              Rot: {d.techPack?.rotationDegrees !== undefined ? `${d.techPack.rotationDegrees}°` : "0°"}
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 capitalize">
+                              Zone: {d.techPack?.viewSide || "Front"}
+                            </span>
+                            {d.techPack?.offsetX !== undefined && (
+                              <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                                Offset: X:{d.techPack.offsetX} Y:{d.techPack.offsetY}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
                         <div className="flex flex-wrap gap-1.5 text-[10px]">
-                          {d.color && (
+                          {d.colorName && (
                             <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
-                              Color: {d.color}
+                              Color: {d.colorName}
                             </span>
                           )}
-                          {d.printTechnique && (
-                            <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-semibold">
-                              {d.printTechnique}
-                            </span>
-                          )}
-                          {d.quantity && (
-                            <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
-                              Qty: {d.quantity} pcs
-                            </span>
-                          )}
+                          <span className="px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800 font-semibold">
+                            {d.printType || "DTF Printing"}
+                          </span>
                         </div>
                       </div>
 
-                      {(d.previewUrl || d.artworkUrl || d.frontPreviewUrl) && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const imgUrl = d.previewUrl || d.frontPreviewUrl || d.artworkUrl || (d.uploadedAssets && d.uploadedAssets[0]);
-                            downloadMockupSafe(imgUrl, `mockup-${d.designId || d._id || "design"}.png`);
-                          }}
-                          className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
-                        >
-                          <Download className="w-3.5 h-3.5 text-amber-400" />
-                          Download Artwork
-                        </button>
-                      )}
+                      {/* Action Buttons: Download Artwork + Download Tech Pack */}
+                      <div className="space-y-1.5 pt-1">
+                        {(d.previewUrl || d.artworkUrl || d.frontPreviewUrl) && (
+                          <div className="grid grid-cols-2 gap-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const imgUrl = d.artworkUrl || d.previewUrl || d.frontPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0]);
+                                downloadMockupSafe(imgUrl, `artwork-${d.designId || d._id || "asset"}.png`);
+                              }}
+                              className="w-full py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-white transition flex items-center justify-center gap-1 border border-slate-700 cursor-pointer"
+                              title="Download customer artwork file"
+                            >
+                              <Download className="w-3.5 h-3.5 text-amber-400" />
+                              <span>Artwork</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => downloadTechPackSpec(d)}
+                              className="w-full py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-amber-400 hover:text-amber-300 transition flex items-center justify-center gap-1 border border-slate-700 cursor-pointer"
+                              title="Download production RIP tech pack (.txt)"
+                            >
+                              <FileText className="w-3.5 h-3.5 text-amber-400" />
+                              <span>Tech Pack</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -1825,12 +1931,65 @@ export default function AdminPage() {
                 </div>
 
                 {/* Main Mockup Image Container */}
-                <div className="w-full max-h-[62vh] min-h-[260px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden p-3 relative group">
+                <div className="w-full max-h-[55vh] min-h-[240px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden p-3 relative group">
                   <img
                     src={previewModal.imageUrl}
                     alt={previewModal.title || "Custom mockup full view"}
-                    className="max-h-[58vh] max-w-full object-contain rounded-lg shadow-lg select-none"
+                    className="max-h-[50vh] max-w-full object-contain rounded-lg shadow-lg select-none"
                   />
+                </div>
+
+                {/* Factory Production Tech Pack Spec Panel */}
+                <div className="rounded-2xl bg-slate-950 border border-slate-800 p-4 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Factory Print Tech Pack & RIP Measurements</span>
+                    </span>
+                    <span className="text-xs font-mono text-slate-400">
+                      ID: {previewModal.designId || "Custom"}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Real Printable Size</span>
+                      <span className="font-bold text-white text-sm block">
+                        {previewModal.design?.techPack?.realDimensionsInches || "11\" × 16\""}
+                      </span>
+                      <span className="text-[10px] text-amber-400 block font-semibold">
+                        {previewModal.design?.techPack?.realDimensionsCm || "27.9 × 40.6 cm"}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Scaling Ratio</span>
+                      <span className="font-bold text-amber-300 text-sm block font-mono">
+                        {previewModal.design?.techPack?.scalePercent ? `${previewModal.design.techPack.scalePercent}%` : "100%"}
+                      </span>
+                      <span className="text-[10px] text-slate-500 block">
+                        Template: {previewModal.design?.techPack?.nominalSizeLabel || previewModal.design?.printSize?.toUpperCase() || "A3"}
+                      </span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Rotation Angle</span>
+                      <span className="font-bold text-cyan-300 text-sm block font-mono">
+                        {previewModal.design?.techPack?.rotationDegrees !== undefined ? `${previewModal.design.techPack.rotationDegrees}°` : "0°"}
+                      </span>
+                      <span className="text-[10px] text-slate-500 block">Clockwise</span>
+                    </div>
+
+                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
+                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Zone & Alignment</span>
+                      <span className="font-bold text-slate-200 text-xs block capitalize">
+                        {previewModal.design?.techPack?.viewSide || "Front"} View
+                      </span>
+                      <span className="text-[10px] text-slate-500 block font-mono">
+                        X:{previewModal.design?.techPack?.offsetX || 0}px Y:{previewModal.design?.techPack?.offsetY || 0}px
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Action Toolbar */}
@@ -1848,6 +2007,24 @@ export default function AdminPage() {
                     >
                       <Download className="w-4 h-4 text-slate-950" />
                       <span>Download PNG Mockup</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadTechPackSpec(
+                          previewModal.design || {
+                            designId: previewModal.designId,
+                            title: previewModal.title,
+                            customerName: previewModal.customer,
+                            customerPhone: previewModal.phone,
+                          }
+                        )
+                      }
+                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 hover:text-amber-300 font-bold text-xs transition flex items-center gap-2 cursor-pointer"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span>Download Tech Pack (.txt)</span>
                     </button>
 
                     <button
