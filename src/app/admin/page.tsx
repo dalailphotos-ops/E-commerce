@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   LayoutDashboard,
   FileText,
@@ -38,7 +39,7 @@ import {
   Server,
   Zap,
 } from "lucide-react";
-import { REVERSE_ENGINEERED_PRODUCTS, formatINR } from "@/lib/constants";
+import { REVERSE_ENGINEERED_PRODUCTS, formatINR, BRAND_NAME, BRAND_TAGLINE } from "@/lib/constants";
 
 type AdminTab = "overview" | "quotes" | "designs" | "enquiries" | "catalog" | "developer";
 
@@ -492,8 +493,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
   // 1. Loading State
   if (isAuthenticated === null) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-400 text-xs font-semibold">
-        <RefreshCw className="w-5 h-5 animate-spin mr-2 text-amber-400" />
+      <div className="min-h-screen bg-[#0D0D0D] flex items-center justify-center text-neutral-400 text-xs font-mono uppercase tracking-wider font-semibold">
+        <RefreshCw className="w-5 h-5 animate-spin mr-2 text-white" />
         Checking access credentials...
       </div>
     );
@@ -502,27 +503,47 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
   // 2. Unauthenticated State — Dedicated Full-Screen Login
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-slate-950 flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="min-h-screen bg-[#0D0D0D] flex flex-col justify-center items-center px-4 py-12 relative overflow-hidden font-sans">
+        {/* Large Watermark Background */}
+        <div
+          aria-hidden="true"
+          className="absolute -bottom-10 left-1/2 -translate-x-1/2 w-full max-w-4xl pointer-events-none select-none opacity-[0.04] overflow-hidden flex items-center justify-center z-0"
+        >
+          <Image
+            src="/logo-white.svg"
+            alt=""
+            width={1000}
+            height={320}
+            className="w-full max-w-3xl h-auto object-contain"
+          />
+        </div>
 
         <div className="w-full max-w-md relative z-10 space-y-6">
           <div className="text-center space-y-3">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center mx-auto shadow-xl shadow-amber-500/20 text-slate-950 font-black text-2xl">
-              A
-            </div>
+            <Link href="/" className="inline-block group">
+              <Image
+                src="/logo-white.svg"
+                alt={BRAND_NAME}
+                width={160}
+                height={52}
+                className="h-11 sm:h-12 w-auto object-contain mx-auto transition-transform group-hover:scale-105"
+                priority
+              />
+              <span className="sr-only">{BRAND_NAME}</span>
+            </Link>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">
-                Asson Management Portal
+              <h1 className="text-xl font-heading font-black text-white tracking-tight uppercase">
+                Management Console
               </h1>
-              <p className="text-xs text-slate-400 mt-1">
-                Log in to access orders, customer requests, and blank catalogs
+              <p className="text-xs font-mono uppercase tracking-wider text-neutral-400 mt-1">
+                {BRAND_TAGLINE}
               </p>
             </div>
           </div>
 
-          <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-8 shadow-2xl backdrop-blur-sm space-y-6">
+          <div className="bg-[#141414] border border-[#262626] rounded-3xl p-8 shadow-2xl backdrop-blur-sm space-y-6">
             {/* Role Tab Toggle (Staff vs Superadmin) */}
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-950 rounded-xl border border-slate-800 text-xs font-bold">
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-[#0A0A0A] rounded-xl border border-[#222222] text-xs font-mono uppercase tracking-wider font-bold">
               <button
                 type="button"
                 onClick={() => {
@@ -533,8 +554,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 }}
                 className={`py-2 rounded-lg transition ${
                   loginTab === "admin"
-                    ? "bg-amber-500 text-slate-950 shadow"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-white text-black shadow"
+                    : "text-neutral-400 hover:text-white"
                 }`}
               >
                 Staff Admin
@@ -549,8 +570,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 }}
                 className={`py-2 rounded-lg transition flex items-center justify-center gap-1.5 ${
                   loginTab === "superadmin"
-                    ? "bg-amber-500 text-slate-950 shadow"
-                    : "text-slate-400 hover:text-white"
+                    ? "bg-white text-black shadow"
+                    : "text-neutral-400 hover:text-white"
                 }`}
               >
                 <Zap className="w-3.5 h-3.5" /> Superadmin
@@ -566,7 +587,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1.5">
+                <label className="text-xs font-mono uppercase tracking-wider text-neutral-300 block mb-1.5 font-bold">
                   {loginTab === "superadmin" ? "Superadmin Email" : "Admin Email"}
                 </label>
                 <input
@@ -579,12 +600,12 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       ? "superadmin@assonclothing.com"
                       : "admin@assonclothing.com"
                   }
-                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition"
+                  className="w-full p-3 bg-[#0A0A0A] border border-[#262626] rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-white transition font-mono"
                 />
               </div>
 
               <div>
-                <label className="text-xs font-bold text-slate-300 block mb-1.5">
+                <label className="text-xs font-mono uppercase tracking-wider text-neutral-300 block mb-1.5 font-bold">
                   Password
                 </label>
                 <input
@@ -593,16 +614,16 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   value={loginPassword}
                   onChange={(e) => setLoginPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 transition"
+                  className="w-full p-3 bg-[#0A0A0A] border border-[#262626] rounded-xl text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-white transition font-mono"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={loggingIn}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-3.5 rounded-xl bg-white hover:bg-neutral-200 text-black font-mono font-bold text-xs uppercase tracking-wider shadow transition flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <ShieldCheck className="w-4 h-4 text-slate-950" />
+                <ShieldCheck className="w-4 h-4 text-black" />
                 {loggingIn
                   ? "Verifying..."
                   : loginTab === "superadmin"
@@ -615,7 +636,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
           <div className="text-center">
             <Link
               href="/"
-              className="text-xs font-semibold text-slate-500 hover:text-slate-300 transition flex items-center justify-center gap-1.5"
+              className="text-xs font-mono uppercase tracking-wider text-neutral-500 hover:text-white transition flex items-center justify-center gap-1.5"
             >
               ← Return to Public Storefront
             </Link>
@@ -627,26 +648,30 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
   // 3. Authenticated Full Admin Dashboard
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-200 flex flex-col md:flex-row font-sans">
+    <div className="min-h-screen bg-[#0E0E0E] text-neutral-200 flex flex-col md:flex-row font-sans">
       {/* Mobile Header Bar */}
-      <div className="md:hidden bg-slate-900 border-b border-slate-800 px-4 py-3 flex items-center justify-between sticky top-0 z-40">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-amber-500 text-slate-950 font-black flex items-center justify-center text-sm shadow">
-            A
-          </div>
-          <div>
-            <span className="font-extrabold text-sm text-white block leading-tight">
-              Asson Clothing
-            </span>
-            <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">
-              {userRole === "superadmin" ? "Superadmin Console" : "Staff Console"}
+      <div className="md:hidden bg-[#121212] border-b border-[#222222] px-4 py-3 flex items-center justify-between sticky top-0 z-40">
+        <div className="flex items-center gap-3">
+          <Link href="/" className="shrink-0">
+            <Image
+              src="/logo-white.svg"
+              alt={BRAND_NAME}
+              width={100}
+              height={32}
+              className="h-7 w-auto object-contain"
+              priority
+            />
+          </Link>
+          <div className="border-l border-neutral-800 pl-2.5">
+            <span className="text-[10px] text-neutral-400 font-mono font-bold uppercase tracking-wider block">
+              {userRole === "superadmin" ? "Superadmin" : "Staff Portal"}
             </span>
           </div>
         </div>
 
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="p-2 rounded-lg bg-slate-800 text-slate-200 hover:bg-slate-700 transition"
+          className="p-2 rounded-lg bg-[#1E1E1E] text-neutral-200 hover:bg-[#282828] transition border border-[#2C2C2C]"
         >
           {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
         </button>
@@ -654,7 +679,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
       {/* Admin Sidebar Navigation */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-900 border-r border-slate-800 flex flex-col justify-between transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-[#121212] border-r border-[#222222] flex flex-col justify-between transform transition-transform duration-200 ease-in-out md:relative md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
@@ -662,23 +687,27 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
           {/* Logo & Role Badge */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 text-slate-950 font-black flex items-center justify-center text-base shadow-lg shadow-amber-500/20">
-                A
-              </div>
-              <div>
-                <span className="font-black text-white text-base tracking-tight block">
-                  ASSON BRAND
-                </span>
-                <span className="text-[10px] text-amber-400 font-bold uppercase tracking-widest flex items-center gap-1">
+              <Link href="/" className="shrink-0">
+                <Image
+                  src="/logo-white.svg"
+                  alt={BRAND_NAME}
+                  width={110}
+                  height={36}
+                  className="h-7 sm:h-8 w-auto object-contain"
+                  priority
+                />
+              </Link>
+              <div className="border-l border-neutral-800 pl-2.5">
+                <span className="text-[10px] text-neutral-400 font-mono font-bold uppercase tracking-widest flex items-center gap-1.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                  {userRole === "superadmin" ? "Superadmin" : "Staff Portal"}
+                  {userRole === "superadmin" ? "Superadmin" : "Portal"}
                 </span>
               </div>
             </div>
 
             <button
               onClick={() => setSidebarOpen(false)}
-              className="md:hidden text-slate-400 hover:text-white"
+              className="md:hidden text-neutral-400 hover:text-white"
             >
               <X className="w-5 h-5" />
             </button>
@@ -689,10 +718,10 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
             href="/"
             target="_blank"
             rel="noreferrer"
-            className="flex items-center justify-between px-3 py-2 rounded-xl bg-slate-800/60 border border-slate-700/60 text-xs font-semibold text-slate-300 hover:text-white hover:bg-slate-800 transition group"
+            className="flex items-center justify-between px-3.5 py-2 rounded-xl bg-[#1A1A1A] border border-[#2C2C2C] text-xs font-mono uppercase tracking-wider text-neutral-300 hover:text-white hover:border-neutral-500 transition group"
           >
             <span>Visit Live Store</span>
-            <ExternalLink className="w-3.5 h-3.5 text-slate-400 group-hover:text-amber-400 transition" />
+            <ExternalLink className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition" />
           </Link>
 
           {/* Nav List */}
@@ -702,15 +731,15 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 setActiveTab("overview");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold transition ${
                 activeTab === "overview"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/80"
+                  ? "bg-white text-black shadow-md"
+                  : "text-neutral-400 hover:text-white hover:bg-[#1A1A1A]"
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <LayoutDashboard className="w-4 h-4" />
-                <span>Dashboard Overview</span>
+                <span>Dashboard</span>
               </div>
             </button>
 
@@ -719,10 +748,10 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 setActiveTab("quotes");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold transition ${
                 activeTab === "quotes"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/80"
+                  ? "bg-white text-black shadow-md"
+                  : "text-neutral-400 hover:text-white hover:bg-[#1A1A1A]"
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -732,8 +761,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
               <span
                 className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
                   activeTab === "quotes"
-                    ? "bg-slate-950 text-amber-400"
-                    : "bg-slate-800 text-slate-300"
+                    ? "bg-black text-white"
+                    : "bg-[#222222] text-neutral-300"
                 }`}
               >
                 {quotes.length}
@@ -745,10 +774,10 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 setActiveTab("designs");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold transition ${
                 activeTab === "designs"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/80"
+                  ? "bg-white text-black shadow-md"
+                  : "text-neutral-400 hover:text-white hover:bg-[#1A1A1A]"
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -758,8 +787,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
               <span
                 className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
                   activeTab === "designs"
-                    ? "bg-slate-950 text-amber-400"
-                    : "bg-slate-800 text-slate-300"
+                    ? "bg-black text-white"
+                    : "bg-[#222222] text-neutral-300"
                 }`}
               >
                 {designs.length}
@@ -771,10 +800,10 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 setActiveTab("enquiries");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold transition ${
                 activeTab === "enquiries"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/80"
+                  ? "bg-white text-black shadow-md"
+                  : "text-neutral-400 hover:text-white hover:bg-[#1A1A1A]"
               }`}
             >
               <div className="flex items-center gap-2.5">
@@ -784,8 +813,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
               <span
                 className={`text-[11px] px-2 py-0.5 rounded-full font-bold ${
                   activeTab === "enquiries"
-                    ? "bg-slate-950 text-amber-400"
-                    : "bg-slate-800 text-slate-300"
+                    ? "bg-black text-white"
+                    : "bg-[#222222] text-neutral-300"
                 }`}
               >
                 {enquiries.length}
@@ -797,17 +826,17 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 setActiveTab("catalog");
                 setSidebarOpen(false);
               }}
-              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold transition ${
                 activeTab === "catalog"
-                  ? "bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/80"
+                  ? "bg-white text-black shadow-md"
+                  : "text-neutral-400 hover:text-white hover:bg-[#1A1A1A]"
               }`}
             >
               <div className="flex items-center gap-2.5">
                 <Shirt className="w-4 h-4" />
                 <span>Blanks Catalog</span>
               </div>
-              <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-slate-800 text-slate-300">
+              <span className="text-[11px] px-2 py-0.5 rounded-full font-bold bg-[#222222] text-neutral-300">
                 {catalogProducts.length}
               </span>
             </button>
@@ -819,17 +848,17 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   setActiveTab("developer");
                   setSidebarOpen(false);
                 }}
-                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-bold transition border ${
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-mono uppercase tracking-wider font-bold transition border ${
                   activeTab === "developer"
-                    ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md shadow-amber-500/20"
-                    : "text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+                    ? "bg-white text-black border-white shadow-md"
+                    : "text-neutral-300 border-neutral-700 hover:bg-[#1A1A1A]"
                 }`}
               >
                 <div className="flex items-center gap-2.5">
                   <Terminal className="w-4 h-4" />
                   <span>Developer Console</span>
                 </div>
-                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300">
+                <span className="text-[9px] font-black uppercase px-1.5 py-0.5 rounded bg-neutral-800 text-neutral-200">
                   Dev
                 </span>
               </button>
@@ -838,25 +867,25 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
         </div>
 
         {/* Sidebar Footer User Info */}
-        <div className="p-4 border-t border-slate-800 bg-slate-900/50 space-y-3">
+        <div className="p-4 border-t border-[#222222] bg-[#0E0E0E] space-y-3">
           <div className="flex items-center gap-2.5 px-2">
             <div
-              className={`w-8 h-8 rounded-full border flex items-center justify-center text-xs font-black ${
+              className={`w-8 h-8 rounded-full border flex items-center justify-center text-xs font-mono font-bold ${
                 userRole === "superadmin"
-                  ? "bg-amber-500 text-slate-950 border-amber-400 shadow"
-                  : "bg-slate-800 text-amber-400 border-slate-700"
+                  ? "bg-white text-black border-white shadow"
+                  : "bg-[#1E1E1E] text-neutral-300 border-neutral-700"
               }`}
             >
               {userRole === "superadmin" ? "SA" : "AD"}
             </div>
             <div className="overflow-hidden">
-              <span className="text-xs font-bold text-white block truncate flex items-center gap-1.5">
+              <span className="text-xs font-mono font-bold text-white block truncate flex items-center gap-1.5">
                 {userRole === "superadmin" ? "Superadmin" : "Staff Admin"}
                 {userRole === "superadmin" && (
-                  <Zap className="w-3 h-3 text-amber-400 shrink-0" />
+                  <Zap className="w-3 h-3 text-white shrink-0" />
                 )}
               </span>
-              <span className="text-[10px] text-slate-400 block truncate">
+              <span className="text-[10px] text-neutral-400 block truncate font-mono">
                 {userEmail}
               </span>
             </div>
@@ -864,7 +893,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
           <button
             onClick={handleLogout}
-            className="w-full py-2 px-3 rounded-xl bg-slate-800/80 hover:bg-red-950/40 hover:text-red-400 hover:border-red-800/50 text-slate-300 text-xs font-semibold flex items-center justify-center gap-2 transition border border-slate-700"
+            className="w-full py-2 px-3 rounded-xl bg-[#1A1A1A] hover:bg-red-950/40 hover:text-red-400 hover:border-red-800/50 text-neutral-300 text-xs font-mono uppercase tracking-wider flex items-center justify-center gap-2 transition border border-[#2B2B2B]"
           >
             <LogOut className="w-3.5 h-3.5" />
             Sign Out
@@ -873,17 +902,32 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
       </aside>
 
       {/* Main Content Workspace */}
-      <main className="flex-1 flex flex-col min-w-0 bg-slate-950">
+      <main className="flex-1 flex flex-col min-w-0 bg-[#0E0E0E] relative overflow-hidden">
         {/* Top Header Bar */}
-        <header className="bg-slate-900/80 border-b border-slate-800 px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-30 backdrop-blur-md">
+        {/* Subtle Watermark in Main Area */}
+        <div
+          aria-hidden="true"
+          className="fixed -bottom-10 right-0 w-[550px] pointer-events-none select-none opacity-[0.025] overflow-hidden flex items-center justify-center z-0"
+        >
+          <Image
+            src="/logo-white.svg"
+            alt=""
+            width={800}
+            height={260}
+            className="w-full h-auto object-contain"
+          />
+        </div>
+
+        {/* Top Header Bar */}
+        <header className="bg-[#121212]/90 border-b border-[#222222] px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sticky top-0 z-30 backdrop-blur-md">
           <div className="flex items-center gap-3">
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider">
                   {userRole === "superadmin" ? "Superadmin Console" : "Store Management"}
                 </span>
-                <span className="text-slate-600">/</span>
-                <span className="text-xs font-semibold text-slate-300 capitalize">
+                <span className="text-neutral-600">/</span>
+                <span className="text-xs font-semibold text-neutral-300 capitalize">
                   {activeTab === "developer" ? "Developer Tools" : activeTab}
                 </span>
               </div>
@@ -902,13 +946,13 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
             {/* Quick Search */}
             {(activeTab === "quotes" || activeTab === "enquiries") && (
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search buyer, email, phone..."
-                  className="pl-8 pr-3 py-1.5 bg-slate-950 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 w-44 sm:w-60 transition"
+                  className="pl-8 pr-3 py-1.5 bg-[#0E0E0E] border border-[#222222] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400 w-44 sm:w-60 transition"
                 />
               </div>
             )}
@@ -917,7 +961,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
             <button
               onClick={fetchData}
               disabled={loading}
-              className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition border border-slate-700"
+              className="p-2 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] text-neutral-300 hover:text-white transition border border-[#2A2A2A]"
               title="Refresh Data"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
@@ -932,55 +976,55 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
             <div className="space-y-6">
               {/* Metric Cards Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className="bg-[#141414] border border-[#242424] p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-neutral-400">
                     <span className="text-xs font-semibold">Total Quotes</span>
                     <FileText className="w-4 h-4 text-amber-400" />
                   </div>
                   <div className="text-2xl font-black text-white">{quotes.length}</div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-neutral-500">
                     In-app quote submissions from calculators & shop
                   </p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className="bg-[#141414] border border-[#242424] p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-neutral-400">
                     <span className="text-xs font-semibold">Bulk Inquiries</span>
                     <Layers className="w-4 h-4 text-orange-400" />
                   </div>
                   <div className="text-2xl font-black text-white">{enquiries.length}</div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-neutral-500">
                     High volume factory tech-pack submissions
                   </p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className="bg-[#141414] border border-[#242424] p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-neutral-400">
                     <span className="text-xs font-semibold">Studio Designs</span>
                     <Palette className="w-4 h-4 text-purple-400" />
                   </div>
                   <div className="text-2xl font-black text-white">{designs.length}</div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-neutral-500">
                     Customer mockups created in 2D Studio
                   </p>
                 </div>
 
-                <div className="bg-slate-900 border border-slate-800 p-5 rounded-2xl space-y-2">
-                  <div className="flex items-center justify-between text-slate-400">
+                <div className="bg-[#141414] border border-[#242424] p-5 rounded-2xl space-y-2">
+                  <div className="flex items-center justify-between text-neutral-400">
                     <span className="text-xs font-semibold">Order Pipeline</span>
                     <TrendingUp className="w-4 h-4 text-emerald-400" />
                   </div>
                   <div className="text-2xl font-black text-emerald-400">
                     {formatINR(totalQuoteValue)}
                   </div>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-neutral-500">
                     Across {totalUnits} total garment units requested
                   </p>
                 </div>
               </div>
 
               {/* Recent Quotes List */}
-              <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+              <div className="bg-[#141414] border border-[#242424] rounded-2xl p-6 space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="font-extrabold text-white text-sm">
                     Recent Quote Submissions
@@ -994,18 +1038,18 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 </div>
 
                 {quotes.length === 0 ? (
-                  <div className="py-12 text-center text-slate-500 text-xs">
+                  <div className="py-12 text-center text-neutral-500 text-xs">
                     No quotes submitted yet. Orders from the Price Estimator, Shop, and Cart will appear here.
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-800">
+                  <div className="divide-y divide-[#242424]">
                     {quotes.slice(0, 5).map((q, idx) => (
                       <div key={q._id || idx} className="py-3 flex items-center justify-between">
                         <div className="space-y-0.5">
                           <span className="text-xs font-bold text-white block">
                             {q.customerName}
                           </span>
-                          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                          <div className="flex items-center gap-3 text-[11px] text-neutral-400">
                             <span>{q.phone}</span>
                             {q.email && <span>• {q.email}</span>}
                           </div>
@@ -1014,7 +1058,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                           <span className="text-xs font-black text-amber-400 block">
                             {formatINR(q.total || q.subtotal || 0)}
                           </span>
-                          <span className="text-[10px] text-slate-500">
+                          <span className="text-[10px] text-neutral-500">
                             {q.createdAt ? new Date(q.createdAt).toLocaleDateString() : "Recent"}
                           </span>
                         </div>
@@ -1029,12 +1073,12 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
           {/* TAB 2: QUOTES & RFQs */}
           {activeTab === "quotes" && (
             <div className="space-y-4">
-              <span className="text-xs text-slate-400 font-semibold block">
+              <span className="text-xs text-neutral-400 font-semibold block">
                 Showing {filteredQuotes.length} customer quote requests
               </span>
 
               {filteredQuotes.length === 0 ? (
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-500 text-xs">
+                <div className="bg-[#141414] border border-[#242424] rounded-2xl p-12 text-center text-neutral-500 text-xs">
                   No quote requests found matching your filter.
                 </div>
               ) : (
@@ -1042,9 +1086,9 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   {filteredQuotes.map((q, idx) => (
                     <div
                       key={q._id || idx}
-                      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 hover:border-slate-700 transition"
+                      className="bg-[#141414] border border-[#242424] rounded-2xl p-6 space-y-4 hover:border-[#2A2A2A] transition"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#242424]/80 pb-4">
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-black text-white">
@@ -1054,7 +1098,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                               RFQ #{q._id ? q._id.slice(-6).toUpperCase() : `Q${idx + 1}`}
                             </span>
                           </div>
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 mt-1">
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-400 mt-1">
                             <span className="flex items-center gap-1">
                               <Phone className="w-3 h-3 text-amber-400" /> {q.phone}
                             </span>
@@ -1063,7 +1107,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                 <Mail className="w-3 h-3 text-amber-400" /> {q.email}
                               </span>
                             )}
-                            <span className="flex items-center gap-1 text-slate-500">
+                            <span className="flex items-center gap-1 text-neutral-500">
                               <Calendar className="w-3 h-3" />{" "}
                               {q.createdAt
                                 ? new Date(q.createdAt).toLocaleString()
@@ -1080,7 +1124,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                 q._id || String(idx)
                               )
                             }
-                            className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold flex items-center gap-1 border border-slate-700 transition"
+                            className="p-2 rounded-lg bg-[#1E1E1E] hover:bg-[#282828] text-neutral-300 text-xs font-semibold flex items-center gap-1 border border-[#2A2A2A] transition"
                             title="Copy Contact Info"
                           >
                             {copiedId === (q._id || String(idx)) ? (
@@ -1094,7 +1138,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                             <span className="text-lg font-black text-amber-400 block">
                               {formatINR(q.total || q.subtotal || 0)}
                             </span>
-                            <span className="text-[10px] text-slate-500">
+                            <span className="text-[10px] text-neutral-500">
                               incl. 5% GST
                             </span>
                           </div>
@@ -1103,10 +1147,10 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
                       {q.items && q.items.length > 0 && (
                         <div className="space-y-2">
-                          <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
+                          <span className="text-[11px] font-bold text-neutral-400 uppercase tracking-wider block">
                             Requested Line Items
                           </span>
-                          <div className="divide-y divide-slate-800/60 bg-slate-950/60 border border-slate-800 rounded-xl p-3">
+                          <div className="divide-y divide-[#242424]/60 bg-[#0E0E0E]/60 border border-[#242424] rounded-xl p-3">
                             {q.items.map((item: any, iIdx: number) => (
                               <div
                                 key={iIdx}
@@ -1118,7 +1162,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                       {item.productName || item.productId}
                                     </span>
                                     {item.color && (
-                                      <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded-md text-slate-200 text-[11px] font-medium">
+                                      <span className="px-2 py-0.5 bg-[#1E1E1E] border border-[#2A2A2A] rounded-md text-neutral-200 text-[11px] font-medium">
                                         Color: {item.color}
                                       </span>
                                     )}
@@ -1164,7 +1208,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                       }
 
                                       return (
-                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold">
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-[#1E1E1E] text-neutral-300 text-xs font-semibold">
                                           {item.quantity ? `${item.quantity} pcs (Assorted / Standard)` : "Standard"}
                                         </span>
                                       );
@@ -1193,10 +1237,10 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                 </div>
 
                                 <div className="text-right text-xs">
-                                  <span className="font-bold text-slate-200">
+                                  <span className="font-bold text-neutral-200">
                                     {item.quantity} pcs @ ₹{item.unitPrice || 0}/pc
                                   </span>
-                                  <span className="text-slate-400 block text-[11px]">
+                                  <span className="text-neutral-400 block text-[11px]">
                                     = {formatINR(item.totalPrice || item.quantity * (item.unitPrice || 0))}
                                   </span>
                                 </div>
@@ -1207,7 +1251,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       )}
 
                       {q.notes && (
-                        <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80 text-xs text-slate-300">
+                        <div className="p-3 rounded-xl bg-[#0E0E0E] border border-[#222222]/80 text-xs text-neutral-300">
                           <span className="font-bold text-amber-400 block mb-0.5">
                             Customer Notes:
                           </span>
@@ -1224,12 +1268,12 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
           {/* TAB 3: STUDIO DESIGNS */}
           {activeTab === "designs" && (
             <div className="space-y-4">
-              <span className="text-xs text-slate-400 font-semibold block">
+              <span className="text-xs text-neutral-400 font-semibold block">
                 Showing {designs.length} custom mockups saved from the 2D Studio
               </span>
 
               {designs.length === 0 ? (
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-500 text-xs">
+                <div className="bg-[#141414] border border-[#242424] rounded-2xl p-12 text-center text-neutral-500 text-xs">
                   No customizer designs logged yet. Try customizing a shirt on `/design` and saving it!
                 </div>
               ) : (
@@ -1237,10 +1281,10 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   {designs.map((d, idx) => (
                     <div
                       key={d._id || idx}
-                      className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3 hover:border-slate-700 transition flex flex-col justify-between"
+                      className="bg-[#141414] border border-[#242424] rounded-2xl p-5 space-y-3 hover:border-[#2A2A2A] transition flex flex-col justify-between"
                     >
                       <div className="space-y-3">
-                        <div className="w-full h-44 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden relative group">
+                        <div className="w-full h-44 rounded-xl bg-[#0E0E0E] border border-[#222222] flex items-center justify-center overflow-hidden relative group">
                           {d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0]) ? (
                             <img
                               src={d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0])}
@@ -1248,7 +1292,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                               className="max-h-full max-w-full object-contain p-2"
                             />
                           ) : (
-                            <Palette className="w-10 h-10 text-slate-700" />
+                            <Palette className="w-10 h-10 text-neutral-700" />
                           )}
                           {(d.previewUrl || d.frontPreviewUrl || d.artworkUrl || (d.uploadedAssets && d.uploadedAssets[0])) && (
                             <button
@@ -1279,7 +1323,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                           <span className="text-xs font-black text-white block">
                             {d.productName || d.productId}
                           </span>
-                          <span className="text-[11px] text-slate-400 block">
+                          <span className="text-[11px] text-neutral-400 block">
                             Customer: {d.customerName || "Customer"}
                           </span>
                           {d.customerPhone && (
@@ -1290,7 +1334,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                         </div>
 
                         {/* Production Tech Pack Specs Badge */}
-                        <div className="p-2.5 rounded-xl bg-slate-950/80 border border-slate-800 space-y-1.5 text-[11px]">
+                        <div className="p-2.5 rounded-xl bg-[#0E0E0E]/80 border border-[#242424] space-y-1.5 text-[11px]">
                           <div className="flex items-center justify-between font-bold">
                             <span className="text-amber-400 flex items-center gap-1">
                               <span>📐 Real Size:</span>
@@ -1298,23 +1342,23 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                 {d.techPack?.realDimensionsInches || (d.printSize ? `${d.printSize.toUpperCase()} (11" × 16")` : '11" × 16"')}
                               </span>
                             </span>
-                            <span className="text-slate-400 text-[10px]">
+                            <span className="text-neutral-400 text-[10px]">
                               {d.techPack?.realDimensionsCm || "DTF Standard"}
                             </span>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-1.5 text-[10px]">
-                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-amber-300 font-mono font-bold">
+                            <span className="px-1.5 py-0.5 rounded bg-[#1E1E1E] text-amber-300 font-mono font-bold">
                               Scale: {d.techPack?.scalePercent ? `${d.techPack.scalePercent}%` : "100%"}
                             </span>
-                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-cyan-300 font-mono font-bold">
+                            <span className="px-1.5 py-0.5 rounded bg-[#1E1E1E] text-cyan-300 font-mono font-bold">
                               Rot: {d.techPack?.rotationDegrees !== undefined ? `${d.techPack.rotationDegrees}°` : "0°"}
                             </span>
-                            <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-300 capitalize">
+                            <span className="px-1.5 py-0.5 rounded bg-[#1E1E1E] text-neutral-300 capitalize">
                               Zone: {d.techPack?.viewSide || "Front"}
                             </span>
                             {d.techPack?.offsetX !== undefined && (
-                              <span className="px-1.5 py-0.5 rounded bg-slate-800 text-slate-400 font-mono">
+                              <span className="px-1.5 py-0.5 rounded bg-[#1E1E1E] text-neutral-400 font-mono">
                                 Offset: X:{d.techPack.offsetX} Y:{d.techPack.offsetY}
                               </span>
                             )}
@@ -1323,7 +1367,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
                         <div className="flex flex-wrap gap-1.5 text-[10px]">
                           {d.colorName && (
-                            <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-semibold">
+                            <span className="px-2 py-0.5 rounded bg-[#1E1E1E] text-neutral-300 font-semibold">
                               Color: {d.colorName}
                             </span>
                           )}
@@ -1343,7 +1387,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                 const imgUrl = d.artworkUrl || d.previewUrl || d.frontPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0]);
                                 downloadMockupSafe(imgUrl, `artwork-${d.designId || d._id || "asset"}.png`);
                               }}
-                              className="w-full py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-white transition flex items-center justify-center gap-1 border border-slate-700 cursor-pointer"
+                              className="w-full py-2 px-2 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] text-[11px] font-bold text-white transition flex items-center justify-center gap-1 border border-[#2A2A2A] cursor-pointer"
                               title="Download customer artwork file"
                             >
                               <Download className="w-3.5 h-3.5 text-amber-400" />
@@ -1353,7 +1397,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                             <button
                               type="button"
                               onClick={() => downloadTechPackSpec(d)}
-                              className="w-full py-2 px-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-[11px] font-bold text-amber-400 hover:text-amber-300 transition flex items-center justify-center gap-1 border border-slate-700 cursor-pointer"
+                              className="w-full py-2 px-2 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] text-[11px] font-bold text-amber-400 hover:text-amber-300 transition flex items-center justify-center gap-1 border border-[#2A2A2A] cursor-pointer"
                               title="Download production RIP tech pack (.txt)"
                             >
                               <FileText className="w-3.5 h-3.5 text-amber-400" />
@@ -1372,12 +1416,12 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
           {/* TAB 4: BULK ENQUIRIES */}
           {activeTab === "enquiries" && (
             <div className="space-y-4">
-              <span className="text-xs text-slate-400 font-semibold block">
+              <span className="text-xs text-neutral-400 font-semibold block">
                 Showing {filteredEnquiries.length} manufacturing inquiries
               </span>
 
               {filteredEnquiries.length === 0 ? (
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center text-slate-500 text-xs">
+                <div className="bg-[#141414] border border-[#242424] rounded-2xl p-12 text-center text-neutral-500 text-xs">
                   No bulk manufacturing enquiries received yet.
                 </div>
               ) : (
@@ -1385,24 +1429,24 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   {filteredEnquiries.map((e, idx) => (
                     <div
                       key={e._id || idx}
-                      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 hover:border-slate-700 transition"
+                      className="bg-[#141414] border border-[#242424] rounded-2xl p-6 space-y-4 hover:border-[#2A2A2A] transition"
                     >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800/80 pb-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#242424]/80 pb-4">
                         <div>
                           <div className="flex items-center gap-2">
                             <span className="text-sm font-black text-white">
                               {e.name}
                             </span>
                             {e.company && (
-                              <span className="text-[11px] bg-slate-800 text-slate-300 px-2 py-0.5 rounded font-semibold flex items-center gap-1">
+                              <span className="text-[11px] bg-[#1E1E1E] text-neutral-300 px-2 py-0.5 rounded font-semibold flex items-center gap-1">
                                 <Building className="w-3 h-3 text-amber-400" /> {e.company}
                               </span>
                             )}
                           </div>
-                          <div className="flex flex-wrap items-center gap-4 text-xs text-slate-400 mt-1">
+                          <div className="flex flex-wrap items-center gap-4 text-xs text-neutral-400 mt-1">
                             <span>Phone: {e.phone}</span>
                             {e.email && <span>Email: {e.email}</span>}
-                            <span className="text-slate-500">
+                            <span className="text-neutral-500">
                               {e.createdAt ? new Date(e.createdAt).toLocaleDateString() : "Recent"}
                             </span>
                           </div>
@@ -1414,7 +1458,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                             target="_blank"
                             rel="noreferrer"
                             download
-                            className="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-amber-400 flex items-center gap-1.5 transition"
+                            className="px-3.5 py-1.5 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] border border-[#2A2A2A] text-xs font-bold text-amber-400 flex items-center gap-1.5 transition"
                           >
                             <Download className="w-3.5 h-3.5" /> Attached Tech-Pack
                           </a>
@@ -1422,24 +1466,24 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                        <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl">
-                          <span className="text-slate-500 text-[10px] uppercase font-bold block">
+                        <div className="p-3 bg-[#0E0E0E] border border-[#222222] rounded-xl">
+                          <span className="text-neutral-500 text-[10px] uppercase font-bold block">
                             Requested Garment
                           </span>
                           <span className="font-bold text-white mt-0.5 block">
                             {e.apparelType || "Custom Garment"}
                           </span>
                         </div>
-                        <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl">
-                          <span className="text-slate-500 text-[10px] uppercase font-bold block">
+                        <div className="p-3 bg-[#0E0E0E] border border-[#222222] rounded-xl">
+                          <span className="text-neutral-500 text-[10px] uppercase font-bold block">
                             Target Quantity
                           </span>
                           <span className="font-bold text-amber-400 mt-0.5 block">
                             {e.quantity ? `${e.quantity} pcs` : "Not specified"}
                           </span>
                         </div>
-                        <div className="p-3 bg-slate-950 border border-slate-800 rounded-xl">
-                          <span className="text-slate-500 text-[10px] uppercase font-bold block">
+                        <div className="p-3 bg-[#0E0E0E] border border-[#222222] rounded-xl">
+                          <span className="text-neutral-500 text-[10px] uppercase font-bold block">
                             Print Technique
                           </span>
                           <span className="font-bold text-white mt-0.5 block">
@@ -1449,7 +1493,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       </div>
 
                       {e.details && (
-                        <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-xs text-slate-300">
+                        <div className="p-3 rounded-xl bg-[#0E0E0E] border border-[#222222] text-xs text-neutral-300">
                           <span className="font-bold text-amber-400 block mb-0.5">
                             Order Details:
                           </span>
@@ -1471,7 +1515,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   <h3 className="text-sm font-extrabold text-white">
                     Wholesale Blank Silhouettes & Image Management
                   </h3>
-                  <p className="text-xs text-slate-400 mt-0.5">
+                  <p className="text-xs text-neutral-400 mt-0.5">
                     View and upload official blank t-shirt photos (Front & Back) directly to Cloudinary for your live catalog.
                   </p>
                 </div>
@@ -1496,7 +1540,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   return (
                     <div
                       key={p.id}
-                      className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-5 hover:border-slate-700 transition"
+                      className="bg-[#141414] border border-[#242424] rounded-2xl p-6 space-y-5 hover:border-[#2A2A2A] transition"
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div>
@@ -1506,7 +1550,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                           <h4 className="text-base font-black text-white mt-0.5">
                             {p.name}
                           </h4>
-                          <p className="text-xs text-slate-400 mt-1">{p.fabric}</p>
+                          <p className="text-xs text-neutral-400 mt-1">{p.fabric}</p>
                         </div>
                         <span className="text-sm font-black text-amber-400 bg-amber-950/60 border border-amber-800 px-2.5 py-1 rounded-xl shrink-0">
                           ₹{p.basePrice}/pc base
@@ -1516,7 +1560,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       {/* Blank Photos Preview Bar */}
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                          <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
                             Blank Garment Photos ({activeColor.name || "Default"})
                           </span>
                           <button
@@ -1529,7 +1573,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                         </div>
 
                         <div className="grid grid-cols-2 gap-3">
-                          <div className="h-36 rounded-xl bg-slate-950 border border-slate-800/80 p-2 flex flex-col items-center justify-center relative group overflow-hidden">
+                          <div className="h-36 rounded-xl bg-[#0E0E0E] border border-[#222222]/80 p-2 flex flex-col items-center justify-center relative group overflow-hidden">
                             {frontImg ? (
                               <img
                                 src={frontImg}
@@ -1537,17 +1581,17 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                 className="max-h-full max-w-full object-contain"
                               />
                             ) : (
-                              <div className="text-center text-slate-600 text-xs">
-                                <Camera className="w-6 h-6 mx-auto mb-1 text-slate-700" />
+                              <div className="text-center text-neutral-600 text-xs">
+                                <Camera className="w-6 h-6 mx-auto mb-1 text-neutral-700" />
                                 No Front Image
                               </div>
                             )}
-                            <span className="absolute bottom-1 left-2 text-[9px] font-bold uppercase tracking-wider bg-slate-900/80 text-slate-300 px-1.5 py-0.5 rounded">
+                            <span className="absolute bottom-1 left-2 text-[9px] font-bold uppercase tracking-wider bg-[#141414]/80 text-neutral-300 px-1.5 py-0.5 rounded">
                               Front
                             </span>
                           </div>
 
-                          <div className="h-36 rounded-xl bg-slate-950 border border-slate-800/80 p-2 flex flex-col items-center justify-center relative group overflow-hidden">
+                          <div className="h-36 rounded-xl bg-[#0E0E0E] border border-[#222222]/80 p-2 flex flex-col items-center justify-center relative group overflow-hidden">
                             {backImg ? (
                               <img
                                 src={backImg}
@@ -1555,12 +1599,12 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                 className="max-h-full max-w-full object-contain"
                               />
                             ) : (
-                              <div className="text-center text-slate-600 text-xs">
-                                <Camera className="w-6 h-6 mx-auto mb-1 text-slate-700" />
+                              <div className="text-center text-neutral-600 text-xs">
+                                <Camera className="w-6 h-6 mx-auto mb-1 text-neutral-700" />
                                 No Back Image
                               </div>
                             )}
-                            <span className="absolute bottom-1 left-2 text-[9px] font-bold uppercase tracking-wider bg-slate-900/80 text-slate-300 px-1.5 py-0.5 rounded">
+                            <span className="absolute bottom-1 left-2 text-[9px] font-bold uppercase tracking-wider bg-[#141414]/80 text-neutral-300 px-1.5 py-0.5 rounded">
                               Back
                             </span>
                           </div>
@@ -1569,16 +1613,16 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
                       {/* Volume Tier Table */}
                       <div className="space-y-1.5">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">
                           Volume Pricing Tiers
                         </span>
                         <div className="grid grid-cols-5 gap-1 text-center text-xs">
                           {(p.tiers || p.prices || []).map((t: any, tIdx: number) => (
                             <div
                               key={tIdx}
-                              className="p-2 bg-slate-950 border border-slate-800 rounded-lg"
+                              className="p-2 bg-[#0E0E0E] border border-[#222222] rounded-lg"
                             >
-                              <span className="text-[10px] text-slate-400 block">
+                              <span className="text-[10px] text-neutral-400 block">
                                 {t.label}
                               </span>
                               <span className="font-black text-white text-xs mt-0.5 block">
@@ -1591,7 +1635,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
                       {/* Available Colors */}
                       <div className="space-y-1.5">
-                        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+                        <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider block">
                           Available Colors ({pColors.length}) — Click to upload photos:
                         </span>
                         <div className="flex flex-wrap gap-2">
@@ -1600,14 +1644,14 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                               key={cIdx}
                               onClick={() => openBlankUploadModal(p, cIdx)}
                               title={`Click to edit photos for ${c.name}`}
-                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-950 border border-slate-800 text-[11px] text-slate-300 hover:border-amber-400 hover:text-white transition group"
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#0E0E0E] border border-[#222222] text-[11px] text-neutral-300 hover:border-amber-400 hover:text-white transition group"
                             >
                               <span
-                                className="w-3 h-3 rounded-full border border-slate-700 shrink-0"
+                                className="w-3 h-3 rounded-full border border-[#2A2A2A] shrink-0"
                                 style={{ backgroundColor: c.hex }}
                               />
                               <span>{c.name}</span>
-                              <Upload className="w-2.5 h-2.5 text-slate-500 group-hover:text-amber-400 transition ml-0.5" />
+                              <Upload className="w-2.5 h-2.5 text-neutral-500 group-hover:text-amber-400 transition ml-0.5" />
                             </button>
                           ))}
                         </div>
@@ -1634,7 +1678,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                         Full Access
                       </span>
                     </h3>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-neutral-400 mt-0.5">
                       Technical utilities, database seeder, Cloudinary sync, and system diagnostics.
                     </p>
                   </div>
@@ -1655,17 +1699,17 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Database Seeder Control */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div className="bg-[#141414] border border-[#242424] rounded-2xl p-6 space-y-4">
                   <div className="flex items-center gap-2.5">
                     <Database className="w-5 h-5 text-amber-400" />
                     <h4 className="text-sm font-black text-white">
                       MongoDB Catalog Seeder
                     </h4>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs text-neutral-400 leading-relaxed">
                     Safely populates or synchronizes the 6 authoritative blank silhouettes, volume discount tiers, and print zones into your MongoDB collection `products`.
                   </p>
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                  <div className="p-3 rounded-xl bg-[#0E0E0E] border border-[#222222] text-[11px] text-neutral-400 space-y-1">
                     <p>• Uses upsert logic based on product slug (safe to re-run anytime).</p>
                     <p>• Does not overwrite customer quotes or uploaded artwork.</p>
                   </div>
@@ -1680,29 +1724,29 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 </div>
 
                 {/* Backups & Data Export */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+                <div className="bg-[#141414] border border-[#242424] rounded-2xl p-6 space-y-4">
                   <div className="flex items-center gap-2.5">
                     <Download className="w-5 h-5 text-emerald-400" />
                     <h4 className="text-sm font-black text-white">
                       Data Export & Backups
                     </h4>
                   </div>
-                  <p className="text-xs text-slate-400 leading-relaxed">
+                  <p className="text-xs text-neutral-400 leading-relaxed">
                     Download complete snapshot backups of customer quotes, custom designs, and inquiries for bookkeeping or external invoicing.
                   </p>
                   <div className="grid grid-cols-2 gap-2 text-xs">
-                    <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                      <span className="text-slate-500 text-[10px] block">Quotes Logged</span>
+                    <div className="p-2.5 rounded-lg bg-[#0E0E0E] border border-[#222222] text-center">
+                      <span className="text-neutral-500 text-[10px] block">Quotes Logged</span>
                       <span className="font-black text-white text-base mt-0.5 block">{quotes.length}</span>
                     </div>
-                    <div className="p-2.5 rounded-lg bg-slate-950 border border-slate-800 text-center">
-                      <span className="text-slate-500 text-[10px] block">Designs Saved</span>
+                    <div className="p-2.5 rounded-lg bg-[#0E0E0E] border border-[#222222] text-center">
+                      <span className="text-neutral-500 text-[10px] block">Designs Saved</span>
                       <span className="font-black text-white text-base mt-0.5 block">{designs.length}</span>
                     </div>
                   </div>
                   <button
                     onClick={handleExportQuotesBackup}
-                    className="w-full py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs flex items-center justify-center gap-2 border border-slate-700 transition"
+                    className="w-full py-3 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] text-white font-bold text-xs flex items-center justify-center gap-2 border border-[#2A2A2A] transition"
                   >
                     <Download className="w-4 h-4 text-emerald-400" />
                     Export Quotes to JSON File
@@ -1710,7 +1754,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 </div>
 
                 {/* System Environment Check */}
-                <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4 lg:col-span-2">
+                <div className="bg-[#141414] border border-[#242424] rounded-2xl p-6 space-y-4 lg:col-span-2">
                   <div className="flex items-center gap-2.5">
                     <Server className="w-5 h-5 text-amber-400" />
                     <h4 className="text-sm font-black text-white">
@@ -1718,20 +1762,20 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                     </h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                      <span className="text-slate-400">Database Engine</span>
+                    <div className="p-3 rounded-xl bg-[#0E0E0E] border border-[#222222] flex items-center justify-between">
+                      <span className="text-neutral-400">Database Engine</span>
                       <span className="font-mono text-emerald-400 font-bold">MongoDB Atlas</span>
                     </div>
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                      <span className="text-slate-400">Media CDN Storage</span>
+                    <div className="p-3 rounded-xl bg-[#0E0E0E] border border-[#222222] flex items-center justify-between">
+                      <span className="text-neutral-400">Media CDN Storage</span>
                       <span className="font-mono text-emerald-400 font-bold">Cloudinary v2 API</span>
                     </div>
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                      <span className="text-slate-400">Admin Account</span>
-                      <span className="font-mono text-slate-300">process.env.ADMIN_EMAIL</span>
+                    <div className="p-3 rounded-xl bg-[#0E0E0E] border border-[#222222] flex items-center justify-between">
+                      <span className="text-neutral-400">Admin Account</span>
+                      <span className="font-mono text-neutral-300">process.env.ADMIN_EMAIL</span>
                     </div>
-                    <div className="p-3 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
-                      <span className="text-slate-400">Superadmin Account</span>
+                    <div className="p-3 rounded-xl bg-[#0E0E0E] border border-[#222222] flex items-center justify-between">
+                      <span className="text-neutral-400">Superadmin Account</span>
                       <span className="font-mono text-amber-400 font-bold">process.env.SUPERADMIN_EMAIL</span>
                     </div>
                   </div>
@@ -1743,7 +1787,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
           {/* Modal for Blank T-Shirt Image Upload */}
           {selectedProductForUpload && (
             <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
-              <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 shadow-2xl relative my-8">
+              <div className="bg-[#141414] border border-[#242424] rounded-3xl p-6 sm:p-8 max-w-lg w-full space-y-6 shadow-2xl relative my-8">
                 <div className="flex items-start justify-between">
                   <div>
                     <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
@@ -1752,13 +1796,13 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                     <h3 className="text-lg font-black text-white mt-0.5">
                       Upload Blank T-Shirt Images
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-neutral-400 mt-1">
                       {selectedProductForUpload.name}
                     </p>
                   </div>
                   <button
                     onClick={() => setSelectedProductForUpload(null)}
-                    className="text-slate-400 hover:text-white p-1"
+                    className="text-neutral-400 hover:text-white p-1"
                   >
                     <X className="w-5 h-5" />
                   </button>
@@ -1772,7 +1816,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 )}
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-bold text-slate-300 block">
+                  <label className="text-xs font-bold text-neutral-300 block">
                     Target Color Variant
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -1785,7 +1829,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                           className={`px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-2 border transition ${
                             uploadColorIdx === idx
                               ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
-                              : "bg-slate-950 text-slate-300 border-slate-800 hover:bg-slate-800"
+                              : "bg-[#0E0E0E] text-neutral-300 border-[#242424] hover:bg-[#1E1E1E]"
                           }`}
                         >
                           <span
@@ -1800,8 +1844,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                  <div className="bg-[#0E0E0E] border border-[#222222] rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold text-neutral-300">
                       <span>Front View</span>
                       {frontBlankUrl && (
                         <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
@@ -1810,7 +1854,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       )}
                     </div>
 
-                    <div className="h-40 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden p-2 relative group">
+                    <div className="h-40 rounded-xl bg-[#141414] border border-[#242424] flex items-center justify-center overflow-hidden p-2 relative group">
                       {frontBlankUrl ? (
                         <img
                           src={frontBlankUrl}
@@ -1818,14 +1862,14 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                           className="max-h-full max-w-full object-contain"
                         />
                       ) : (
-                        <div className="text-center text-slate-600 text-xs">
-                          <ImageIcon className="w-8 h-8 mx-auto mb-1 text-slate-700" />
+                        <div className="text-center text-neutral-600 text-xs">
+                          <ImageIcon className="w-8 h-8 mx-auto mb-1 text-neutral-700" />
                           Select front photo
                         </div>
                       )}
                     </div>
 
-                    <label className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-white text-center cursor-pointer transition flex items-center justify-center gap-2">
+                    <label className="w-full py-2.5 px-3 rounded-xl bg-[#141414] hover:bg-[#1E1E1E] border border-[#2A2A2A] text-xs font-bold text-white text-center cursor-pointer transition flex items-center justify-center gap-2">
                       <Upload className="w-3.5 h-3.5 text-amber-400" />
                       <span>{uploadingFront ? "Uploading to Cloudinary..." : "Select Front Photo"}</span>
                       <input
@@ -1838,8 +1882,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                     </label>
                   </div>
 
-                  <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 space-y-3">
-                    <div className="flex items-center justify-between text-xs font-bold text-slate-300">
+                  <div className="bg-[#0E0E0E] border border-[#222222] rounded-2xl p-4 space-y-3">
+                    <div className="flex items-center justify-between text-xs font-bold text-neutral-300">
                       <span>Back View</span>
                       {backBlankUrl && (
                         <span className="text-[10px] text-emerald-400 font-semibold flex items-center gap-1">
@@ -1848,7 +1892,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       )}
                     </div>
 
-                    <div className="h-40 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-center overflow-hidden p-2 relative group">
+                    <div className="h-40 rounded-xl bg-[#141414] border border-[#242424] flex items-center justify-center overflow-hidden p-2 relative group">
                       {backBlankUrl ? (
                         <img
                           src={backBlankUrl}
@@ -1856,14 +1900,14 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                           className="max-h-full max-w-full object-contain"
                         />
                       ) : (
-                        <div className="text-center text-slate-600 text-xs">
-                          <ImageIcon className="w-8 h-8 mx-auto mb-1 text-slate-700" />
+                        <div className="text-center text-neutral-600 text-xs">
+                          <ImageIcon className="w-8 h-8 mx-auto mb-1 text-neutral-700" />
                           Select back photo
                         </div>
                       )}
                     </div>
 
-                    <label className="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-xs font-bold text-white text-center cursor-pointer transition flex items-center justify-center gap-2">
+                    <label className="w-full py-2.5 px-3 rounded-xl bg-[#141414] hover:bg-[#1E1E1E] border border-[#2A2A2A] text-xs font-bold text-white text-center cursor-pointer transition flex items-center justify-center gap-2">
                       <Upload className="w-3.5 h-3.5 text-amber-400" />
                       <span>{uploadingBack ? "Uploading to Cloudinary..." : "Select Back Photo"}</span>
                       <input
@@ -1899,11 +1943,11 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
               onClick={() => setPreviewModal(null)}
             >
               <div
-                className="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-6 max-w-3xl w-full space-y-4 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-150"
+                className="bg-[#141414] border border-[#2A2A2A] rounded-3xl p-5 sm:p-6 max-w-3xl w-full space-y-4 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-150"
                 onClick={(e) => e.stopPropagation()}
               >
                 {/* Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                <div className="flex items-center justify-between pb-3 border-b border-[#242424]">
                   <div>
                     <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
                       Customizer High-Resolution Preview
@@ -1912,8 +1956,8 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       {previewModal.title || "Custom Studio Design"}
                     </h3>
                     {(previewModal.customer || previewModal.phone) && (
-                      <p className="text-xs text-slate-400 mt-0.5">
-                        Customer: <span className="text-slate-200 font-semibold">{previewModal.customer || "Customer"}</span>
+                      <p className="text-xs text-neutral-400 mt-0.5">
+                        Customer: <span className="text-neutral-200 font-semibold">{previewModal.customer || "Customer"}</span>
                         {previewModal.phone && (
                           <span className="text-amber-400 ml-2">({previewModal.phone})</span>
                         )}
@@ -1923,7 +1967,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   <button
                     type="button"
                     onClick={() => setPreviewModal(null)}
-                    className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition cursor-pointer"
+                    className="text-neutral-400 hover:text-white p-2 rounded-xl hover:bg-[#1E1E1E] transition cursor-pointer"
                     title="Close preview (Esc)"
                   >
                     <X className="w-5 h-5" />
@@ -1931,7 +1975,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 </div>
 
                 {/* Main Mockup Image Container */}
-                <div className="w-full max-h-[55vh] min-h-[240px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden p-3 relative group">
+                <div className="w-full max-h-[55vh] min-h-[240px] rounded-2xl bg-[#0E0E0E] border border-[#222222] flex items-center justify-center overflow-hidden p-3 relative group">
                   <img
                     src={previewModal.imageUrl}
                     alt={previewModal.title || "Custom mockup full view"}
@@ -1940,20 +1984,20 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                 </div>
 
                 {/* Factory Production Tech Pack Spec Panel */}
-                <div className="rounded-2xl bg-slate-950 border border-slate-800 p-4 space-y-2.5">
+                <div className="rounded-2xl bg-[#0E0E0E] border border-[#222222] p-4 space-y-2.5">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                       <FileText className="w-3.5 h-3.5" />
                       <span>Factory Print Tech Pack & RIP Measurements</span>
                     </span>
-                    <span className="text-xs font-mono text-slate-400">
+                    <span className="text-xs font-mono text-neutral-400">
                       ID: {previewModal.designId || "Custom"}
                     </span>
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-xs">
-                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Real Printable Size</span>
+                    <div className="p-2.5 rounded-xl bg-[#141414] border border-[#242424] space-y-0.5">
+                      <span className="text-[10px] text-neutral-400 uppercase tracking-tight block">Real Printable Size</span>
                       <span className="font-bold text-white text-sm block">
                         {previewModal.design?.techPack?.realDimensionsInches || "11\" × 16\""}
                       </span>
@@ -1962,30 +2006,30 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Scaling Ratio</span>
+                    <div className="p-2.5 rounded-xl bg-[#141414] border border-[#242424] space-y-0.5">
+                      <span className="text-[10px] text-neutral-400 uppercase tracking-tight block">Scaling Ratio</span>
                       <span className="font-bold text-amber-300 text-sm block font-mono">
                         {previewModal.design?.techPack?.scalePercent ? `${previewModal.design.techPack.scalePercent}%` : "100%"}
                       </span>
-                      <span className="text-[10px] text-slate-500 block">
+                      <span className="text-[10px] text-neutral-500 block">
                         Template: {previewModal.design?.techPack?.nominalSizeLabel || previewModal.design?.printSize?.toUpperCase() || "A3"}
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Rotation Angle</span>
+                    <div className="p-2.5 rounded-xl bg-[#141414] border border-[#242424] space-y-0.5">
+                      <span className="text-[10px] text-neutral-400 uppercase tracking-tight block">Rotation Angle</span>
                       <span className="font-bold text-cyan-300 text-sm block font-mono">
                         {previewModal.design?.techPack?.rotationDegrees !== undefined ? `${previewModal.design.techPack.rotationDegrees}°` : "0°"}
                       </span>
-                      <span className="text-[10px] text-slate-500 block">Clockwise</span>
+                      <span className="text-[10px] text-neutral-500 block">Clockwise</span>
                     </div>
 
-                    <div className="p-2.5 rounded-xl bg-slate-900 border border-slate-800 space-y-0.5">
-                      <span className="text-[10px] text-slate-400 uppercase tracking-tight block">Zone & Alignment</span>
-                      <span className="font-bold text-slate-200 text-xs block capitalize">
+                    <div className="p-2.5 rounded-xl bg-[#141414] border border-[#242424] space-y-0.5">
+                      <span className="text-[10px] text-neutral-400 uppercase tracking-tight block">Zone & Alignment</span>
+                      <span className="font-bold text-neutral-200 text-xs block capitalize">
                         {previewModal.design?.techPack?.viewSide || "Front"} View
                       </span>
-                      <span className="text-[10px] text-slate-500 block font-mono">
+                      <span className="text-[10px] text-neutral-500 block font-mono">
                         X:{previewModal.design?.techPack?.offsetX || 0}px Y:{previewModal.design?.techPack?.offsetY || 0}px
                       </span>
                     </div>
@@ -2021,7 +2065,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                           }
                         )
                       }
-                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-amber-400 hover:text-amber-300 font-bold text-xs transition flex items-center gap-2 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] border border-[#2A2A2A] text-amber-400 hover:text-amber-300 font-bold text-xs transition flex items-center gap-2 cursor-pointer"
                     >
                       <FileText className="w-4 h-4" />
                       <span>Download Tech Pack (.txt)</span>
@@ -2030,7 +2074,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                     <button
                       type="button"
                       onClick={() => openMockupSafe(previewModal.imageUrl, previewModal.designId)}
-                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs transition flex items-center gap-2 cursor-pointer"
+                      className="px-4 py-2.5 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] border border-[#2A2A2A] text-white font-bold text-xs transition flex items-center gap-2 cursor-pointer"
                     >
                       <ExternalLink className="w-4 h-4 text-amber-400" />
                       <span>Open in New Tab</span>
@@ -2040,7 +2084,7 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                   <button
                     type="button"
                     onClick={() => setPreviewModal(null)}
-                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl bg-[#1E1E1E] hover:bg-[#282828] text-neutral-300 hover:text-white text-xs font-semibold transition cursor-pointer"
                   >
                     Close
                   </button>
