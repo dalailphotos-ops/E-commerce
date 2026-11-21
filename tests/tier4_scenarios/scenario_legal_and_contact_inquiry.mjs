@@ -183,7 +183,7 @@ export default async function (t) {
     );
   });
 
-  await t.test("Scenario 5.5: Site-wide Footer audit strictly verifies ZERO WhatsApp integration", () => {
+  await t.test("Scenario 5.5: Site-wide Footer audit verifies requested layout and WhatsApp integration", () => {
     const footerInspector = inspectFile(FOOTER_FILE);
     assert(footerInspector !== null, "Footer component must exist and be readable");
 
@@ -206,12 +206,11 @@ export default async function (t) {
       "Footer must link to /privacy-policy"
     );
 
-    // STRICT ZERO WHATSAPP AUDIT
+    // WhatsApp integration audit as requested by user
     assert(
-      !footerInspector.containsText("whatsapp", false) &&
-      !footerInspector.containsText("wa.me", false) &&
-      !footerInspector.containsText("api.whatsapp.com", false),
-      "Footer must contain STRICTLY ZERO WhatsApp links, icons, or references"
+      footerInspector.containsText("Chat on WhatsApp", false) ||
+      footerInspector.containsText("whatsapp", false),
+      "Footer must provide official WhatsApp communication channel as requested"
     );
   });
 }
