@@ -70,6 +70,87 @@ export default function AdminPage() {
   const [savingBlank, setSavingBlank] = useState(false);
   const [blankSaveSuccess, setBlankSaveSuccess] = useState<string | null>(null);
 
+  // Full Mockup Lightbox Modal State
+  const [previewModal, setPreviewModal] = useState<{
+    isOpen: boolean;
+    imageUrl: string;
+    title: string;
+    customer?: string;
+    phone?: string;
+    designId?: string;
+  } | null>(null);
+
+  // Open mockup safely (handles data URIs, blob URLs, and clean HTTP routes without browser block)
+  const openMockupSafe = (imageUrl: string, designId?: string) => {
+    if (!imageUrl) return;
+
+    if (designId) {
+      window.open(`/api/mockup/${designId}.png`, "_blank");
+      return;
+    }
+
+    if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+      window.open(imageUrl, "_blank");
+      return;
+    }
+
+    if (imageUrl.startsWith("data:image")) {
+      try {
+        const parts = imageUrl.split(",");
+        const mime = parts[0].match(/:(.*?);/)?.[1] || "image/png";
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        window.open(blobUrl, "_blank");
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 120000);
+        return;
+      } catch (err) {
+        console.error("Failed to convert data URI to blob:", err);
+      }
+    }
+
+    window.open(imageUrl, "_blank");
+  };
+
+  // Download mockup safely (handles data URIs and HTTP links)
+  const downloadMockupSafe = (imageUrl: string, filename = "mockup.png") => {
+    if (!imageUrl) return;
+    try {
+      const a = document.createElement("a");
+      a.download = filename;
+      if (imageUrl.startsWith("data:image")) {
+        const parts = imageUrl.split(",");
+        const mime = parts[0].match(/:(.*?);/)?.[1] || "image/png";
+        const bstr = atob(parts[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+          u8arr[n] = bstr.charCodeAt(n);
+        }
+        const blob = new Blob([u8arr], { type: mime });
+        const blobUrl = URL.createObjectURL(blob);
+        a.href = blobUrl;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+      } else {
+        a.href = imageUrl;
+        a.target = "_blank";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
+
   // Login form states
   const [loginTab, setLoginTab] = useState<"admin" | "superadmin">("admin");
   const [loginEmail, setLoginEmail] = useState("");
@@ -967,47 +1048,82 @@ export default function AdminPage() {
                                 key={iIdx}
                                 className="py-2.5 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
                               >
-                                <div className="space-y-0.5">
-                                  <span className="text-xs font-bold text-white block">
-                                    {item.productName || item.productId}
-                                  </span>
-                                  <div className="flex flex-wrap items-center gap-2 text-[11px] text-slate-400">
+                                <div className="space-y-1.5 flex-1">
+                                  <div className="flex items-center gap-2 flex-wrap">
+                                    <span className="text-xs font-bold text-white block">
+                                      {item.productName || item.productId}
+                                    </span>
                                     {item.color && (
-                                      <span className="px-1.5 py-0.5 bg-slate-800 rounded text-slate-300">
+                                      <span className="px-2 py-0.5 bg-slate-800 border border-slate-700 rounded-md text-slate-200 text-[11px] font-medium">
                                         Color: {item.color}
                                       </span>
                                     )}
+                                    {item.printType && (
+                                      <span className="px-2 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded-md text-amber-300 text-[10px] font-bold">
+                                        {item.printType} {item.printSize ? `(${item.printSize.toUpperCase()})` : ""}
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* PROMINENT SIZE BREAKDOWN BADGES */}
+                                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                    <span className="text-[10px] font-black text-amber-400 uppercase tracking-wider mr-1">
+                                      Sizes Breakdown:
+                                    </span>
                                     {(() => {
                                       const rawSizes = item.sizes;
-                                      let formatted = "";
+                                      let entries: [string, number][] = [];
                                       if (rawSizes) {
                                         if (rawSizes instanceof Map) {
-                                          formatted = Array.from(rawSizes.entries())
-                                            .filter(([_, qty]) => Number(qty) > 0)
-                                            .map(([sz, qty]) => `${sz}×${qty}`)
-                                            .join(", ");
+                                          entries = Array.from(rawSizes.entries())
+                                            .map(([k, v]) => [k, Number(v)] as [string, number])
+                                            .filter(([_, qty]) => qty > 0);
                                         } else if (typeof rawSizes === "object") {
-                                          formatted = Object.entries(rawSizes)
-                                            .filter(([_, qty]) => Number(qty) > 0)
-                                            .map(([sz, qty]) => `${sz}×${qty}`)
-                                            .join(", ");
+                                          entries = Object.entries(rawSizes)
+                                            .map(([k, v]) => [k, Number(v)] as [string, number])
+                                            .filter(([_, qty]) => qty > 0);
                                         }
                                       }
+
+                                      if (entries.length > 0) {
+                                        return entries.map(([sizeName, qty]) => (
+                                          <span
+                                            key={sizeName}
+                                            className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-black shadow-xs"
+                                          >
+                                            <span className="text-amber-200">{sizeName}</span>
+                                            <span className="bg-amber-400 text-slate-950 px-1.5 py-0.2 rounded font-black text-[10px]">
+                                              {qty} pcs
+                                            </span>
+                                          </span>
+                                        ));
+                                      }
+
                                       return (
-                                        <span className="text-amber-400">
-                                          Sizes: {formatted || (item.quantity ? `${item.quantity} pcs (Assorted)` : "Standard")}
+                                        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold">
+                                          {item.quantity ? `${item.quantity} pcs (Assorted / Standard)` : "Standard"}
                                         </span>
                                       );
                                     })()}
+
                                     {item.designPreviewUrl && (
-                                      <a
-                                        href={item.designPreviewUrl}
-                                        target="_blank"
-                                        rel="noreferrer"
-                                        className="text-amber-400 hover:text-amber-300 underline font-semibold text-[11px] ml-1"
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setPreviewModal({
+                                            isOpen: true,
+                                            imageUrl: item.designPreviewUrl,
+                                            title: `${item.productName || "Custom Garment"} (${item.color || "Design"})`,
+                                            customer: q.customerName,
+                                            phone: q.phone,
+                                            designId: q._id,
+                                          });
+                                        }}
+                                        className="ml-2 text-amber-400 hover:text-amber-300 underline font-bold text-xs inline-flex items-center gap-1 cursor-pointer"
                                       >
-                                        View Mockup ↗
-                                      </a>
+                                        <ExternalLink className="w-3 h-3" />
+                                        View Mockup
+                                      </button>
                                     )}
                                   </div>
                                 </div>
@@ -1070,15 +1186,27 @@ export default function AdminPage() {
                           ) : (
                             <Palette className="w-10 h-10 text-slate-700" />
                           )}
-                          {(d.previewUrl || d.frontPreviewUrl) && (
-                            <a
-                              href={d.previewUrl || d.frontPreviewUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold text-white transition backdrop-blur-xs"
+                          {(d.previewUrl || d.frontPreviewUrl || d.artworkUrl || (d.uploadedAssets && d.uploadedAssets[0])) && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const img = d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0]);
+                                setPreviewModal({
+                                  isOpen: true,
+                                  imageUrl: img,
+                                  title: d.title || d.productName || "Custom Studio Design",
+                                  customer: d.customerName || "Customer",
+                                  phone: d.customerPhone,
+                                  designId: d.designId || d._id,
+                                });
+                              }}
+                              className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1.5 text-xs font-bold text-white transition backdrop-blur-xs cursor-pointer z-10"
                             >
-                              Open Full Mockup ↗
-                            </a>
+                              <span className="p-2 rounded-full bg-amber-500 text-slate-950 shadow-lg">
+                                <ExternalLink className="w-4 h-4" />
+                              </span>
+                              <span>Open Full Mockup ↗</span>
+                            </button>
                           )}
                         </div>
 
@@ -1115,17 +1243,18 @@ export default function AdminPage() {
                         </div>
                       </div>
 
-                      {(d.previewUrl || d.artworkUrl) && (
-                        <a
-                          href={d.previewUrl || d.artworkUrl}
-                          target="_blank"
-                          rel="noreferrer"
-                          download
-                          className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition flex items-center justify-center gap-1.5 border border-slate-700"
+                      {(d.previewUrl || d.artworkUrl || d.frontPreviewUrl) && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const imgUrl = d.previewUrl || d.frontPreviewUrl || d.artworkUrl || (d.uploadedAssets && d.uploadedAssets[0]);
+                            downloadMockupSafe(imgUrl, `mockup-${d.designId || d._id || "design"}.png`);
+                          }}
+                          className="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-bold text-white transition flex items-center justify-center gap-1.5 border border-slate-700 cursor-pointer"
                         >
                           <Download className="w-3.5 h-3.5 text-amber-400" />
                           Download Artwork
-                        </a>
+                        </button>
                       )}
                     </div>
                   ))}
@@ -1651,6 +1780,92 @@ export default function AdminPage() {
                   >
                     <Database className="w-4 h-4 text-slate-950" />
                     {savingBlank ? "Saving to Database..." : "Save Blank Photos to Cloudinary & Catalog"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Full Mockup Lightbox Inspection Modal */}
+          {previewModal && (
+            <div
+              className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 sm:p-6 overflow-y-auto"
+              onClick={() => setPreviewModal(null)}
+            >
+              <div
+                className="bg-slate-900 border border-slate-700 rounded-3xl p-5 sm:p-6 max-w-3xl w-full space-y-4 shadow-2xl relative my-auto animate-in fade-in zoom-in-95 duration-150"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                  <div>
+                    <span className="text-[10px] font-bold text-amber-400 uppercase tracking-widest block">
+                      Customizer High-Resolution Preview
+                    </span>
+                    <h3 className="text-base sm:text-lg font-black text-white mt-0.5">
+                      {previewModal.title || "Custom Studio Design"}
+                    </h3>
+                    {(previewModal.customer || previewModal.phone) && (
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        Customer: <span className="text-slate-200 font-semibold">{previewModal.customer || "Customer"}</span>
+                        {previewModal.phone && (
+                          <span className="text-amber-400 ml-2">({previewModal.phone})</span>
+                        )}
+                      </p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewModal(null)}
+                    className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 transition cursor-pointer"
+                    title="Close preview (Esc)"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Main Mockup Image Container */}
+                <div className="w-full max-h-[62vh] min-h-[260px] rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-center overflow-hidden p-3 relative group">
+                  <img
+                    src={previewModal.imageUrl}
+                    alt={previewModal.title || "Custom mockup full view"}
+                    className="max-h-[58vh] max-w-full object-contain rounded-lg shadow-lg select-none"
+                  />
+                </div>
+
+                {/* Action Toolbar */}
+                <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        downloadMockupSafe(
+                          previewModal.imageUrl,
+                          `mockup-${previewModal.designId || "custom"}.png`
+                        )
+                      }
+                      className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-lg shadow-amber-500/20 transition flex items-center gap-2 cursor-pointer"
+                    >
+                      <Download className="w-4 h-4 text-slate-950" />
+                      <span>Download PNG Mockup</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => openMockupSafe(previewModal.imageUrl, previewModal.designId)}
+                      className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-xs transition flex items-center gap-2 cursor-pointer"
+                    >
+                      <ExternalLink className="w-4 h-4 text-amber-400" />
+                      <span>Open in New Tab</span>
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setPreviewModal(null)}
+                    className="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-semibold transition cursor-pointer"
+                  >
+                    Close
                   </button>
                 </div>
               </div>
