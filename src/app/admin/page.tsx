@@ -1182,7 +1182,21 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                                       const rawSizes = item.sizes;
                                       let entries: [string, number][] = [];
                                       if (rawSizes) {
-                                        if (rawSizes instanceof Map) {
+                                        if (typeof rawSizes === "string") {
+                                          try {
+                                            const parsed = JSON.parse(rawSizes);
+                                            if (typeof parsed === "object" && parsed !== null) {
+                                              entries = Object.entries(parsed)
+                                                .map(([k, v]) => [k, Number(v)] as [string, number])
+                                                .filter(([_, qty]) => qty > 0);
+                                            }
+                                          } catch {
+                                            const matches = Array.from(rawSizes.matchAll(/([A-Z0-9]+)\s*[:×xX-]\s*(\d+)/gi));
+                                            for (const m of matches) {
+                                              if (Number(m[2]) > 0) entries.push([m[1].toUpperCase(), Number(m[2])]);
+                                            }
+                                          }
+                                        } else if (rawSizes instanceof Map) {
                                           entries = Array.from(rawSizes.entries())
                                             .map(([k, v]) => [k, Number(v)] as [string, number])
                                             .filter(([_, qty]) => qty > 0);
