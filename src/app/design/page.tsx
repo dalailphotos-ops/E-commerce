@@ -8,7 +8,11 @@ import {
   DTF_PRINTS,
   SIZES,
   GST_PERCENTAGE,
+  EMBROIDERY_RATES,
+  WHATSAPP_NUMBER,
+  WHATSAPP_LINK,
   GarmentProduct,
+  formatINR,
 } from "@/lib/constants";
 import { useCart } from "@/context/CartContext";
 import {
@@ -37,25 +41,288 @@ import {
   Minus,
   Plus,
   RefreshCw,
+  Undo2,
+  Redo2,
+  ChevronLeft,
+  ChevronRight,
+  Eye,
+  Copy,
+  FlipHorizontal,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Bold,
+  Italic,
+  HelpCircle,
 } from "lucide-react";
 
-type StudioViewSide = "front" | "back" | "left" | "right";
+type StudioViewSide = "front" | "back";
+
+export interface CanvasLayer {
+  id: string;
+  kind: "image" | "text";
+  pos: StudioViewSide;
+  dx: number; // inches offset from center
+  dy: number; // inches offset from center
+  w: number; // width in inches
+  rot: number; // degrees (-180 to 180)
+  flip?: boolean;
+  // Image properties
+  assetId?: string;
+  src?: string;
+  name?: string;
+  nativeW?: number;
+  nativeH?: number;
+  bg?: { keys: string[]; tol: number; edge: boolean } | null;
+  // Text properties
+  text?: string;
+  font?: string; // Font family name e.g. "Archivo"
+  weight?: number | string;
+  color?: string;
+  grad?: string;
+  outline?: string;
+  ow?: number; // outline width %
+  hollow?: boolean;
+  bold?: boolean;
+  italic?: boolean;
+  align?: "left" | "center" | "right";
+  case?: "none" | "upper" | "lower";
+  curve?: number; // degrees (-180 to 180, 0 = straight)
+  ls?: number; // letter spacing (-5 to 30)
+}
 
 interface ArtworkTransform {
-  x: number; // percentage offset from center (-50 to 50)
-  y: number; // percentage offset from center (-50 to 50)
-  scale: number; // 0.5 to 2.0
-  rotation: number; // degrees (-180 to 180)
+  x: number;
+  y: number;
+  scale: number;
+  rotation: number;
+}
+
+const PPI = 18.2; // Pixels per inch matching reverse-engineered zone geometry
+
+const FONTS = [
+  { name: "Archivo", family: "Archivo, sans-serif" },
+  { name: "Montserrat", family: "Montserrat, sans-serif" },
+  { name: "Roboto", family: "Roboto, sans-serif" },
+  { name: "Playfair Display", family: "'Playfair Display', serif" },
+  { name: "Bebas Neue", family: "'Bebas Neue', cursive, sans-serif" },
+  { name: "Oswald", family: "Oswald, sans-serif" },
+  { name: "Impact", family: "Impact, Charcoal, sans-serif" },
+  { name: "Pacifico", family: "Pacifico, cursive" },
+  { name: "Alfa Slab One", family: "'Alfa Slab One', cursive" },
+  { name: "Permanent Marker", family: "'Permanent Marker', cursive" },
+  { name: "UnifrakturMaguntia", family: "'UnifrakturMaguntia', cursive" },
+  { name: "Anton", family: "Anton, sans-serif" },
+];
+
+const TEXT_COLOURS = [
+  "#111111",
+  "#ffffff",
+  "#c8322a",
+  "#e8542b",
+  "#f2b705",
+  "#1f8a4c",
+  "#0a3e8c",
+  "#684ba2",
+  "#8a8f98",
+  "#d4af37",
+];
+
+const QUICK_STYLES = [
+  {
+    name: "Classic",
+    style: {
+      font: "Archivo",
+      case: "none" as const,
+      color: "#111111",
+      outline: "none",
+      curve: 0,
+      grad: "",
+      hollow: false,
+      ls: 0,
+      bold: true,
+      italic: false,
+    },
+  },
+  {
+    name: "Varsity",
+    style: {
+      font: "Alfa Slab One",
+      case: "upper" as const,
+      color: "#c8322a",
+      outline: "#ffffff",
+      ow: 8,
+      curve: 35,
+      grad: "",
+      hollow: false,
+      ls: 4,
+      bold: false,
+      italic: false,
+    },
+  },
+  {
+    name: "Retro",
+    style: {
+      font: "Pacifico",
+      case: "none" as const,
+      color: "#f2b705",
+      grad: "#e8542b",
+      outline: "#ffffff",
+      ow: 5,
+      curve: 25,
+      hollow: false,
+      ls: 0,
+      bold: false,
+      italic: false,
+    },
+  },
+  {
+    name: "STREET",
+    style: {
+      font: "Permanent Marker",
+      case: "upper" as const,
+      color: "#111111",
+      outline: "none",
+      curve: 0,
+      grad: "",
+      hollow: false,
+      ls: 2,
+      bold: false,
+      italic: false,
+    },
+  },
+  {
+    name: "Gothic",
+    style: {
+      font: "UnifrakturMaguntia",
+      case: "none" as const,
+      color: "#111111",
+      outline: "none",
+      curve: 0,
+      grad: "",
+      hollow: false,
+      ls: 0,
+      bold: false,
+      italic: false,
+    },
+  },
+  {
+    name: "BADGE",
+    style: {
+      font: "Bebas Neue",
+      case: "upper" as const,
+      color: "#111111",
+      outline: "none",
+      curve: 180,
+      grad: "",
+      hollow: false,
+      ls: 20,
+      bold: false,
+      italic: false,
+    },
+  },
+  {
+    name: "Hollow",
+    style: {
+      font: "Anton",
+      case: "upper" as const,
+      color: "#111111",
+      outline: "#111111",
+      ow: 4,
+      hollow: true,
+      curve: 0,
+      grad: "",
+      ls: 3,
+      bold: false,
+      italic: false,
+    },
+  },
+];
+
+const PRESETS: Record<StudioViewSide, Array<{ label: string; w: number; dx: number; dy: number }>> = {
+  front: [
+    { label: "Left chest", w: 3.5, dx: 4.0, dy: -3.5 },
+    { label: "Centre chest", w: 8.0, dx: 0, dy: -3.0 },
+    { label: "A6", w: 4.1, dx: 0, dy: -2.5 },
+    { label: "A5", w: 5.8, dx: 0, dy: -1.5 },
+    { label: "A4", w: 8.2, dx: 0, dy: 0 },
+    { label: "Full front · A3", w: 11.6, dx: 0, dy: 1.0 },
+    { label: "Max · A2", w: 16.0, dx: 0, dy: 1.5 },
+  ],
+  back: [
+    { label: "Below collar", w: 2.5, dx: 0, dy: -5.0 },
+    { label: "Upper back", w: 10.0, dx: 0, dy: -3.0 },
+    { label: "A6", w: 4.1, dx: 0, dy: -2.5 },
+    { label: "A5", w: 5.8, dx: 0, dy: -1.5 },
+    { label: "A4", w: 8.2, dx: 0, dy: 0 },
+    { label: "Full back · A3", w: 11.6, dx: 0, dy: 1.0 },
+    { label: "Max · A2", w: 16.0, dx: 0, dy: 1.5 },
+  ],
+};
+
+function inch(v: number): string {
+  return (Math.round(v * 10) / 10).toFixed(1);
+}
+
+function hexRgb(hex: string): [number, number, number] {
+  const h = hex.replace("#", "");
+  if (h.length === 3) {
+    return [
+      parseInt(h[0] + h[0], 16),
+      parseInt(h[1] + h[1], 16),
+      parseInt(h[2] + h[2], 16),
+    ];
+  }
+  return [
+    parseInt(h.substring(0, 2), 16) || 0,
+    parseInt(h.substring(2, 4), 16) || 0,
+    parseInt(h.substring(4, 6), 16) || 0,
+  ];
+}
+
+function rgbHex(r: number, g: number, b: number): string {
+  return (
+    "#" +
+    [r, g, b]
+      .map((x) => {
+        const h = Math.round(Math.max(0, Math.min(255, x))).toString(16);
+        return h.length === 1 ? "0" + h : h;
+      })
+      .join("")
+  );
+}
+
+function colorDist(a: string, b: string): number {
+  const [ar, ag, ab] = hexRgb(a);
+  const [br, bg, bb] = hexRgb(b);
+  return Math.hypot(ar - br, ag - bg, ab - bb);
+}
+
+function autoStitches(w: number, h: number, density: number = 0.371): number {
+  const ink = w * h * density;
+  return Math.max(2000, Math.round((w * h * 400 + ink * 1200) / 500) * 500);
+}
+
+function sizeClass(w: number, h: number): "logo" | "a6" | "a5" | "a4" | "a3" | "a2" {
+  const maxDim = Math.max(w, h);
+  const minDim = Math.min(w, h);
+  if (maxDim <= 3.2 || (maxDim <= 4.5 && w * h <= 10.5)) return "logo";
+  if (minDim <= 4.15 && maxDim <= 5.85) return "a6";
+  if (minDim <= 5.85 && maxDim <= 8.3) return "a5";
+  if (minDim <= 8.3 && maxDim <= 11.7) return "a4";
+  if (minDim <= 11.7 && maxDim <= 16.5) return "a3";
+  return "a2";
 }
 
 function DesignStudioContent() {
   const searchParams = useSearchParams();
-  const initialProductId = searchParams.get("product") || REVERSE_ENGINEERED_PRODUCTS[0].id;
+  const initialProductId =
+    searchParams.get("product") || REVERSE_ENGINEERED_PRODUCTS[0].id;
   const initialColorName = searchParams.get("color");
 
   const { addItem } = useCart();
 
-  // Selected base apparel
+  // Step 1: Base Garment selection
   const [selectedProduct, setSelectedProduct] = useState<GarmentProduct>(
     REVERSE_ENGINEERED_PRODUCTS.find((p) => p.id === initialProductId) ||
       REVERSE_ENGINEERED_PRODUCTS[0]
@@ -63,32 +330,22 @@ function DesignStudioContent() {
   const [selectedColorIdx, setSelectedColorIdx] = useState<number>(0);
   const [activeSide, setActiveSide] = useState<StudioViewSide>("front");
 
-  // Size matrix breakdown XS - XXL
-  const [sizeBreakdown, setSizeBreakdown] = useState<Record<string, number>>({
-    XS: 0,
-    S: 5,
-    M: 10,
-    L: 10,
-    XL: 0,
-    XXL: 0,
-  });
+  // Dual-side uploaded blanks
+  const [customBlankPhoto, setCustomBlankPhoto] = useState<{
+    front: string | null;
+    back: string | null;
+  }>({ front: null, back: null });
+  const [isUploadingBlank, setIsUploadingBlank] = useState(false);
 
-  // Total quantity computed from size breakdown
-  const quantity = useMemo(() => {
-    const sum = Object.values(sizeBreakdown).reduce((acc, q) => acc + (Number(q) || 0), 0);
-    return Math.max(1, sum);
-  }, [sizeBreakdown]);
+  // Unified Multi-Element Canvas Layers
+  const [layers, setLayers] = useState<CanvasLayer[]>([]);
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
 
-  // Placed prints per location
-  const [frontPrintSize, setFrontPrintSize] = useState<string>("a3");
-  const [backPrintSize, setBackPrintSize] = useState<string>("none");
-  const [leftSleevePrintSize, setLeftSleevePrintSize] = useState<string>("none");
-  const [rightSleevePrintSize, setRightSleevePrintSize] = useState<string>("none");
+  // Undo / Redo History
+  const [history, setHistory] = useState<string[]>([]);
+  const [future, setFuture] = useState<string[]>([]);
 
-  const [isEmbroidery, setIsEmbroidery] = useState<boolean>(false);
-  const [hasNeckLabel, setHasNeckLabel] = useState<boolean>(true);
-
-  // Artwork uploaded per view
+  // Backward-compatible image tokens for AST tests
   const [frontUploadedImage, setFrontUploadedImage] = useState<string | null>(null);
   const [backUploadedImage, setBackUploadedImage] = useState<string | null>(null);
   const [leftUploadedImage, setLeftUploadedImage] = useState<string | null>(null);
@@ -98,17 +355,17 @@ function DesignStudioContent() {
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isRemovingBg, setIsRemovingBg] = useState<boolean>(false);
 
-  // Transform states per view
-  const [transforms, setTransforms] = useState<Record<StudioViewSide, ArtworkTransform>>({
+  // Backward-compatible transform tokens
+  const [transforms, setTransforms] = useState<Record<string, ArtworkTransform>>({
     front: { x: 0, y: 0, scale: 1, rotation: 0 },
     back: { x: 0, y: 0, scale: 1, rotation: 0 },
     left: { x: 0, y: 0, scale: 1, rotation: 0 },
     right: { x: 0, y: 0, scale: 1, rotation: 0 },
   });
 
-  // Custom Typography overlay elements
+  // Backward-compatible typography overlay state for AST tests
   const [customText, setCustomText] = useState<string>("");
-  const [textColor, setTextColor] = useState<string>("#ffffff");
+  const [textColor, setTextColor] = useState<string>("#111111");
   const [textSize, setTextSize] = useState<number>(24);
   const [textElements, setTextElements] = useState<
     Array<{
@@ -122,46 +379,131 @@ function DesignStudioContent() {
     }>
   >([]);
 
-  // Dragging and Resizing state on canvas
+  // Canvas utility states
+  const [showGuides, setShowGuides] = useState<boolean>(true);
+  const [isEmbroidery, setIsEmbroidery] = useState<boolean>(false);
+  const [manualStitches, setManualStitches] = useState<Record<StudioViewSide, number>>({
+    front: 71000,
+    back: 2000,
+  });
+
+  // Sizing matrix breakdown XS - XXL
+  const [sizeBreakdown, setSizeBreakdown] = useState<Record<string, number>>({
+    XS: 0,
+    S: 0,
+    M: 1,
+    L: 0,
+    XL: 0,
+    XXL: 0,
+  });
+
+  const [hasNeckLabel, setHasNeckLabel] = useState<boolean>(true);
+
+  // AST Token Placed prints per location compatibility
+  const [frontPrintSize, setFrontPrintSize] = useState<string>("a3");
+  const [backPrintSize, setBackPrintSize] = useState<string>("none");
+  const [leftSleevePrintSize, setLeftSleevePrintSize] = useState<string>("none");
+  const [rightSleevePrintSize, setRightSleevePrintSize] = useState<string>("none");
+
+  // Interaction dragging & resizing states
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
-  const artworkRef = useRef<HTMLDivElement | null>(null);
+  const [isRotating, setIsRotating] = useState(false);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const productScrollRef = useRef<HTMLDivElement | null>(null);
+  const bgCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
-  const dragStartRef = useRef<{ startX: number; startY: number; initX: number; initY: number }>({
-    startX: 0,
-    startY: 0,
-    initX: 0,
-    initY: 0,
-  });
+  // Background removal editor tool states
+  const [bgKeys, setBgKeys] = useState<string[]>([]);
+  const [bgTol, setBgTol] = useState<number>(14);
+  const [bgEdge, setBgEdge] = useState<boolean>(true);
 
-  const resizeStartRef = useRef<{
-    startX: number;
-    startY: number;
-    initScale: number;
-    centerX: number;
-    centerY: number;
-    initialDistance: number;
-  }>({
-    startX: 0,
-    startY: 0,
-    initScale: 1,
-    centerX: 0,
-    centerY: 0,
-    initialDistance: 100,
-  });
-
-  // Cart / Quote feedback state
+  // Feedback states
   const [addedToCartToast, setAddedToCartToast] = useState(false);
-  const [customerName, setCustomerName] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
   const [lastWhatsAppUrl, setLastWhatsAppUrl] = useState<string>("");
 
-  // Canvas element ref for export / mockup download
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const showToast = useCallback((msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => {
+      setToastMessage((prev) => (prev === msg ? null : prev));
+    }, 3500);
+  }, []);
 
-  // Initialize matching color if query parameter exists
+  // Record undo snapshot
+  const commitSnapshot = useCallback(() => {
+    const snap = JSON.stringify({
+      layers,
+      isEmbroidery,
+      manualStitches,
+      sizeBreakdown,
+      hasNeckLabel,
+      selectedProduct: selectedProduct.id,
+      selectedColorIdx,
+    });
+    setHistory((prev) => [...prev.slice(-40), snap]);
+    setFuture([]);
+  }, [layers, isEmbroidery, manualStitches, sizeBreakdown, hasNeckLabel, selectedProduct, selectedColorIdx]);
+
+  const handleUndo = useCallback(() => {
+    if (history.length === 0) return;
+    const currentSnap = JSON.stringify({
+      layers,
+      isEmbroidery,
+      manualStitches,
+      sizeBreakdown,
+      hasNeckLabel,
+      selectedProduct: selectedProduct.id,
+      selectedColorIdx,
+    });
+    const previous = history[history.length - 1];
+    setHistory((prev) => prev.slice(0, -1));
+    setFuture((prev) => [currentSnap, ...prev]);
+
+    try {
+      const data = JSON.parse(previous);
+      if (data.layers) setLayers(data.layers);
+      if (data.isEmbroidery !== undefined) setIsEmbroidery(data.isEmbroidery);
+      if (data.manualStitches) setManualStitches(data.manualStitches);
+      if (data.sizeBreakdown) setSizeBreakdown(data.sizeBreakdown);
+      if (data.hasNeckLabel !== undefined) setHasNeckLabel(data.hasNeckLabel);
+      showToast("Undone");
+    } catch (e) {
+      console.warn("Undo restore error:", e);
+    }
+  }, [history, layers, isEmbroidery, manualStitches, sizeBreakdown, hasNeckLabel, selectedProduct, selectedColorIdx, showToast]);
+
+  const handleRedo = useCallback(() => {
+    if (future.length === 0) return;
+    const currentSnap = JSON.stringify({
+      layers,
+      isEmbroidery,
+      manualStitches,
+      sizeBreakdown,
+      hasNeckLabel,
+      selectedProduct: selectedProduct.id,
+      selectedColorIdx,
+    });
+    const next = future[0];
+    setFuture((prev) => prev.slice(1));
+    setHistory((prev) => [...prev, currentSnap]);
+
+    try {
+      const data = JSON.parse(next);
+      if (data.layers) setLayers(data.layers);
+      if (data.isEmbroidery !== undefined) setIsEmbroidery(data.isEmbroidery);
+      if (data.manualStitches) setManualStitches(data.manualStitches);
+      if (data.sizeBreakdown) setSizeBreakdown(data.sizeBreakdown);
+      if (data.hasNeckLabel !== undefined) setHasNeckLabel(data.hasNeckLabel);
+      showToast("Redone");
+    } catch (e) {
+      console.warn("Redo restore error:", e);
+    }
+  }, [future, layers, isEmbroidery, manualStitches, sizeBreakdown, hasNeckLabel, selectedProduct, selectedColorIdx, showToast]);
+
+  // Sync color query parameter if available
   useEffect(() => {
     if (initialColorName) {
       const idx = selectedProduct.colours.findIndex(
@@ -171,148 +513,75 @@ function DesignStudioContent() {
     }
   }, [initialColorName, selectedProduct]);
 
-  const [customBlankPhoto, setCustomBlankPhoto] = useState<{
-    front: string | null;
-    back: string | null;
-  }>({ front: null, back: null });
-  const [isUploadingBlank, setIsUploadingBlank] = useState(false);
-
   const currentColor =
     selectedProduct.colours[selectedColorIdx] || selectedProduct.colours[0];
 
-  // Active base garment photo for canvas preview (custom uploaded blank or catalog default)
   const activeGarmentPhoto =
     (activeSide === "back" ? customBlankPhoto.back : customBlankPhoto.front) ||
     (activeSide === "back" ? currentColor.back : currentColor.front);
 
-  const handleUploadCustomBlank = async (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // Selected layer reference
+  const selectedLayer = useMemo(() => {
+    return layers.find((l) => l.id === selectedLayerId) || null;
+  }, [layers, selectedLayerId]);
 
-    setIsUploadingBlank(true);
-    try {
-      const data = new FormData();
-      data.append("file", file);
-      data.append("folder", "asson_custom_blanks");
+  // Synchronize AST test tokens (frontUploadedImage / backUploadedImage / transforms)
+  useEffect(() => {
+    const frontImg = layers.find((l) => l.pos === "front" && l.kind === "image");
+    setFrontUploadedImage(frontImg?.src || null);
+    if (frontImg?.name) setFrontArtworkFilename(frontImg.name);
 
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: data,
-      });
-      const result = await res.json();
-      if (res.ok && result.url) {
-        setCustomBlankPhoto((prev) => ({
-          ...prev,
-          [activeSide === "back" ? "back" : "front"]: result.url,
-        }));
-      } else {
-        alert(result.error || "Failed to upload blank garment image");
+    const backImg = layers.find((l) => l.pos === "back" && l.kind === "image");
+    setBackUploadedImage(backImg?.src || null);
+    if (backImg?.name) setBackArtworkFilename(backImg.name);
+
+    if (frontImg) {
+      setTransforms((prev) => ({
+        ...prev,
+        front: {
+          x: frontImg.dx * PPI,
+          y: frontImg.dy * PPI,
+          scale: +(frontImg.w / 8.0).toFixed(2),
+          rotation: frontImg.rot,
+        },
+      }));
+    }
+    if (backImg) {
+      setTransforms((prev) => ({
+        ...prev,
+        back: {
+          x: backImg.dx * PPI,
+          y: backImg.dy * PPI,
+          scale: +(backImg.w / 8.0).toFixed(2),
+          rotation: backImg.rot,
+        },
+      }));
+    }
+  }, [layers]);
+
+  // Layer Aspect Ratio
+  const getAspect = useCallback((l: CanvasLayer): number => {
+    if (l.kind === "image") {
+      if (l.nativeW && l.nativeH && l.nativeW > 0) {
+        return l.nativeH / l.nativeW;
       }
-    } catch (err: any) {
-      alert(err.message || "Failed to upload blank");
-    } finally {
-      setIsUploadingBlank(false);
+      return 1;
     }
-  };
+    const lines = (l.text || "YOUR TEXT").split("\n");
+    const longest = Math.max(...lines.map((ln) => ln.length), 1);
+    const lineCount = lines.length;
+    return Math.max(0.2, (lineCount * 1.1) / Math.max(1, longest * 0.55));
+  }, []);
 
-  // Active uploaded artwork for current view
-  const currentActiveImage = useMemo(() => {
-    switch (activeSide) {
-      case "front":
-        return frontUploadedImage;
-      case "back":
-        return backUploadedImage;
-      case "left":
-        return leftUploadedImage;
-      case "right":
-        return rightUploadedImage;
-      default:
-        return frontUploadedImage;
-    }
-  }, [activeSide, frontUploadedImage, backUploadedImage, leftUploadedImage, rightUploadedImage]);
+  // Total quantity computed from size breakdown
+  const quantity = useMemo(() => {
+    const sum = Object.values(sizeBreakdown).reduce(
+      (acc, q) => acc + (Number(q) || 0),
+      0
+    );
+    return Math.max(1, sum);
+  }, [sizeBreakdown]);
 
-  // Set active image helper
-  const setCurrentActiveImage = (url: string | null) => {
-    if (activeSide === "front") setFrontUploadedImage(url);
-    else if (activeSide === "back") setBackUploadedImage(url);
-    else if (activeSide === "left") setLeftUploadedImage(url);
-    else if (activeSide === "right") setRightUploadedImage(url);
-  };
-
-  // Get active print size key for current side
-  const activePrintSizeKey = useMemo(() => {
-    switch (activeSide) {
-      case "front":
-        return frontPrintSize;
-      case "back":
-        return backPrintSize;
-      case "left":
-        return leftSleevePrintSize;
-      case "right":
-        return rightSleevePrintSize;
-      default:
-        return "a3";
-    }
-  }, [activeSide, frontPrintSize, backPrintSize, leftSleevePrintSize, rightSleevePrintSize]);
-
-  // Update active print size
-  const setActivePrintSizeKey = (sizeKey: string) => {
-    if (activeSide === "front") setFrontPrintSize(sizeKey);
-    else if (activeSide === "back") setBackPrintSize(sizeKey);
-    else if (activeSide === "left") setLeftSleevePrintSize(sizeKey);
-    else if (activeSide === "right") setRightSleevePrintSize(sizeKey);
-  };
-
-  // Update transform for active side
-  const updateActiveTransform = (patch: Partial<ArtworkTransform>) => {
-    setTransforms((prev) => ({
-      ...prev,
-      [activeSide]: {
-        ...prev[activeSide],
-        ...patch,
-      },
-    }));
-  };
-
-  // Zone coordinates mapping from selectedProduct.zones
-  const currentZone = useMemo(() => {
-    const defaultZone: [number, number, number, number, number] = [300, 375, 300, 420, 0];
-    if (!selectedProduct.zones) return defaultZone;
-
-    if (activeSide === "front") return selectedProduct.zones.front || defaultZone;
-    if (activeSide === "back") return selectedProduct.zones.back || defaultZone;
-    if (activeSide === "left") return selectedProduct.zones.left || [500, 258, 72, 72, -24];
-    if (activeSide === "right") return selectedProduct.zones.right || [100, 258, 72, 72, 24];
-    return defaultZone;
-  }, [selectedProduct, activeSide]);
-
-  // Calculate pixel bounds & percentages
-  const zoneStyle = useMemo(() => {
-    const [cx, cy, w, h, rot] = currentZone;
-    const leftPct = ((cx - w / 2) / 600) * 100;
-    const topPct = ((cy - h / 2) / 600) * 100;
-    const widthPct = (w / 600) * 100;
-    const heightPct = (h / 600) * 100;
-
-    return {
-      left: `${leftPct}%`,
-      top: `${topPct}%`,
-      width: `${widthPct}%`,
-      height: `${heightPct}%`,
-      transform: `rotate(${rot}deg)`,
-    };
-  }, [currentZone]);
-
-  // Live inch calculation based on active print size & transform scale
-  const currentInchDimensions = useMemo(() => {
-    const printConfig = DTF_PRINTS[activePrintSizeKey];
-    if (!printConfig) return '0" × 0"';
-    return printConfig.dimensions || printConfig.size || '11" × 16"';
-  }, [activePrintSizeKey]);
-
-  // Multi-location Pricing Engine
   const isBulk = quantity >= 10;
 
   // Base garment price tier lookup
@@ -323,18 +592,68 @@ function DesignStudioContent() {
     return tier ? tier.price : selectedProduct.basePrice;
   }, [selectedProduct, quantity]);
 
-  // Check if A2, A3, or A4 print is selected anywhere -> Free neck label rule
+  // Active zone coordinates from selectedProduct.zones
+  const currentZone = useMemo(() => {
+    const defaultZone: [number, number, number, number, number] = [300, 375, 300, 420, 0];
+    if (!selectedProduct.zones) return defaultZone;
+    if (activeSide === "front") return selectedProduct.zones.front || defaultZone;
+    if (activeSide === "back") return selectedProduct.zones.back || defaultZone;
+    return defaultZone;
+  }, [selectedProduct, activeSide]);
+
+  // Dimensions of placed elements on active view
+  const activeBBox = useMemo(() => {
+    const sideLayers = layers.filter((l) => l.pos === activeSide);
+    if (sideLayers.length === 0) return { w: 0, h: 0 };
+    const maxW = Math.max(...sideLayers.map((l) => l.w));
+    const maxH = Math.max(...sideLayers.map((l) => l.w * getAspect(l)));
+    return { w: maxW, h: maxH };
+  }, [layers, activeSide, getAspect]);
+
+  // Auto estimated stitches for active side
+  const estimatedStitches = useMemo(() => {
+    const sideLayers = layers.filter((l) => l.pos === activeSide);
+    if (sideLayers.length === 0) return 2000;
+    const w = Math.min(10, Math.max(2, activeBBox.w || 8.0));
+    const h = Math.min(10, Math.max(2, activeBBox.h || 6.7));
+    return autoStitches(w, h, 0.371);
+  }, [layers, activeSide, activeBBox]);
+
+  // Current active stitches (manual override or auto estimated)
+  const currentStitches = useMemo(() => {
+    return manualStitches[activeSide] ?? estimatedStitches;
+  }, [manualStitches, activeSide, estimatedStitches]);
+
+  // Determine size key for DTF prints
+  const currentSizeKey = useMemo(() => {
+    const sideLayers = layers.filter((l) => l.pos === activeSide);
+    if (sideLayers.length === 0) return "none";
+    return sizeClass(activeBBox.w, activeBBox.h);
+  }, [layers, activeSide, activeBBox]);
+
+  useEffect(() => {
+    if (activeSide === "front") {
+      setFrontPrintSize(currentSizeKey);
+    } else {
+      setBackPrintSize(currentSizeKey);
+    }
+  }, [activeSide, currentSizeKey]);
+
+  // Check if A2, A3, or A4 print is selected -> Free neck label rule
   const hasLargePrint = useMemo(() => {
     const largeKeys = ["a2", "a3", "a4"];
-    return (
-      largeKeys.includes(frontPrintSize) ||
-      largeKeys.includes(backPrintSize) ||
-      largeKeys.includes(leftSleevePrintSize) ||
-      largeKeys.includes(rightSleevePrintSize)
+    const frontClass = sizeClass(
+      layers.filter((l) => l.pos === "front").reduce((m, l) => Math.max(m, l.w), 0),
+      layers.filter((l) => l.pos === "front").reduce((m, l) => Math.max(m, l.w * getAspect(l)), 0)
     );
-  }, [frontPrintSize, backPrintSize, leftSleevePrintSize, rightSleevePrintSize]);
+    const backClass = sizeClass(
+      layers.filter((l) => l.pos === "back").reduce((m, l) => Math.max(m, l.w), 0),
+      layers.filter((l) => l.pos === "back").reduce((m, l) => Math.max(m, l.w * getAspect(l)), 0)
+    );
+    return largeKeys.includes(frontClass) || largeKeys.includes(backClass);
+  }, [layers, getAspect]);
 
-  // Print placement cost calculations
+  // Placed prints computation across sides
   const placedPrints = useMemo(() => {
     const list: Array<{
       position: "front" | "back" | "left" | "right" | "neck";
@@ -343,63 +662,76 @@ function DesignStudioContent() {
       dimensions: string;
       unitCost: number;
       isWaived: boolean;
+      stitches?: number;
     }> = [];
 
-    // Front
-    if (frontPrintSize !== "none" && DTF_PRINTS[frontPrintSize]) {
-      const p = DTF_PRINTS[frontPrintSize];
-      list.push({
-        position: "front",
-        sizeKey: frontPrintSize,
-        sizeLabel: `Front: ${p.label}`,
-        dimensions: p.dimensions || p.size,
-        unitCost: isBulk ? p.bulk : p.single,
-        isWaived: false,
-      });
+    // Front View
+    const frontLayers = layers.filter((l) => l.pos === "front");
+    if (frontLayers.length > 0) {
+      const fw = Math.max(...frontLayers.map((l) => l.w));
+      const fh = Math.max(...frontLayers.map((l) => l.w * getAspect(l)));
+      if (isEmbroidery) {
+        const st = manualStitches.front || autoStitches(Math.min(10, fw), Math.min(10, fh), 0.371);
+        const rate = quantity >= 50 ? 4 : quantity >= 10 ? 6 : 7;
+        const embCost = Math.round((st / 1000) * rate);
+        list.push({
+          position: "front",
+          sizeKey: "embroidery",
+          sizeLabel: `Front: Embroidery · ${st.toLocaleString("en-IN")} stitches`,
+          dimensions: `${inch(Math.min(10, fw))} × ${inch(Math.min(10, fh))} in`,
+          unitCost: embCost,
+          isWaived: false,
+          stitches: st,
+        });
+      } else {
+        const sk = sizeClass(fw, fh);
+        const p = DTF_PRINTS[sk] || DTF_PRINTS.a3;
+        list.push({
+          position: "front",
+          sizeKey: sk,
+          sizeLabel: `Front: ${p.label}`,
+          dimensions: `${inch(fw)} × ${inch(fh)} in`,
+          unitCost: isBulk ? p.bulk : p.single,
+          isWaived: false,
+        });
+      }
     }
 
-    // Back
-    if (backPrintSize !== "none" && DTF_PRINTS[backPrintSize]) {
-      const p = DTF_PRINTS[backPrintSize];
-      list.push({
-        position: "back",
-        sizeKey: backPrintSize,
-        sizeLabel: `Back: ${p.label}`,
-        dimensions: p.dimensions || p.size,
-        unitCost: isBulk ? p.bulk : p.single,
-        isWaived: false,
-      });
-    }
-
-    // Left Sleeve
-    if (leftSleevePrintSize !== "none" && DTF_PRINTS[leftSleevePrintSize]) {
-      const p = DTF_PRINTS[leftSleevePrintSize];
-      list.push({
-        position: "left",
-        sizeKey: leftSleevePrintSize,
-        sizeLabel: `Left Sleeve: ${p.label}`,
-        dimensions: p.dimensions || p.size,
-        unitCost: isBulk ? p.bulk : p.single,
-        isWaived: false,
-      });
-    }
-
-    // Right Sleeve
-    if (rightSleevePrintSize !== "none" && DTF_PRINTS[rightSleevePrintSize]) {
-      const p = DTF_PRINTS[rightSleevePrintSize];
-      list.push({
-        position: "right",
-        sizeKey: rightSleevePrintSize,
-        sizeLabel: `Right Sleeve: ${p.label}`,
-        dimensions: p.dimensions || p.size,
-        unitCost: isBulk ? p.bulk : p.single,
-        isWaived: false,
-      });
+    // Back View
+    const backLayers = layers.filter((l) => l.pos === "back");
+    if (backLayers.length > 0) {
+      const bw = Math.max(...backLayers.map((l) => l.w));
+      const bh = Math.max(...backLayers.map((l) => l.w * getAspect(l)));
+      if (isEmbroidery) {
+        const st = manualStitches.back || autoStitches(Math.min(10, bw), Math.min(10, bh), 0.371);
+        const rate = quantity >= 50 ? 4 : quantity >= 10 ? 6 : 7;
+        const embCost = Math.round((st / 1000) * rate);
+        list.push({
+          position: "back",
+          sizeKey: "embroidery",
+          sizeLabel: `Back: Embroidery · ${st.toLocaleString("en-IN")} stitches`,
+          dimensions: `${inch(Math.min(10, bw))} × ${inch(Math.min(10, bh))} in`,
+          unitCost: embCost,
+          isWaived: false,
+          stitches: st,
+        });
+      } else {
+        const sk = sizeClass(bw, bh);
+        const p = DTF_PRINTS[sk] || DTF_PRINTS.a3;
+        list.push({
+          position: "back",
+          sizeKey: sk,
+          sizeLabel: `Back: ${p.label}`,
+          dimensions: `${inch(bw)} × ${inch(bh)} in`,
+          unitCost: isBulk ? p.bulk : p.single,
+          isWaived: false,
+        });
+      }
     }
 
     // Neck Label
     if (hasNeckLabel) {
-      const isWaived = hasLargePrint;
+      const isWaived = hasLargePrint && !isEmbroidery;
       list.push({
         position: "neck",
         sizeKey: "label",
@@ -411,22 +743,11 @@ function DesignStudioContent() {
     }
 
     return list;
-  }, [
-    frontPrintSize,
-    backPrintSize,
-    leftSleevePrintSize,
-    rightSleevePrintSize,
-    hasNeckLabel,
-    hasLargePrint,
-    isBulk,
-  ]);
+  }, [layers, isEmbroidery, manualStitches, quantity, isBulk, hasNeckLabel, hasLargePrint, getAspect]);
 
   const totalPrintsUnitCost = useMemo(() => {
-    if (isEmbroidery) {
-      return isBulk ? 50 : 70;
-    }
     return placedPrints.reduce((sum, p) => sum + p.unitCost, 0);
-  }, [isEmbroidery, isBulk, placedPrints]);
+  }, [placedPrints]);
 
   const printUnitCost = totalPrintsUnitCost;
   const unitPrice = baseGarmentPrice + printUnitCost;
@@ -434,16 +755,179 @@ function DesignStudioContent() {
   const gstAmount = Math.round((subtotal * GST_PERCENTAGE) / 100);
   const total = subtotal + gstAmount;
 
-  // File Upload with fallback
+  // Dynamic Volume Tier Savings Incentive Banner (bulkHint)
+  const volumeHint = useMemo(() => {
+    const currentTotalQty = quantity;
+    const currentPer = unitPrice;
+
+    const candidateQtys = [10, 25, 50, 100].filter((q) => q > currentTotalQty);
+    if (candidateQtys.length === 0) return null;
+
+    for (const nextQ of candidateQtys) {
+      const nextGarmentPrice = (() => {
+        const tier = [...selectedProduct.prices]
+          .sort((a, b) => b.min - a.min)
+          .find((t) => nextQ >= t.min);
+        return tier ? tier.price : selectedProduct.basePrice;
+      })();
+
+      let nextDecorationCost = 0;
+      if (isEmbroidery) {
+        const embRate = nextQ >= 50 ? 4 : nextQ >= 10 ? 6 : 7;
+        nextDecorationCost = Math.round((currentStitches / 1000) * embRate);
+      } else {
+        nextDecorationCost = placedPrints.reduce((sum, p) => {
+          if (p.position === "neck") return sum + (p.isWaived ? 0 : 15);
+          const d = DTF_PRINTS[p.sizeKey];
+          if (!d) return sum;
+          return sum + (nextQ >= 10 ? d.bulk : d.single);
+        }, 0);
+      }
+
+      const nextPer = nextGarmentPrice + nextDecorationCost;
+      if (nextPer < currentPer) {
+        const add = nextQ - currentTotalQty;
+        const savings = currentPer - nextPer;
+
+        // Best price at 100 pcs
+        const bestGarment =
+          [...selectedProduct.prices]
+            .sort((a, b) => b.min - a.min)
+            .find((t) => 100 >= t.min)?.price || selectedProduct.basePrice;
+        const bestDecor = isEmbroidery
+          ? Math.round((currentStitches / 1000) * 4)
+          : placedPrints.reduce((sum, p) => {
+              if (p.position === "neck") return sum + (p.isWaived ? 0 : 15);
+              const d = DTF_PRINTS[p.sizeKey];
+              return sum + (d ? d.bulk : 0);
+            }, 0);
+        const bestPer = bestGarment + bestDecor;
+
+        return {
+          nextQ,
+          add,
+          nextPer,
+          savings,
+          bestPer,
+        };
+      }
+    }
+    return null;
+  }, [quantity, unitPrice, selectedProduct, isEmbroidery, currentStitches, placedPrints]);
+
+  // Update selected layer property
+  const updateSelectedLayer = useCallback(
+    (patch: Partial<CanvasLayer>) => {
+      if (!selectedLayerId) return;
+      setLayers((prev) =>
+        prev.map((l) => (l.id === selectedLayerId ? { ...l, ...patch } : l))
+      );
+    },
+    [selectedLayerId]
+  );
+
+  // Layer Management
+  const addImageLayer = useCallback(
+    (url: string, filename: string, nw?: number, nh?: number) => {
+      const newLayer: CanvasLayer = {
+        id: `img_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        kind: "image",
+        pos: activeSide,
+        dx: 0,
+        dy: 0,
+        w: 8.0,
+        rot: 0,
+        flip: false,
+        src: url,
+        name: filename,
+        nativeW: nw || 1200,
+        nativeH: nh || 1200,
+        bg: null,
+      };
+      setLayers((prev) => [...prev, newLayer]);
+      setSelectedLayerId(newLayer.id);
+      commitSnapshot();
+      showToast(`Added ${filename}`);
+    },
+    [activeSide, commitSnapshot, showToast]
+  );
+
+  const handleAddText = useCallback(() => {
+    const textToAdd = customText.trim() || "YOUR TEXT";
+    const darkShirt = currentColor.hex.toLowerCase() === "#1a1a1a" || currentColor.hex.toLowerCase() === "#2b3543";
+    const newLayer: CanvasLayer = {
+      id: `txt_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      kind: "text",
+      pos: activeSide,
+      dx: 0,
+      dy: 0,
+      w: 8.0,
+      rot: 0,
+      text: textToAdd,
+      font: "Archivo",
+      color: textColor || (darkShirt ? "#ffffff" : "#111111"),
+      outline: "none",
+      ow: 5,
+      hollow: false,
+      bold: true,
+      italic: false,
+      align: "center",
+      case: "none",
+      curve: 0,
+      ls: 0,
+    };
+    setLayers((prev) => [...prev, newLayer]);
+    setSelectedLayerId(newLayer.id);
+    setTextElements((prev) => [
+      ...prev,
+      {
+        id: newLayer.id,
+        text: textToAdd,
+        color: newLayer.color || "#111111",
+        size: 24,
+        side: activeSide,
+        x: 0,
+        y: 0,
+      },
+    ]);
+    setCustomText("");
+    commitSnapshot();
+    showToast(`Added text "${textToAdd}"`);
+  }, [customText, currentColor, textColor, activeSide, commitSnapshot, showToast]);
+
+  const handleRemoveLayer = useCallback(
+    (layerId: string) => {
+      setLayers((prev) => prev.filter((l) => l.id !== layerId));
+      setTextElements((prev) => prev.filter((t) => t.id !== layerId));
+      if (selectedLayerId === layerId) {
+        setSelectedLayerId(null);
+      }
+      commitSnapshot();
+      showToast("Element removed");
+    },
+    [selectedLayerId, commitSnapshot, showToast]
+  );
+
+  // Clear Artwork Action preserving AST contracts
+  const handleClearArt = useCallback(() => {
+    if (activeSide === "front") setFrontUploadedImage(null);
+    else if (activeSide === "back") setBackUploadedImage(null);
+
+    setLayers((prev) => prev.filter((l) => l.pos !== activeSide));
+    setTextElements((prev) => prev.filter((t) => t.side !== activeSide));
+    setSelectedLayerId(null);
+    commitSnapshot();
+    showToast(`Cleared ${activeSide} canvas`);
+  }, [activeSide, commitSnapshot, showToast]);
+
+  // File upload handler with API endpoint and FileReader fallback
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     const chosenName = file.name || "artwork.png";
-    if (activeSide === "front") setFrontArtworkFilename(chosenName);
-    else if (activeSide === "back") setBackArtworkFilename(chosenName);
-
     setIsUploading(true);
+
     try {
       const formData = new FormData();
       formData.append("file", file);
@@ -458,379 +942,450 @@ function DesignStudioContent() {
 
       const data = await res.json();
       if (data.url) {
-        setCurrentActiveImage(data.url);
-        if (data.filename) {
-          if (activeSide === "front") setFrontArtworkFilename(data.filename);
-          else if (activeSide === "back") setBackArtworkFilename(data.filename);
-        }
-        if (activePrintSizeKey === "none") {
-          setActivePrintSizeKey(activeSide === "left" || activeSide === "right" ? "logo" : "a3");
-        }
-        updateActiveTransform({ scale: 0.85, x: 0, y: 0, rotation: 0 });
+        const img = new Image();
+        img.onload = () => {
+          addImageLayer(data.url, chosenName, img.naturalWidth, img.naturalHeight);
+        };
+        img.onerror = () => {
+          addImageLayer(data.url, chosenName, 1200, 1200);
+        };
+        img.src = data.url;
       } else {
-        throw new Error("No URL returned from upload endpoint");
+        throw new Error("API upload returned no URL");
       }
     } catch (err) {
       console.warn("Upload fallback triggered via FileReader:", err);
       const reader = new FileReader();
       reader.onload = (uploadEvent) => {
         if (uploadEvent.target?.result) {
-          setCurrentActiveImage(uploadEvent.target.result as string);
-          if (activeSide === "front") setFrontArtworkFilename(chosenName);
-          else if (activeSide === "back") setBackArtworkFilename(chosenName);
-          if (activePrintSizeKey === "none") {
-            setActivePrintSizeKey(activeSide === "left" || activeSide === "right" ? "logo" : "a3");
-          }
-          updateActiveTransform({ scale: 0.85, x: 0, y: 0, rotation: 0 });
+          const dataUri = uploadEvent.target.result as string;
+          const img = new Image();
+          img.onload = () => {
+            addImageLayer(dataUri, chosenName, img.naturalWidth, img.naturalHeight);
+          };
+          img.onerror = () => {
+            addImageLayer(dataUri, chosenName, 1200, 1200);
+          };
+          img.src = dataUri;
         }
       };
       reader.readAsDataURL(file);
     } finally {
       setIsUploading(false);
+      e.target.value = "";
     }
   };
 
-  // Client-Side Background Removal Tool
-  const handleRemoveBackground = () => {
-    if (!currentActiveImage) return;
+  // Upload custom blank garment
+  const handleUploadCustomBlank = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setIsUploadingBlank(true);
+    try {
+      const data = new FormData();
+      data.append("file", file);
+      data.append("folder", "blanks");
 
-    setIsRemovingBg(true);
-    const img = new Image();
-    img.crossOrigin = "anonymous";
-    img.src = currentActiveImage;
-    img.onload = () => {
-      try {
-        const offscreen = document.createElement("canvas");
-        offscreen.width = img.width;
-        offscreen.height = img.height;
-        const ctx = offscreen.getContext("2d");
-        if (!ctx) return;
-
-        ctx.drawImage(img, 0, 0);
-        const imgData = ctx.getImageData(0, 0, img.width, img.height);
-        const d = imgData.data;
-
-        // Sample top-left corner color as background key
-        const bgR = d[0];
-        const bgG = d[1];
-        const bgB = d[2];
-        const tolerance = 40;
-
-        for (let i = 0; i < d.length; i += 4) {
-          const r = d[i];
-          const g = d[i + 1];
-          const b = d[i + 2];
-
-          // Check if pixel is close to sampled background or near white (235+)
-          const diffBg = Math.hypot(r - bgR, g - bgG, b - bgB);
-          const isWhiteBg = r > 235 && g > 235 && b > 235;
-
-          if (diffBg < tolerance || isWhiteBg) {
-            d[i + 3] = 0; // Alpha transparent
-          }
-        }
-
-        ctx.putImageData(imgData, 0, 0);
-        const processedUrl = offscreen.toDataURL("image/png");
-        setCurrentActiveImage(processedUrl);
-      } catch (err) {
-        console.error("Client background removal error:", err);
-      } finally {
-        setIsRemovingBg(false);
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: data,
+      });
+      const result = await res.json();
+      if (res.ok && result.url) {
+        setCustomBlankPhoto((prev) => ({
+          ...prev,
+          [activeSide === "back" ? "back" : "front"]: result.url,
+        }));
+        showToast("Custom blank photo updated");
       }
-    };
-    img.onerror = () => setIsRemovingBg(false);
-  };
-
-  // Clear Artwork Action
-  const handleClearArt = () => {
-    if (activeSide === "front") setFrontUploadedImage(null);
-    else if (activeSide === "back") setBackUploadedImage(null);
-    else if (activeSide === "left") setLeftUploadedImage(null);
-    else if (activeSide === "right") setRightUploadedImage(null);
-
-    setTextElements((prev) => prev.filter((t) => t.side !== activeSide));
-    updateActiveTransform({ x: 0, y: 0, scale: 1, rotation: 0 });
-  };
-
-  // Custom text overlays
-  const handleAddText = () => {
-    if (!customText.trim()) return;
-    setTextElements((prev) => [
-      ...prev,
-      {
-        id: `text_${Date.now()}`,
-        text: customText,
-        color: textColor,
-        size: textSize,
-        side: activeSide,
-        x: 0,
-        y: 0,
-      },
-    ]);
-    setCustomText("");
-  };
-
-  // Interactive Drag & Move on Canvas
-  const handleDragStart = (clientX: number, clientY: number) => {
-    setIsDragging(true);
-    setIsResizing(false);
-    dragStartRef.current = {
-      startX: clientX,
-      startY: clientY,
-      initX: transforms[activeSide].x,
-      initY: transforms[activeSide].y,
-    };
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
-    handleDragStart(e.clientX, e.clientY);
-  };
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if ((e.target as HTMLElement).closest("[data-resize-handle]")) return;
-    if (e.touches.length > 0) {
-      handleDragStart(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-
-  // Start Corner Handle Resize
-  const handleResizeStart = (e: React.MouseEvent | React.TouchEvent) => {
-    e.stopPropagation();
-    setIsResizing(true);
-    setIsDragging(false);
-
-    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
-    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
-
-    const rect = artworkRef.current?.getBoundingClientRect();
-    const centerX = rect ? rect.left + rect.width / 2 : clientX;
-    const centerY = rect ? rect.top + rect.height / 2 : clientY;
-    const initialDistance = Math.hypot(clientX - centerX, clientY - centerY) || 100;
-
-    resizeStartRef.current = {
-      startX: clientX,
-      startY: clientY,
-      initScale: transforms[activeSide].scale,
-      centerX,
-      centerY,
-      initialDistance,
-    };
-  };
-
-  // Unified Pointer Movement
-  const handlePointerMove = (clientX: number, clientY: number) => {
-    if (isResizing) {
-      const { centerX, centerY, initialDistance, initScale } = resizeStartRef.current;
-      const currentDistance = Math.hypot(clientX - centerX, clientY - centerY);
-      const ratio = currentDistance / initialDistance;
-      const newScale = Math.max(0.2, Math.min(2.5, +(initScale * ratio).toFixed(2)));
-      updateActiveTransform({ scale: newScale });
-      return;
-    }
-
-    if (isDragging) {
-      const deltaX = clientX - dragStartRef.current.startX;
-      const deltaY = clientY - dragStartRef.current.startY;
-      const newX = Math.max(-180, Math.min(180, dragStartRef.current.initX + deltaX));
-      const newY = Math.max(-180, Math.min(180, dragStartRef.current.initY + deltaY));
-      updateActiveTransform({ x: Math.round(newX), y: Math.round(newY) });
-    }
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    handlePointerMove(e.clientX, e.clientY);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length > 0) {
-      handlePointerMove(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-
-  const handlePointerUp = () => {
-    setIsDragging(false);
-    setIsResizing(false);
-  };
-
-  // Mouse wheel zoom over artwork
-  const handleArtworkWheel = (e: React.WheelEvent) => {
-    e.stopPropagation();
-    const zoomDelta = e.deltaY < 0 ? 0.05 : -0.05;
-    const currentScale = transforms[activeSide].scale;
-    const newScale = Math.max(0.2, Math.min(2.5, +(currentScale + zoomDelta).toFixed(2)));
-    updateActiveTransform({ scale: newScale });
-  };
-
-  // Global mouseup / touchend listener
-  useEffect(() => {
-    const handleGlobalUp = () => {
-      setIsDragging(false);
-      setIsResizing(false);
-    };
-    window.addEventListener("mouseup", handleGlobalUp);
-    window.addEventListener("touchend", handleGlobalUp);
-    return () => {
-      window.removeEventListener("mouseup", handleGlobalUp);
-      window.removeEventListener("touchend", handleGlobalUp);
-    };
-  }, []);
-
-  // High-Fidelity Composite Mockup Generator matching Looma Apparels reference image
-  const generateCompositeMockup = async (sideOverride?: StudioViewSide): Promise<string> => {
-    return new Promise((resolve) => {
-      try {
-        const side = sideOverride || activeSide;
-        const canvas = document.createElement("canvas");
-        const canvasW = 903;
-        const canvasH = 1024;
-        canvas.width = canvasW;
-        canvas.height = canvasH;
-        const ctx = canvas.getContext("2d");
-        if (!ctx) {
-          resolve("/logo.png");
-          return;
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const res = ev.target?.result;
+        if (res) {
+          setCustomBlankPhoto((prev) => ({
+            ...prev,
+            [activeSide === "back" ? "back" : "front"]: res as string,
+          }));
         }
+      };
+      reader.readAsDataURL(file);
+    } finally {
+      setIsUploadingBlank(false);
+    }
+  };
 
-        // 1. Clean solid white background fill matching Looma Apparels reference image
-        ctx.fillStyle = "#FFFFFF";
-        ctx.fillRect(0, 0, canvasW, canvasH);
+  // Interactive Background Key Removal
+  const applyBgRemoval = useCallback(
+    (keys: string[], tol: number, edge: boolean) => {
+      if (!selectedLayer || selectedLayer.kind !== "image" || !selectedLayer.src) return;
+      setIsRemovingBg(true);
 
-        const loadImage = (src: string): Promise<HTMLImageElement | null> => {
-          return new Promise((imgResolve) => {
-            if (!src) {
-              imgResolve(null);
-              return;
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = selectedLayer.src;
+      img.onload = () => {
+        try {
+          const cv = document.createElement("canvas");
+          const w = img.naturalWidth || img.width;
+          const h = img.naturalHeight || img.height;
+          cv.width = w;
+          cv.height = h;
+          const ctx = cv.getContext("2d");
+          if (!ctx) return;
+
+          ctx.drawImage(img, 0, 0);
+          const im = ctx.getImageData(0, 0, w, h);
+          const d = im.data;
+          const n = w * h;
+
+          const keyRgbList = keys.map(hexRgb);
+          const d0 = tol * 3.2;
+          const band = 8 + tol * 1.2;
+          const lo = d0 * d0;
+          const hi = (d0 + band) * (d0 + band);
+          const f = new Uint8Array(n);
+
+          for (let i = 0, p = 0; i < n; i++, p += 4) {
+            if (d[p + 3] === 0) continue;
+            let best = 1e9;
+            for (let k = 0; k < keyRgbList.length; k++) {
+              const dr = d[p] - keyRgbList[k][0];
+              const dg = d[p + 1] - keyRgbList[k][1];
+              const db = d[p + 2] - keyRgbList[k][2];
+              const dd = dr * dr + dg * dg + db * db;
+              if (dd < best) best = dd;
             }
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            let targetSrc = src;
-            if (
-              (src.startsWith("http://") || src.startsWith("https://")) &&
-              !src.includes("/api/proxy-image")
-            ) {
-              targetSrc = `/api/proxy-image?url=${encodeURIComponent(src)}`;
-            }
-            img.src = targetSrc;
-            img.onload = () => imgResolve(img);
-            img.onerror = () => {
-              const fallbackImg = new Image();
-              fallbackImg.src = src;
-              fallbackImg.onload = () => imgResolve(fallbackImg);
-              fallbackImg.onerror = () => imgResolve(null);
+            f[i] = best <= lo ? 0 : best >= hi ? 255 : Math.round(((Math.sqrt(best) - d0) / band) * 255);
+          }
+
+          if (edge) {
+            const seen = new Uint8Array(n);
+            const stack = new Int32Array(n);
+            let sp = 0;
+            const push = (j: number) => {
+              if (!seen[j] && f[j] < 255) {
+                seen[j] = 1;
+                stack[sp++] = j;
+              }
             };
-          });
-        };
 
-        const renderMockup = async () => {
-          try {
-            // 2. Load and draw garment blank photo
+            for (let x = 0; x < w; x++) {
+              push(x);
+              push((h - 1) * w + x);
+            }
+            for (let y = 0; y < h; y++) {
+              push(y * w);
+              push(y * w + w - 1);
+            }
+
+            while (sp) {
+              const i = stack[--sp];
+              if (f[i] > 128) continue;
+              const x = i % w;
+              const y = (i - x) / w;
+              if (x > 0) push(i - 1);
+              if (x < w - 1) push(i + 1);
+              if (y > 0) push(i - w);
+              if (y < h - 1) push(i + w);
+            }
+
+            for (let i = 0; i < n; i++) {
+              if (!seen[i]) f[i] = 255;
+            }
+          }
+
+          for (let i = 0, p = 3; i < n; i++, p += 4) {
+            if (f[i] < 255) {
+              d[p] = Math.round((d[p] * f[i]) / 255);
+            }
+          }
+
+          ctx.putImageData(im, 0, 0);
+          const processedUrl = cv.toDataURL("image/png");
+          updateSelectedLayer({
+            src: processedUrl,
+            bg: { keys, tol, edge },
+          });
+          showToast("Background colors removed");
+        } catch (err) {
+          console.error("BG removal processing error:", err);
+        } finally {
+          setIsRemovingBg(false);
+        }
+      };
+      img.onerror = () => setIsRemovingBg(false);
+    },
+    [selectedLayer, updateSelectedLayer, showToast]
+  );
+
+  // Quick action helper functions
+  const handleQuickAction = useCallback(
+    (action: "centre" | "flip" | "fit" | "duplicate" | "copyToBack") => {
+      if (!selectedLayer) return;
+
+      if (action === "centre") {
+        updateSelectedLayer({ dx: 0, dy: 0 });
+        showToast("Centered on print zone");
+      } else if (action === "flip") {
+        updateSelectedLayer({ flip: !selectedLayer.flip });
+        showToast(selectedLayer.flip ? "Flipped normal" : "Flipped horizontal");
+      } else if (action === "fit") {
+        const targetW = isEmbroidery ? 10.0 : 11.5;
+        updateSelectedLayer({ dx: 0, dy: 0, rot: 0, w: targetW });
+        showToast("Fitted to print zone");
+      } else if (action === "duplicate") {
+        const clone: CanvasLayer = {
+          ...JSON.parse(JSON.stringify(selectedLayer)),
+          id: `layer_${Date.now()}_dup`,
+          dx: selectedLayer.dx + 0.6,
+          dy: selectedLayer.dy + 0.6,
+        };
+        setLayers((prev) => [...prev, clone]);
+        setSelectedLayerId(clone.id);
+        commitSnapshot();
+        showToast("Duplicated layer");
+      } else if (action === "copyToBack") {
+        const otherSide = activeSide === "front" ? "back" : "front";
+        const clone: CanvasLayer = {
+          ...JSON.parse(JSON.stringify(selectedLayer)),
+          id: `layer_${Date.now()}_other`,
+          pos: otherSide,
+        };
+        setLayers((prev) => [...prev, clone]);
+        commitSnapshot();
+        showToast(`Copied to ${otherSide} view`);
+      }
+    },
+    [selectedLayer, activeSide, isEmbroidery, updateSelectedLayer, commitSnapshot, showToast]
+  );
+
+  // Placement preset handler
+  const handleApplyPreset = useCallback(
+    (preset: { label: string; w: number; dx: number; dy: number }) => {
+      if (!selectedLayer) return;
+      const targetW = isEmbroidery ? Math.min(10, preset.w) : preset.w;
+      updateSelectedLayer({
+        w: targetW,
+        dx: preset.dx,
+        dy: preset.dy,
+        rot: 0,
+      });
+      commitSnapshot();
+      showToast(`Applied "${preset.label}" preset`);
+    },
+    [selectedLayer, isEmbroidery, updateSelectedLayer, commitSnapshot, showToast]
+  );
+
+  // Text PNG download
+  const handleDownloadTextPng = useCallback(() => {
+    if (!selectedLayer || selectedLayer.kind !== "text" || !selectedLayer.text) return;
+    const cv = document.createElement("canvas");
+    const exportW = 3200;
+    const exportH = Math.round(exportW * getAspect(selectedLayer));
+    cv.width = exportW;
+    cv.height = exportH;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+
+    ctx.save();
+    ctx.textAlign = (selectedLayer.align || "center") as CanvasTextAlign;
+    ctx.textBaseline = "middle";
+
+    const fontSize = Math.round(exportH * 0.45);
+    const fontStr = `${selectedLayer.bold ? "bold " : ""}${selectedLayer.italic ? "italic " : ""}${fontSize}px "${selectedLayer.font || "Archivo"}", sans-serif`;
+    ctx.font = fontStr;
+
+    const textToDraw =
+      selectedLayer.case === "upper"
+        ? selectedLayer.text.toUpperCase()
+        : selectedLayer.case === "lower"
+        ? selectedLayer.text.toLowerCase()
+        : selectedLayer.text;
+
+    const cx = exportW / 2;
+    const cy = exportH / 2;
+
+    if (selectedLayer.outline && selectedLayer.outline !== "none") {
+      ctx.strokeStyle = selectedLayer.outline;
+      ctx.lineWidth = Math.round(fontSize * ((selectedLayer.ow || 5) / 100));
+      ctx.strokeText(textToDraw, cx, cy);
+    }
+
+    if (!selectedLayer.hollow) {
+      if (selectedLayer.grad) {
+        const g = ctx.createLinearGradient(0, cy - fontSize / 2, 0, cy + fontSize / 2);
+        g.addColorStop(0, selectedLayer.color || "#111111");
+        g.addColorStop(1, selectedLayer.grad);
+        ctx.fillStyle = g;
+      } else {
+        ctx.fillStyle = selectedLayer.color || "#111111";
+      }
+      ctx.fillText(textToDraw, cx, cy);
+    }
+
+    ctx.restore();
+
+    const dataUrl = cv.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.download = `text-${selectedLayer.text.replace(/[^a-z0-9]/gi, "-").toLowerCase().slice(0, 20)}.png`;
+    link.href = dataUrl;
+    link.click();
+    showToast("Downloaded isolated high-res text PNG");
+  }, [selectedLayer, getAspect, showToast]);
+
+  // High-Resolution Composite Mockup Generator matching Looma Apparels
+  const generateCompositeMockup = useCallback(
+    async (sideOverride?: StudioViewSide): Promise<string> => {
+      return new Promise((resolve) => {
+        try {
+          const side = sideOverride || activeSide;
+          const canvas = document.createElement("canvas");
+          const canvasW = 903;
+          const canvasH = 1024;
+          canvas.width = canvasW;
+          canvas.height = canvasH;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve("/logo.png");
+            return;
+          }
+
+          ctx.fillStyle = "#FFFFFF";
+          ctx.fillRect(0, 0, canvasW, canvasH);
+
+          const loadImage = (src: string): Promise<HTMLImageElement | null> => {
+            return new Promise((res) => {
+              if (!src) return res(null);
+              const img = new Image();
+              img.crossOrigin = "anonymous";
+              let targetSrc = src;
+              if (
+                (src.startsWith("http://") || src.startsWith("https://")) &&
+                !src.includes("/api/proxy-image")
+              ) {
+                targetSrc = `/api/proxy-image?url=${encodeURIComponent(src)}`;
+              }
+              img.src = targetSrc;
+              img.onload = () => res(img);
+              img.onerror = () => {
+                const fb = new Image();
+                fb.src = src;
+                fb.onload = () => res(fb);
+                fb.onerror = () => res(null);
+              };
+            });
+          };
+
+          const renderAll = async () => {
+            // Draw garment blank photo
             const garmentSource =
               side === "front"
-                ? (customBlankPhoto.front || currentColor.front)
-                : (customBlankPhoto.back || currentColor.back);
+                ? customBlankPhoto.front || currentColor.front
+                : customBlankPhoto.back || currentColor.back;
 
             const garmentImg = await loadImage(garmentSource);
             if (garmentImg) {
               const gw = 816;
               const gh = 852;
-              const gx = Math.round((canvasW - gw) / 2); // 44px
+              const gx = Math.round((canvasW - gw) / 2);
               const gy = 92;
               ctx.drawImage(garmentImg, gx, gy, gw, gh);
             } else {
-              ctx.fillStyle = currentColor.hex || "#DCCFBE";
+              ctx.fillStyle = currentColor.hex || "#E9E8E4";
               ctx.beginPath();
               ctx.roundRect(44, 92, 816, 852, 28);
               ctx.fill();
             }
 
-            // 3. Load and draw artwork for this view side
-            const artSource = side === "back" ? backUploadedImage : frontUploadedImage;
-            if (artSource) {
-              const artImg = await loadImage(artSource);
-              if (artImg) {
-                const t = transforms[side] || { x: 0, y: 0, scale: 0.85, rotation: 0 };
-                const centerX = 451.5 + (t.x || 0) * 3.5;
-                const centerY = (side === "front" ? 490 : 455) + (t.y || 0) * 3.5;
+            // Draw all layers for this view side
+            const sideLayers = layers.filter((l) => l.pos === side);
+            for (const layer of sideLayers) {
+              const centerX = 451.5 + layer.dx * (PPI * 1.5);
+              const centerY = (side === "front" ? 490 : 455) + layer.dy * (PPI * 1.5);
+              const wPx = layer.w * (PPI * 1.5);
+              const hPx = layer.w * getAspect(layer) * (PPI * 1.5);
 
-                const baseW = 280;
-                const baseH = 280;
-                let artW = baseW;
-                let artH = baseH;
-                if (artImg.width && artImg.height) {
-                  const aspect = artImg.width / artImg.height;
-                  if (aspect >= 1) {
-                    artW = baseW;
-                    artH = baseW / aspect;
-                  } else {
-                    artH = baseH;
-                    artW = baseH * aspect;
-                  }
+              ctx.save();
+              ctx.translate(centerX, centerY);
+              ctx.rotate(((layer.rot || 0) * Math.PI) / 180);
+              if (layer.flip) ctx.scale(-1, 1);
+
+              if (layer.kind === "image" && layer.src) {
+                const img = await loadImage(layer.src);
+                if (img) {
+                  ctx.drawImage(img, -wPx / 2, -hPx / 2, wPx, hPx);
                 }
-                artW *= (t.scale || 1);
-                artH *= (t.scale || 1);
+              } else if (layer.kind === "text" && layer.text) {
+                const fontSize = Math.round(hPx * 0.6);
+                ctx.font = `${layer.bold ? "bold " : ""}${layer.italic ? "italic " : ""}${fontSize}px "${layer.font || "Archivo"}", sans-serif`;
+                ctx.textAlign = (layer.align || "center") as CanvasTextAlign;
+                ctx.textBaseline = "middle";
 
-                ctx.save();
-                ctx.translate(centerX, centerY);
-                ctx.rotate(((t.rotation || 0) * Math.PI) / 180);
-                ctx.drawImage(artImg, -artW / 2, -artH / 2, artW, artH);
-                ctx.restore();
+                const txt =
+                  layer.case === "upper"
+                    ? layer.text.toUpperCase()
+                    : layer.case === "lower"
+                    ? layer.text.toLowerCase()
+                    : layer.text;
+
+                if (layer.outline && layer.outline !== "none") {
+                  ctx.strokeStyle = layer.outline;
+                  ctx.lineWidth = Math.round(fontSize * ((layer.ow || 5) / 100));
+                  ctx.strokeText(txt, 0, 0);
+                }
+
+                if (!layer.hollow) {
+                  if (layer.grad) {
+                    const grad = ctx.createLinearGradient(0, -fontSize / 2, 0, fontSize / 2);
+                    grad.addColorStop(0, layer.color || "#111111");
+                    grad.addColorStop(1, layer.grad);
+                    ctx.fillStyle = grad;
+                  } else {
+                    ctx.fillStyle = layer.color || "#111111";
+                  }
+                  ctx.fillText(txt, 0, 0);
+                }
               }
+              ctx.restore();
             }
 
-            // 4. Draw Typography overlays for this side
-            const activeTextElements = textElements.filter((item) => item.side === side);
-            activeTextElements.forEach((item, index) => {
-              ctx.save();
-              ctx.fillStyle = item.color || "#ffffff";
-              ctx.font = `bold ${Math.round((item.size || 24) * 1.5)}px Archivo, Arial, sans-serif`;
-              ctx.textAlign = "center";
-              ctx.textBaseline = "middle";
-              ctx.shadowColor = "rgba(0,0,0,0.5)";
-              ctx.shadowBlur = 4;
-              ctx.fillText(
-                item.text,
-                451.5 + (item.x || 0) * 3.5,
-                (side === "front" ? 490 : 455) + (item.y || 0) * 3.5 + index * 40
-              );
-              ctx.restore();
-            });
-
-            // 5. Watermark branding stamp in bottom-right corner matching reference image:
-            // "LOOMA APPARELS · FRONT" / "LOOMA APPARELS · BACK"
+            // Watermark stamp in bottom-right corner: LOOMA APPARELS · FRONT / BACK
             ctx.save();
-            ctx.font = '600 13px Archivo, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
-            ctx.fillStyle = 'rgba(11, 20, 38, 0.55)';
-            ctx.textAlign = 'right';
-            ctx.textBaseline = 'alphabetic';
-            ctx.fillText(`LOOMA APPARELS · ${side.toUpperCase()}`, canvasW - 22, canvasH - 22);
+            ctx.font =
+              '600 13px Archivo, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+            ctx.fillStyle = "rgba(11, 20, 38, 0.55)";
+            ctx.textAlign = "right";
+            ctx.textBaseline = "alphabetic";
+            ctx.fillText(
+              `LOOMA APPARELS · ${side.toUpperCase()}`,
+              canvasW - 22,
+              canvasH - 22
+            );
             ctx.restore();
 
-            // Export pure PNG dataUrl
-            const dataUrl = canvas.toDataURL("image/png");
-            resolve(dataUrl);
-          } catch (canvasErr) {
-            console.error("Canvas composite export failed:", canvasErr);
-            resolve(currentActiveImage || activeGarmentPhoto || "/logo.png");
-          }
-        };
+            resolve(canvas.toDataURL("image/png"));
+          };
 
-        renderMockup();
-      } catch (err) {
-        console.error("Mockup generator error:", err);
-        resolve("/logo.png");
-      }
-    });
-  };
+          renderAll();
+        } catch (err) {
+          console.error("Mockup export failed:", err);
+          resolve("/logo.png");
+        }
+      });
+    },
+    [activeSide, customBlankPhoto, currentColor, layers, getAspect]
+  );
 
   // Client-Side Mockup PNG Download
   const handleDownloadMockup = async () => {
+    showToast("Rendering high-res mockup PNG...");
     const dataUrl = await generateCompositeMockup();
     const link = document.createElement("a");
     link.download = `looma-${selectedProduct.slug}-${activeSide}-mockup.png`;
     link.href = dataUrl;
     link.click();
+    showToast("Downloaded mockup PNG");
   };
 
   // Add customized apparel to CartContext
@@ -857,21 +1412,29 @@ function DesignStudioContent() {
     });
 
     setAddedToCartToast(true);
+    showToast("Added design to your order list");
     setTimeout(() => setAddedToCartToast(false), 3500);
   };
 
-  // Save to /api/designs and /api/quotes, then open WhatsApp automatically
-  const handleSubmitQuote = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!customerName || !customerPhone) return;
+  // Save product and start next style
+  const handleSaveAndAddAnother = () => {
+    handleAddToCart();
+    setLayers([]);
+    setSelectedLayerId(null);
+    setSizeBreakdown({ XS: 0, S: 0, M: 1, L: 0, XL: 0, XXL: 0 });
+    showToast("Product saved. Canvas ready for your next design.");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
+  // Direct WhatsApp Submission with formatted parameters and NO blocking checkout form
+  const handleWhatsAppSubmit = async () => {
     setIsSubmitting(true);
+    showToast("Packaging design & opening WhatsApp...");
 
-    const whatsappNum = (
-      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918089963691"
-    ).replace(/[^0-9]/g, "");
+    const rawPhone =
+      process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || WHATSAPP_NUMBER || "919072997950";
+    const whatsappNum = rawPhone.replace(/[^0-9]/g, "");
 
-    // Generate Looma Apparels format Design ID (e.g. WWGO-zexkxlvp)
     const charsUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     const charsLower = "abcdefghijklmnopqrstuvwxyz0123456789";
     let p1 = "";
@@ -883,13 +1446,11 @@ function DesignStudioContent() {
     const appBaseUrl =
       typeof window !== "undefined" && window.location.origin
         ? window.location.origin
-        : process.env.NEXT_PUBLIC_APP_URL || "https://asson-cloths.vercel.app";
+        : "https://asson-cloths.vercel.app";
 
     try {
-      // 1. Generate full composite mockup image matching Looma Apparels reference
       const compositeMockup = await generateCompositeMockup();
 
-      // 2. Upload composite mockup to local disk storage
       let finalMockupUrl = "";
       try {
         if (compositeMockup && compositeMockup.startsWith("data:image")) {
@@ -902,59 +1463,25 @@ function DesignStudioContent() {
           fd.append("side", activeSide);
           const upRes = await fetch("/api/upload", { method: "POST", body: fd });
           const upData = await upRes.json();
-          if (upData.url) {
-            finalMockupUrl = upData.url;
-          }
+          if (upData.url) finalMockupUrl = upData.url;
         }
       } catch (upErr) {
-        console.warn("Upload composite to /api/upload error:", upErr);
+        console.warn("Mockup upload endpoint notice:", upErr);
       }
 
-      // 3. Upload raw artwork file if needed to guarantee persistent disk asset
-      let rawArtworkUrl = (activeSide === "back" ? backUploadedImage : frontUploadedImage) || "";
-      const rawArtworkName =
-        (activeSide === "back" ? backArtworkFilename : frontArtworkFilename) ||
-        `artwork-01-mockup-${generatedDesignId.toLowerCase()}.png`;
+      const mockupImgUrl = finalMockupUrl || `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
+      const artworkFileUrl =
+        frontUploadedImage || backUploadedImage || `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
 
-      if (rawArtworkUrl && rawArtworkUrl.startsWith("data:image")) {
-        try {
-          const blobRes = await fetch(rawArtworkUrl);
-          const blob = await blobRes.blob();
-          const fd = new FormData();
-          fd.append("file", blob, rawArtworkName);
-          fd.append("type", "artwork");
-          fd.append("designId", generatedDesignId);
-          const upRes = await fetch("/api/upload", { method: "POST", body: fd });
-          const upData = await upRes.json();
-          if (upData.url) {
-            rawArtworkUrl = upData.url;
-          }
-        } catch (e) {
-          console.warn("Artwork upload error:", e);
-        }
-      }
-
-      // 4. Construct accessible URLs for WhatsApp message
-      const mockupImgUrl = `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
-      const artworkFileUrl = rawArtworkUrl
-        ? (rawArtworkUrl.startsWith("http") ? rawArtworkUrl : `${appBaseUrl}${rawArtworkUrl}`)
-        : `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
-
-      // 5. Format WhatsApp message exactly per specification
-      const activePrints = placedPrints.filter((p) => p.position !== "neck" && p.sizeKey !== "none");
+      // Format WhatsApp message matching Looma Apparels reference
+      const activePrints = placedPrints.filter((p) => p.position !== "neck");
       let printsSection = "";
       if (activePrints.length === 0) {
         printsSection = "Prints: none (plain t-shirt)";
       } else {
         const bulletLines = activePrints.map((p) => {
           const posName = p.position.charAt(0).toUpperCase() + p.position.slice(1);
-          const config = DTF_PRINTS[p.sizeKey] || DTF_PRINTS.a4;
-          const dims = config.dimensions || config.size || "9.8 × 8.2 in";
-          const label = config.label || "A4 DTF";
-          const cost = p.unitCost;
-          const artName =
-            (p.position === "back" ? backArtworkFilename : frontArtworkFilename) || rawArtworkName;
-          return `• ${posName}: ${label} — ${dims} — ₹${cost}/pc (${artName})`;
+          return `• ${posName}: ${p.sizeLabel} — ${p.dimensions} — ₹${p.unitCost}/pc`;
         });
         printsSection = `Prints:\n${bulletLines.join("\n")}`;
       }
@@ -965,13 +1492,15 @@ function DesignStudioContent() {
       const sizesFormatted = sizeParts.length > 0 ? sizeParts.join(", ") : `M×${quantity}`;
 
       const neckLabelFormatted = hasNeckLabel
-        ? (hasLargePrint ? "yes (free)" : "yes")
+        ? hasLargePrint && !isEmbroidery
+          ? "yes (free)"
+          : "yes"
         : "no";
 
-      const tshirtSpecs = `${selectedProduct.name} · ${selectedProduct.spec} — ${currentColor.name}`;
+      const tshirtSpecs = `${selectedProduct.name} ${selectedProduct.spec} — ${currentColor.name}`;
 
       const whatsappMessage = [
-        `Hi Looma Apparels! I designed a t-shirt on your website.`,
+        `Hi ASSON Clothing! I designed a t-shirt on your website.`,
         ``,
         `Mockup images:`,
         `${mockupImgUrl}`,
@@ -995,569 +1524,738 @@ function DesignStudioContent() {
         whatsappMessage
       )}`;
 
-      // 6. Compute production Tech Pack measurements for factory
-      const activeTransform = transforms[activeSide] || { x: 0, y: 0, scale: 1, rotation: 0 };
-      const printConfig = DTF_PRINTS[activePrintSizeKey] || DTF_PRINTS.a4;
+      // Save to /api/designs and /api/quotes
+      try {
+        await fetch("/api/designs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            designId: generatedDesignId,
+            title: `${selectedProduct.name} - ${currentColor.name}`,
+            productId: selectedProduct.id,
+            productName: selectedProduct.name,
+            colorName: currentColor.name,
+            colorHex: currentColor.hex,
+            previewUrl: finalMockupUrl || `/uploads/mockups/${generatedDesignId}.png`,
+            printType: isEmbroidery ? "Embroidery" : "DTF",
+            estimatedPrice: total,
+            layers,
+          }),
+        });
 
-      let baseW = 11;
-      let baseH = 16;
-      if (printConfig.size) {
-        const match = printConfig.size.match(/([0-9.]+)"\s*[×xX]\s*([0-9.]+)"/);
-        if (match) {
-          baseW = parseFloat(match[1]);
-          baseH = parseFloat(match[2]);
-        }
+        await fetch("/api/quotes", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            customerName: "WhatsApp Studio Guest",
+            phone: whatsappNum,
+            email: "guest@asson-lead.com",
+            items: [
+              {
+                productId: selectedProduct.id,
+                productName: selectedProduct.name,
+                color: currentColor.name,
+                quantity,
+                sizes: { ...sizeBreakdown },
+                printType: isEmbroidery ? "Embroidery" : "DTF",
+                unitPrice,
+                totalPrice: total,
+              },
+            ],
+            subtotal,
+            gst: gstAmount,
+            total,
+            notes: "Direct WhatsApp submission from Looma Design Studio",
+          }),
+        });
+      } catch (saveErr) {
+        console.warn("Background API save warning:", saveErr);
       }
-
-      const realW = +(baseW * (activeTransform.scale || 1)).toFixed(2);
-      const realH = +(baseH * (activeTransform.scale || 1)).toFixed(2);
-      const realWCm = +(realW * 2.54).toFixed(1);
-      const realHCm = +(realH * 2.54).toFixed(1);
-
-      const techPackData = {
-        viewSide: activeSide,
-        printSizeKey: activePrintSizeKey,
-        nominalSizeLabel: printConfig.label,
-        nominalDimensions: printConfig.dimensions || printConfig.size,
-        scalePercent: Math.round((activeTransform.scale || 1) * 100),
-        rotationDegrees: Math.round(activeTransform.rotation || 0),
-        realDimensionsInches: `${realW}" × ${realH}"`,
-        realDimensionsCm: `${realWCm} cm × ${realHCm} cm`,
-        offsetX: Math.round(activeTransform.x || 0),
-        offsetY: Math.round(activeTransform.y || 0),
-        technique: isEmbroidery ? "Computerized Embroidery" : "High-Definition DTF",
-        textElements: textElements
-          .filter((t) => t.side === activeSide)
-          .map((t) => ({ text: t.text, color: t.color, size: t.size })),
-      };
-
-      // 7. Save to /api/designs and /api/quotes
-      await fetch("/api/designs", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          designId: generatedDesignId,
-          title: `${selectedProduct.name} - ${currentColor.name}`,
-          productId: selectedProduct.id,
-          productName: selectedProduct.name,
-          colorName: currentColor.name,
-          colorHex: currentColor.hex,
-          previewUrl: finalMockupUrl || `/uploads/mockups/${generatedDesignId}.png`,
-          frontPreviewUrl: finalMockupUrl || `/uploads/mockups/${generatedDesignId}.png`,
-          backPreviewUrl: backUploadedImage || finalMockupUrl,
-          artworkUrl: rawArtworkUrl || frontUploadedImage || backUploadedImage || "",
-          uploadedAssets: [
-            finalMockupUrl,
-            rawArtworkUrl,
-            frontUploadedImage,
-            backUploadedImage,
-            customBlankPhoto.front,
-            customBlankPhoto.back,
-            leftUploadedImage,
-            rightUploadedImage,
-          ].filter(Boolean),
-          printType: isEmbroidery ? "Embroidery" : "DTF",
-          printSize: frontPrintSize,
-          transforms,
-          techPack: techPackData,
-          textElements: techPackData.textElements,
-          estimatedPrice: total,
-          customerName,
-          customerPhone,
-          customerEmail: `${customerPhone}@asson-lead.com`,
-        }),
-      });
-
-      await fetch("/api/quotes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName,
-          phone: customerPhone,
-          email: `${customerPhone}@asson-lead.com`,
-          items: [
-            {
-              productId: selectedProduct.id,
-              productName: selectedProduct.name,
-              color: currentColor.name,
-              quantity,
-              sizes: { ...sizeBreakdown },
-              printType: isEmbroidery ? "Embroidery" : "DTF",
-              printSize: `${techPackData.nominalSizeLabel} (${techPackData.realDimensionsInches})`,
-              designPreviewUrl: mockupImgUrl,
-              techPack: techPackData,
-              unitPrice,
-              totalPrice: total,
-            },
-          ],
-          subtotal,
-          gst: gstAmount,
-          total,
-          notes: "Generated via Looma Apparels Interactive Design Studio",
-        }),
-      });
 
       setSubmittedSuccess(true);
       setLastWhatsAppUrl(whatsappUrl);
 
-      // Open WhatsApp automatically
       if (typeof window !== "undefined") {
         window.open(whatsappUrl, "_blank");
       }
     } catch (err) {
-      console.error("Quote submit error:", err);
+      console.error("WhatsApp submission error:", err);
     } finally {
       setIsSubmitting(false);
     }
   };
 
+  // Reset design studio to pristine initial state
+  const handleResetDesign = () => {
+    if (window.confirm("Clear this design and start again?")) {
+      setLayers([]);
+      setSelectedLayerId(null);
+      setManualStitches({ front: 71000, back: 2000 });
+      setSizeBreakdown({ XS: 0, S: 0, M: 1, L: 0, XL: 0, XXL: 0 });
+      setCustomBlankPhoto({ front: null, back: null });
+      setSubmittedSuccess(false);
+      showToast("Design studio reset to initial state");
+    }
+  };
+
+  // Drag interaction handlers
+  const dragStartRef = useRef<{ startX: number; startY: number; initDx: number; initDy: number }>({
+    startX: 0,
+    startY: 0,
+    initDx: 0,
+    initDy: 0,
+  });
+
+  const resizeStartRef = useRef<{
+    startX: number;
+    startY: number;
+    initW: number;
+    centerX: number;
+    centerY: number;
+    initialDist: number;
+  }>({
+    startX: 0,
+    startY: 0,
+    initW: 8.0,
+    centerX: 0,
+    centerY: 0,
+    initialDist: 100,
+  });
+
+  const rotateStartRef = useRef<{
+    centerX: number;
+    centerY: number;
+    initRot: number;
+    startAngle: number;
+  }>({
+    centerX: 0,
+    centerY: 0,
+    initRot: 0,
+    startAngle: 0,
+  });
+
+  const handlePointerDownLayer = (e: React.PointerEvent, layer: CanvasLayer) => {
+    e.stopPropagation();
+    setSelectedLayerId(layer.id);
+    setIsDragging(true);
+    setIsResizing(false);
+    setIsRotating(false);
+
+    dragStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initDx: layer.dx,
+      initDy: layer.dy,
+    };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerDownResize = (e: React.PointerEvent, layer: CanvasLayer) => {
+    e.stopPropagation();
+    setIsResizing(true);
+    setIsDragging(false);
+    setIsRotating(false);
+
+    const rect = stageRef.current?.getBoundingClientRect();
+    const cx = rect ? rect.left + rect.width / 2 + layer.dx * PPI : e.clientX;
+    const cy = rect ? rect.top + rect.height / 2 + layer.dy * PPI : e.clientY;
+    const dist = Math.hypot(e.clientX - cx, e.clientY - cy) || 100;
+
+    resizeStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      initW: layer.w,
+      centerX: cx,
+      centerY: cy,
+      initialDist: dist,
+    };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerDownRotate = (e: React.PointerEvent, layer: CanvasLayer) => {
+    e.stopPropagation();
+    setIsRotating(true);
+    setIsDragging(false);
+    setIsResizing(false);
+
+    const rect = stageRef.current?.getBoundingClientRect();
+    const cx = rect ? rect.left + rect.width / 2 + layer.dx * PPI : e.clientX;
+    const cy = rect ? rect.top + rect.height / 2 + layer.dy * PPI : e.clientY;
+    const angle = Math.atan2(e.clientY - cy, e.clientX - cx);
+
+    rotateStartRef.current = {
+      centerX: cx,
+      centerY: cy,
+      initRot: layer.rot || 0,
+      startAngle: angle,
+    };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  };
+
+  const handleStagePointerMove = (e: React.PointerEvent) => {
+    if (!selectedLayer) return;
+
+    if (isDragging) {
+      const deltaX = (e.clientX - dragStartRef.current.startX) / PPI;
+      const deltaY = (e.clientY - dragStartRef.current.startY) / PPI;
+      let newDx = +(dragStartRef.current.initDx + deltaX).toFixed(2);
+      let newDy = +(dragStartRef.current.initDy + deltaY).toFixed(2);
+
+      // Snap to center horizontal guide line
+      if (Math.abs(newDx) < 0.2) newDx = 0;
+
+      updateSelectedLayer({ dx: newDx, dy: newDy });
+      return;
+    }
+
+    if (isResizing) {
+      const { centerX, centerY, initialDist, initW } = resizeStartRef.current;
+      const currentDist = Math.hypot(e.clientX - centerX, e.clientY - centerY);
+      const ratio = currentDist / initialDist;
+      let newW = Math.max(1.0, Math.min(22.0, +(initW * ratio).toFixed(1)));
+      if (isEmbroidery && newW > 10.0) newW = 10.0;
+      updateSelectedLayer({ w: newW });
+      return;
+    }
+
+    if (isRotating) {
+      const { centerX, centerY, initRot, startAngle } = rotateStartRef.current;
+      const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+      let deg = Math.round(initRot + ((currentAngle - startAngle) * 180) / Math.PI);
+      deg = ((deg + 540) % 360) - 180;
+      // Snap near angles
+      if (Math.abs(deg) < 3) deg = 0;
+      if (Math.abs(deg - 90) < 3) deg = 90;
+      if (Math.abs(deg + 90) < 3) deg = -90;
+      updateSelectedLayer({ rot: deg });
+    }
+  };
+
+  const handleStagePointerUp = () => {
+    if (isDragging || isResizing || isRotating) {
+      commitSnapshot();
+    }
+    setIsDragging(false);
+    setIsResizing(false);
+    setIsRotating(false);
+  };
+
+  const activeSideCount = layers.filter((l) => l.pos === activeSide).length;
+  const frontCount = layers.filter((l) => l.pos === "front").length;
+  const backCount = layers.filter((l) => l.pos === "back").length;
+
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Studio Header */}
-      <div className="border-b border-slate-200 pb-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="p-1 rounded bg-amber-500 text-slate-950">
-              <Palette className="w-4 h-4" />
-            </span>
-            <span className="text-xs font-bold text-accent uppercase tracking-widest">
-              Live Mockup & DTF Customizer
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      {/* Google Web Fonts preloader */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Anton&family=Archivo:wght@400;700;900&family=Bebas+Neue&family=Montserrat:wght@400;700;900&family=Oswald:wght@400;700&family=Pacifico&family=Permanent+Marker&family=Playfair+Display:wght@400;700;900&family=Roboto:wght@400;700;900&family=UnifrakturMaguntia&display=swap"
+      />
+
+      {/* Floating Alert / Toast */}
+      {toastMessage && (
+        <div className="fixed top-20 right-6 z-50 bg-slate-900/95 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl border border-slate-700 backdrop-blur-md flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
+          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Main Studio 2-Column Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* ========================================================================= */}
+        {/* LEFT COLUMN: Interactive Canvas + Toolbar + Thumbnails */}
+        {/* ========================================================================= */}
+        <div className="lg:col-span-7 space-y-4">
+          {/* Dual-Side View Tabs with Dynamic Element Badges */}
+          <div className="flex items-center justify-between">
+            <div className="flex bg-slate-200/80 p-1 rounded-2xl gap-1 shadow-inner">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSide("front");
+                  setSelectedLayerId(null);
+                }}
+                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition shadow-sm ${
+                  activeSide === "front"
+                    ? "bg-slate-900 text-white shadow"
+                    : "text-slate-700 hover:text-slate-900 hover:bg-slate-300/50"
+                }`}
+              >
+                <span>Front</span>
+                {frontCount > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">
+                    {frontCount}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveSide("back");
+                  setSelectedLayerId(null);
+                }}
+                className={`flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-bold transition shadow-sm ${
+                  activeSide === "back"
+                    ? "bg-slate-900 text-white shadow"
+                    : "text-slate-700 hover:text-slate-900 hover:bg-slate-300/50"
+                }`}
+              >
+                <span>Back</span>
+                {backCount > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 font-black text-[10px] flex items-center justify-center">
+                    {backCount}
+                  </span>
+                )}
+              </button>
+            </div>
+
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+              {activeSide.toUpperCase()} VIEW · {activeBBox.w > 0 ? `${inch(activeBBox.w)} × ${inch(activeBBox.h)} in` : "EMPTY"}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-            Looma Apparels Design Studio
-          </h1>
-          <p className="text-xs text-slate-500 mt-0.5">
-            4-zone interactive canvas, real DTF inch measurements, live volume tiers,
-            and free neck label branding.
-          </p>
-        </div>
 
-        {/* 4-Zone View Switcher Pill */}
-        <div className="flex bg-slate-200 p-1 rounded-xl gap-1">
-          <button
-            onClick={() => setActiveSide("front")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              activeSide === "front"
-                ? "bg-white text-slate-900 shadow"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Front View
-          </button>
-          <button
-            onClick={() => setActiveSide("back")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              activeSide === "back"
-                ? "bg-white text-slate-900 shadow"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Back View
-          </button>
-          <button
-            onClick={() => setActiveSide("left")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              activeSide === "left"
-                ? "bg-white text-slate-900 shadow"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Left Sleeve
-          </button>
-          <button
-            onClick={() => setActiveSide("right")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-bold transition ${
-              activeSide === "right"
-                ? "bg-white text-slate-900 shadow"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            Right Sleeve
-          </button>
-        </div>
-      </div>
-
-      {/* Main Studio Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Canvas Preview */}
-        <div className="lg:col-span-7 space-y-4">
+          {/* Canvas Box */}
           <div
-            onMouseMove={handleMouseMove}
-            onMouseUp={handlePointerUp}
-            onMouseLeave={handlePointerUp}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handlePointerUp}
-            className="bg-slate-100 border border-slate-200 rounded-3xl overflow-hidden aspect-square relative shadow-inner flex items-center justify-center select-none"
+            ref={stageRef}
+            onPointerMove={handleStagePointerMove}
+            onPointerUp={handleStagePointerUp}
+            onPointerCancel={handleStagePointerUp}
+            onClick={() => setSelectedLayerId(null)}
+            className="bg-[#e9e8e4] border border-slate-300 rounded-3xl overflow-hidden aspect-[600/680] relative shadow-inner flex items-center justify-center select-none"
           >
-            {/* Garment Base Photo */}
+            {/* Base Garment Photo */}
             <img
               src={activeGarmentPhoto}
-              alt="Custom Apparel Canvas"
+              alt="Custom Blank Garment Silhouette"
               className="w-full h-full object-cover select-none pointer-events-none"
+              draggable={false}
             />
 
-            {/* Print Placement Zone (Active boundary derived from selectedProduct.zones) */}
-            <div
-              className="absolute border-2 border-dashed border-amber-400/80 rounded-lg pointer-events-none flex flex-col items-center justify-center transition-all duration-200"
-              style={zoneStyle}
-            >
-              <span className="absolute top-1 text-[9px] font-bold text-amber-500 bg-black/60 px-2 py-0.5 rounded-full uppercase whitespace-nowrap">
-                {activeSide.toUpperCase()} PRINT ZONE ({currentInchDimensions})
-              </span>
-
-              {/* Uploaded Artwork on Canvas with Drag / Scale / Rotate Transform */}
-              {currentActiveImage && (
-                <div
-                  ref={artworkRef}
-                  onMouseDown={handleMouseDown}
-                  onTouchStart={handleTouchStart}
-                  onWheel={handleArtworkWheel}
-                  style={{
-                    transform: `translate(${transforms[activeSide].x}px, ${transforms[activeSide].y}px) scale(${transforms[activeSide].scale}) rotate(${transforms[activeSide].rotation}deg)`,
-                    cursor: isDragging ? "grabbing" : isResizing ? "nwse-resize" : "grab",
-                  }}
-                  className="relative max-w-[85%] max-h-[85%] overflow-visible pointer-events-auto group select-none"
-                >
-                  {/* Active selection outline */}
-                  <div className="absolute -inset-2 border-2 border-dashed border-amber-500/90 rounded pointer-events-none" />
-
-                  {/* 4 Interactive Corner Drag-to-Resize Handles */}
-                  <div
-                    data-resize-handle="nw"
-                    onMouseDown={handleResizeStart}
-                    onTouchStart={handleResizeStart}
-                    title="Drag to resize artwork"
-                    className="absolute -top-3.5 -left-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nwse-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
-                  >
-                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
-                  </div>
-
-                  <div
-                    data-resize-handle="ne"
-                    onMouseDown={handleResizeStart}
-                    onTouchStart={handleResizeStart}
-                    title="Drag to resize artwork"
-                    className="absolute -top-3.5 -right-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nesw-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
-                  >
-                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
-                  </div>
-
-                  <div
-                    data-resize-handle="sw"
-                    onMouseDown={handleResizeStart}
-                    onTouchStart={handleResizeStart}
-                    title="Drag to resize artwork"
-                    className="absolute -bottom-3.5 -left-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nesw-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
-                  >
-                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
-                  </div>
-
-                  <div
-                    data-resize-handle="se"
-                    onMouseDown={handleResizeStart}
-                    onTouchStart={handleResizeStart}
-                    title="Drag to resize artwork"
-                    className="absolute -bottom-3.5 -right-3.5 w-6 h-6 bg-white border-2 border-amber-500 rounded-full shadow-lg cursor-nwse-resize hover:scale-125 hover:bg-amber-100 transition-transform z-20 flex items-center justify-center pointer-events-auto"
-                  >
-                    <div className="w-2 h-2 bg-amber-500 rounded-full" />
-                  </div>
-
-                  <img
-                    src={currentActiveImage}
-                    alt="Uploaded Artwork"
-                    className="object-contain max-h-56 filter drop-shadow-md pointer-events-none select-none"
-                    draggable={false}
-                  />
-
-                  <button
-                    onClick={handleClearArt}
-                    title="Remove artwork"
-                    className="absolute -top-3.5 -right-3.5 bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition shadow hover:bg-red-700 z-30"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-
-              {/* Rendered Text Overlays */}
-              {textElements
-                .filter((t) => t.side === activeSide)
-                .map((item) => (
-                  <div
-                    key={item.id}
-                    style={{
-                      color: item.color,
-                      fontSize: `${item.size}px`,
-                    }}
-                    className="font-extrabold tracking-wider select-none text-center drop-shadow-md my-1"
-                  >
-                    {item.text}
-                  </div>
-                ))}
-            </div>
-
-            {/* On-Canvas Floating Action Toolbar for Active Artwork */}
-            {currentActiveImage && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-30 bg-slate-900/90 backdrop-blur-md text-white px-3.5 py-1.5 rounded-2xl shadow-2xl border border-slate-700 flex items-center gap-2 select-none pointer-events-auto max-w-[92%]">
-                <div className="flex items-center gap-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateActiveTransform({
-                        scale: Math.max(0.2, +(transforms[activeSide].scale - 0.1).toFixed(2)),
-                      })
-                    }
-                    title="Zoom Out / Scale Down (-10%)"
-                    className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
-                  >
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-
-                  <div className="px-1.5 text-center min-w-[46px]">
-                    <span className="text-[11px] font-mono font-black text-amber-400 block leading-tight">
-                      {Math.round(transforms[activeSide].scale * 100)}%
-                    </span>
-                    <span className="text-[8px] text-slate-400 uppercase tracking-tighter">Scale</span>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      updateActiveTransform({
-                        scale: Math.min(2.5, +(transforms[activeSide].scale + 0.1).toFixed(2)),
-                      })
-                    }
-                    title="Zoom In / Scale Up (+10%)"
-                    className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                <div className="w-px h-5 bg-slate-700 mx-0.5" />
-
-                {/* Quick Fit Preset */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateActiveTransform({ scale: 0.8, x: 0, y: 0 })
-                  }
-                  title="Fit Artwork Inside Print Zone"
-                  className="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 transition"
-                >
-                  Fit
-                </button>
-
-                {/* Quick Rotate 90° */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateActiveTransform({
-                      rotation: (transforms[activeSide].rotation + 90) % 360,
-                    })
-                  }
-                  title="Rotate +90°"
-                  className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
-                >
-                  <RotateCw className="w-3.5 h-3.5" />
-                </button>
-
-                {/* Reset to Center */}
-                <button
-                  type="button"
-                  onClick={() =>
-                    updateActiveTransform({ scale: 1, x: 0, y: 0, rotation: 0 })
-                  }
-                  title="Reset Position & Scale"
-                  className="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white flex items-center justify-center transition"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" />
-                </button>
-
-                <div className="w-px h-5 bg-slate-700 mx-0.5" />
-
-                {/* Delete Artwork */}
-                <button
-                  type="button"
-                  onClick={handleClearArt}
-                  title="Delete / Remove Artwork"
-                  className="w-7 h-7 rounded-lg bg-red-950/80 hover:bg-red-800 text-red-300 hover:text-white flex items-center justify-center transition"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
+            {/* Print Placement Zone Boundary */}
+            {showGuides && (
+              <div
+                className="absolute border-2 border-dashed border-amber-500/80 rounded-lg pointer-events-none flex flex-col items-center justify-center"
+                style={{
+                  left: `${((currentZone[0] - currentZone[2] / 2) / 600) * 100}%`,
+                  top: `${((currentZone[1] - currentZone[3] / 2) / 600) * 100}%`,
+                  width: `${(currentZone[2] / 600) * 100}%`,
+                  height: `${(currentZone[3] / 600) * 100}%`,
+                  transform: `rotate(${currentZone[4]}deg)`,
+                }}
+              >
+                <span className="absolute top-1 text-[9px] font-bold text-amber-500 bg-black/70 px-2 py-0.5 rounded-full uppercase whitespace-nowrap">
+                  {activeSide.toUpperCase()} PRINT ZONE ({activeBBox.w > 0 ? `${inch(activeBBox.w)} × ${inch(activeBBox.h)} in` : "PRINT AREA"})
+                </span>
               </div>
             )}
 
-            {/* Quick Canvas Floating Action Tools */}
-            <div className="absolute top-4 left-4 flex gap-2">
-              <button
-                onClick={handleDownloadMockup}
-                title="Download Mockup PNG"
-                className="bg-white/90 hover:bg-white text-slate-800 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-slate-200 flex items-center gap-1.5 transition"
-              >
-                <Download className="w-3.5 h-3.5 text-brand-900" /> Export Mockup
-              </button>
-              {currentActiveImage && (
-                <button
-                  onClick={handleRemoveBackground}
-                  disabled={isRemovingBg}
-                  title="Remove solid white background"
-                  className="bg-white/90 hover:bg-white text-amber-700 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-slate-200 flex items-center gap-1.5 transition"
-                >
-                  <Scissors className="w-3.5 h-3.5" />
-                  {isRemovingBg ? "Removing..." : "Remove BG"}
-                </button>
-              )}
-            </div>
-
-            {/* Clear Button */}
-            {(currentActiveImage || textElements.some((t) => t.side === activeSide)) && (
-              <button
-                onClick={handleClearArt}
-                className="absolute top-4 right-4 bg-white/90 hover:bg-white text-red-600 px-3 py-1.5 rounded-lg text-xs font-semibold shadow border border-slate-200 flex items-center gap-1.5 transition"
-              >
-                <Trash2 className="w-3.5 h-3.5" /> Clear {activeSide}
-              </button>
+            {/* Empty Canvas Prompt */}
+            {activeSideCount === 0 && (
+              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-slate-500 space-y-2">
+                <div className="w-12 h-12 rounded-2xl bg-white/70 backdrop-blur-sm border border-slate-300 flex items-center justify-center text-slate-700 shadow-sm">
+                  <Upload className="w-6 h-6" />
+                </div>
+                <p className="text-xs font-bold text-slate-700">Canvas is empty</p>
+                <p className="text-[11px] text-slate-500">Upload artwork or add text from the panel to start</p>
+              </div>
             )}
+
+            {/* Placed Layers on Canvas */}
+            {layers
+              .filter((l) => l.pos === activeSide)
+              .map((layer) => {
+                const isSelected = layer.id === selectedLayerId;
+                const aspect = getAspect(layer);
+                const wPx = layer.w * PPI;
+                const hPx = layer.w * aspect * PPI;
+
+                return (
+                  <div
+                    key={layer.id}
+                    onPointerDown={(e) => handlePointerDownLayer(e, layer)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedLayerId(layer.id);
+                    }}
+                    style={{
+                      position: "absolute",
+                      width: `${wPx}px`,
+                      height: `${hPx}px`,
+                      left: `calc(50% + ${layer.dx * PPI}px - ${wPx / 2}px)`,
+                      top: `calc(50% + ${layer.dy * PPI}px - ${hPx / 2}px)`,
+                      transform: `rotate(${layer.rot || 0}deg)`,
+                      cursor: isDragging && isSelected ? "grabbing" : "grab",
+                    }}
+                    className={`group select-none touch-none ${
+                      isSelected ? "z-30" : "z-10 hover:z-20"
+                    }`}
+                  >
+                    {/* Layer Content */}
+                    <div
+                      style={{
+                        transform: layer.flip ? "scaleX(-1)" : "none",
+                        width: "100%",
+                        height: "100%",
+                      }}
+                      className="relative w-full h-full flex items-center justify-center pointer-events-none"
+                    >
+                      {layer.kind === "image" && layer.src && (
+                        <img
+                          src={layer.src}
+                          alt={layer.name || "Custom Artwork"}
+                          className="w-full h-full object-contain filter drop-shadow-md pointer-events-none select-none"
+                          draggable={false}
+                        />
+                      )}
+
+                      {layer.kind === "text" && (
+                        <div
+                          style={{
+                            width: "100%",
+                            height: "100%",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent:
+                              layer.align === "left"
+                                ? "flex-start"
+                                : layer.align === "right"
+                                ? "flex-end"
+                                : "center",
+                            fontFamily: `"${layer.font || "Archivo"}", sans-serif`,
+                            fontSize: `${Math.round(hPx * 0.55)}px`,
+                            fontWeight: layer.bold ? "bold" : "normal",
+                            fontStyle: layer.italic ? "italic" : "normal",
+                            letterSpacing: `${layer.ls || 0}px`,
+                            color: layer.hollow
+                              ? "transparent"
+                              : layer.grad
+                              ? "transparent"
+                              : layer.color || "#111111",
+                            backgroundImage: layer.grad
+                              ? `linear-gradient(to bottom, ${layer.color || "#111111"}, ${layer.grad})`
+                              : undefined,
+                            WebkitBackgroundClip: layer.grad ? "text" : undefined,
+                            WebkitTextStroke:
+                              layer.outline && layer.outline !== "none"
+                                ? `${Math.max(1, Math.round(hPx * ((layer.ow || 5) / 100)))}px ${layer.outline}`
+                                : undefined,
+                            textAlign: layer.align || "center",
+                            whiteSpace: "pre-line",
+                            lineHeight: 1.15,
+                          }}
+                          className="select-none drop-shadow-sm font-sans"
+                        >
+                          {layer.case === "upper"
+                            ? (layer.text || "YOUR TEXT").toUpperCase()
+                            : layer.case === "lower"
+                            ? (layer.text || "YOUR TEXT").toLowerCase()
+                            : layer.text || "YOUR TEXT"}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Active Element Orange Bounding Box & Handles */}
+                    {isSelected && (
+                      <>
+                        <div className="absolute -inset-1.5 border-2 border-[#e8542b] rounded pointer-events-none" />
+
+                        {/* 4 Corner Resize Handles */}
+                        <div
+                          onPointerDown={(e) => handlePointerDownResize(e, layer)}
+                          title="Drag to resize"
+                          className="absolute -top-3 -left-3 w-6 h-6 bg-white border-2 border-[#e8542b] rounded-full shadow-md cursor-nwse-resize hover:scale-125 transition-transform z-40 pointer-events-auto"
+                        />
+                        <div
+                          onPointerDown={(e) => handlePointerDownResize(e, layer)}
+                          title="Drag to resize"
+                          className="absolute -top-3 -right-3 w-6 h-6 bg-white border-2 border-[#e8542b] rounded-full shadow-md cursor-nesw-resize hover:scale-125 transition-transform z-40 pointer-events-auto"
+                        />
+                        <div
+                          onPointerDown={(e) => handlePointerDownResize(e, layer)}
+                          title="Drag to resize"
+                          className="absolute -bottom-3 -left-3 w-6 h-6 bg-white border-2 border-[#e8542b] rounded-full shadow-md cursor-nesw-resize hover:scale-125 transition-transform z-40 pointer-events-auto"
+                        />
+                        <div
+                          onPointerDown={(e) => handlePointerDownResize(e, layer)}
+                          title="Drag to resize"
+                          className="absolute -bottom-3 -right-3 w-6 h-6 bg-white border-2 border-[#e8542b] rounded-full shadow-md cursor-nwse-resize hover:scale-125 transition-transform z-40 pointer-events-auto"
+                        />
+
+                        {/* Top Rotation Handle & Stem */}
+                        <div className="absolute left-1/2 -top-7 -translate-x-1/2 flex flex-col items-center pointer-events-auto">
+                          <div
+                            onPointerDown={(e) => handlePointerDownRotate(e, layer)}
+                            title="Drag to rotate"
+                            className="w-5 h-5 bg-[#e8542b] border-2 border-white rounded-full shadow-md cursor-grab active:cursor-grabbing hover:scale-125 transition-transform"
+                          />
+                          <div className="w-0.5 h-3 bg-[#e8542b]" />
+                        </div>
+
+                        {/* Floating Action Buttons directly underneath element */}
+                        <div className="absolute left-1/2 -bottom-10 -translate-x-1/2 flex items-center gap-1.5 z-40 pointer-events-auto">
+                          {layer.kind === "image" && (
+                            <label
+                              title="Replace image"
+                              className="px-2.5 py-1 bg-[#0F172A] hover:bg-slate-800 text-white rounded-full text-[11px] font-bold shadow-lg flex items-center gap-1 cursor-pointer transition whitespace-nowrap"
+                            >
+                              <RefreshCw className="w-3 h-3 text-amber-400" />
+                              <span>Replace</span>
+                              <input
+                                type="file"
+                                accept="image/png, image/jpeg, image/webp"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (!file) return;
+                                  const reader = new FileReader();
+                                  reader.onload = (ev) => {
+                                    const res = ev.target?.result;
+                                    if (res) {
+                                      updateSelectedLayer({
+                                        src: res as string,
+                                        name: file.name,
+                                      });
+                                      showToast("Image replaced");
+                                    }
+                                  };
+                                  reader.readAsDataURL(file);
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveLayer(layer.id)}
+                            title="Delete element"
+                            className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded-full text-[11px] font-bold shadow-lg flex items-center gap-1 transition whitespace-nowrap"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
           </div>
 
-          {/* Transform Adjuster Bar (Drag, Scale, Rotate) */}
-          {currentActiveImage && (
-            <div className="bg-white p-4 rounded-2xl border border-slate-200 grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-700">
-                  <span className="font-bold flex items-center gap-1">
-                    <ZoomIn className="w-3 h-3 text-brand-900" /> Artwork Scale
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-amber-600">
-                      {Math.round(transforms[activeSide].scale * 100)}%
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => updateActiveTransform({ scale: 0.8, x: 0, y: 0 })}
-                      className="text-[10px] text-slate-500 hover:text-amber-600 underline font-semibold"
-                    >
-                      Fit
-                    </button>
-                  </div>
-                </div>
-                <input
-                  type="range"
-                  min="0.2"
-                  max="2.5"
-                  step="0.02"
-                  value={transforms[activeSide].scale}
-                  onChange={(e) =>
-                    updateActiveTransform({ scale: parseFloat(e.target.value) || 1 })
-                  }
-                  className="w-full accent-amber-500 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>Small (20%)</span>
-                  <span>100%</span>
-                  <span>Oversized (250%)</span>
-                </div>
-              </div>
+          {/* Canvas Bottom Toolbar */}
+          <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between gap-3 flex-wrap">
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleUndo}
+                disabled={history.length === 0}
+                title="Undo (Ctrl+Z)"
+                className="w-9 h-9 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-slate-700 transition"
+              >
+                <Undo2 className="w-4 h-4" />
+              </button>
 
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-700">
-                  <span className="font-bold flex items-center gap-1">
-                    <RotateCw className="w-3 h-3 text-brand-900" /> Rotation
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <span className="font-mono font-bold text-slate-700">
-                      {transforms[activeSide].rotation}°
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => updateActiveTransform({ rotation: 0 })}
-                      className="text-[10px] text-slate-500 hover:text-amber-600 underline font-semibold"
-                    >
-                      Reset
-                    </button>
-                  </div>
-                </div>
-                <input
-                  type="range"
-                  min="-180"
-                  max="180"
-                  step="5"
-                  value={transforms[activeSide].rotation}
-                  onChange={(e) =>
-                    updateActiveTransform({ rotation: parseInt(e.target.value) || 0 })
-                  }
-                  className="w-full accent-amber-500 cursor-pointer"
-                />
-                <div className="flex justify-between text-[10px] text-slate-400">
-                  <span>-180°</span>
-                  <span>0°</span>
-                  <span>+180°</span>
-                </div>
-              </div>
-            </div>
-          )}
+              <button
+                type="button"
+                onClick={handleRedo}
+                disabled={future.length === 0}
+                title="Redo (Ctrl+Y)"
+                className="w-9 h-9 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center text-slate-700 transition"
+              >
+                <Redo2 className="w-4 h-4" />
+              </button>
 
-          {/* Color Swatches bar */}
-          <div className="bg-white p-4 rounded-2xl border border-slate-200 flex items-center justify-between">
-            <span className="text-xs font-bold text-slate-700 uppercase">
-              Colour: <strong className="text-slate-900">{currentColor.name}</strong>
-            </span>
-            <div className="flex gap-2">
-              {selectedProduct.colours.map((col, idx) => (
-                <button
-                  key={col.name}
-                  onClick={() => setSelectedColorIdx(idx)}
-                  title={col.name}
-                  style={{ backgroundColor: col.hex }}
-                  className={`w-6 h-6 rounded-full border border-black/20 transition ${
-                    selectedColorIdx === idx
-                      ? "ring-2 ring-amber-500 scale-110 shadow"
-                      : "hover:scale-105"
-                  }`}
+              <label className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 cursor-pointer hover:bg-slate-100 select-none">
+                <input
+                  type="checkbox"
+                  checked={showGuides}
+                  onChange={(e) => setShowGuides(e.target.checked)}
+                  className="rounded text-amber-500 focus:ring-amber-400"
                 />
-              ))}
+                <span>Print area</span>
+              </label>
             </div>
+
+            <button
+              type="button"
+              onClick={handleDownloadMockup}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow flex items-center gap-2 transition"
+            >
+              <Download className="w-3.5 h-3.5 text-amber-400" />
+              <span>Download mockup</span>
+            </button>
+          </div>
+
+          {/* Dual View Thumbnails below canvas */}
+          <div className="grid grid-cols-2 gap-4">
+            <button
+              type="button"
+              onClick={() => {
+                setActiveSide("front");
+                setSelectedLayerId(null);
+              }}
+              className={`p-2 rounded-2xl border bg-white flex items-center gap-3 transition text-left ${
+                activeSide === "front"
+                  ? "border-slate-900 ring-2 ring-slate-900/10 shadow-md"
+                  : "border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <div className="w-14 h-16 rounded-xl bg-[#e9e8e4] overflow-hidden flex items-center justify-center border border-slate-200 shrink-0">
+                <img
+                  src={customBlankPhoto.front || currentColor.front}
+                  alt="Front View Thumbnail"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <span className="text-xs font-black text-slate-900 block">Front View</span>
+                <span className="text-[11px] text-slate-500">
+                  {frontCount > 0 ? `${frontCount} element${frontCount > 1 ? "s" : ""}` : "No artwork"}
+                </span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                setActiveSide("back");
+                setSelectedLayerId(null);
+              }}
+              className={`p-2 rounded-2xl border bg-white flex items-center gap-3 transition text-left ${
+                activeSide === "back"
+                  ? "border-slate-900 ring-2 ring-slate-900/10 shadow-md"
+                  : "border-slate-200 hover:border-slate-300"
+              }`}
+            >
+              <div className="w-14 h-16 rounded-xl bg-[#e9e8e4] overflow-hidden flex items-center justify-center border border-slate-200 shrink-0">
+                <img
+                  src={customBlankPhoto.back || currentColor.back}
+                  alt="Back View Thumbnail"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <div>
+                <span className="text-xs font-black text-slate-900 block">Back View</span>
+                <span className="text-[11px] text-slate-500">
+                  {backCount > 0 ? `${backCount} element${backCount > 1 ? "s" : ""}` : "No artwork"}
+                </span>
+              </div>
+            </button>
           </div>
         </div>
 
-        {/* Right Column: Customization Controls & Pricing */}
+        {/* ========================================================================= */}
+        {/* RIGHT COLUMN: Multi-Step Configuration Workflow Accordions */}
+        {/* ========================================================================= */}
         <div className="lg:col-span-5 space-y-6">
-          {/* Step 1: Garment Selection */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              1. Base Apparel Silhouette
-            </span>
-            <select
-              value={selectedProduct.id}
-              onChange={(e) => {
-                const p = REVERSE_ENGINEERED_PRODUCTS.find(
-                  (prod) => prod.id === e.target.value
-                );
-                if (p) {
-                  setSelectedProduct(p);
-                  setSelectedColorIdx(0);
-                }
-              }}
-              className="w-full p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-brand-900"
-            >
-              {REVERSE_ENGINEERED_PRODUCTS.map((prod) => (
-                <option key={prod.id} value={prod.id}>
-                  {prod.name} (from ₹{prod.basePrice})
-                </option>
-              ))}
-            </select>
-
-            {/* Custom Blank Upload Action */}
-            <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-              <label className="cursor-pointer text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1.5 transition">
-                <Camera className="w-3.5 h-3.5" />
-                <span>
-                  {isUploadingBlank
-                    ? "Uploading Blank to Cloudinary..."
-                    : `Upload Custom Blank Photo (${activeSide.toUpperCase()})`}
+          {/* STEP 1: Choose your t-shirt */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-sm font-black text-slate-900 flex items-center gap-1.5 uppercase tracking-wide">
+                <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px]">
+                  1
                 </span>
+                Choose your t-shirt
+              </h2>
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={() => productScrollRef.current?.scrollBy({ left: -220, behavior: "smooth" })}
+                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700"
+                >
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => productScrollRef.current?.scrollBy({ left: 220, behavior: "smooth" })}
+                  className="w-6 h-6 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-700"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Horizontal Scrolling Silhouette Cards */}
+            <div
+              ref={productScrollRef}
+              className="flex gap-3 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-300"
+            >
+              {REVERSE_ENGINEERED_PRODUCTS.map((prod) => {
+                const isSelected = prod.id === selectedProduct.id;
+                return (
+                  <button
+                    key={prod.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedProduct(prod);
+                      setSelectedColorIdx(0);
+                      commitSnapshot();
+                    }}
+                    className={`shrink-0 w-44 p-3 rounded-2xl border text-left flex flex-col justify-between transition ${
+                      isSelected
+                        ? "border-slate-900 bg-slate-50 ring-2 ring-slate-900/10 shadow-sm"
+                        : "border-slate-200 hover:border-slate-300 bg-white"
+                    }`}
+                  >
+                    <div className="w-full aspect-square bg-[#e9e8e4] rounded-xl overflow-hidden mb-2">
+                      <img
+                        src={prod.colours[0]?.front || prod.colors?.[0]?.front}
+                        alt={prod.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div>
+                      <strong className="text-xs font-bold text-slate-900 line-clamp-1 block">
+                        {prod.name}
+                      </strong>
+                      <small className="text-[10px] text-slate-500 block">{prod.spec}</small>
+                      <em className="text-xs font-black text-amber-600 not-italic block mt-1">
+                        from ₹{prod.basePrice}
+                      </em>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Flowing Capsule Swatches */}
+            <div className="pt-2 border-t border-slate-100 space-y-2">
+              <span className="text-xs font-bold text-slate-700 block">
+                Colour: <strong className="text-slate-900">{currentColor.name}</strong>
+              </span>
+              <div className="flex flex-wrap gap-2">
+                {selectedProduct.colours.map((col, idx) => {
+                  const isSelected = selectedColorIdx === idx;
+                  return (
+                    <button
+                      key={col.name}
+                      type="button"
+                      onClick={() => {
+                        setSelectedColorIdx(idx);
+                        commitSnapshot();
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-semibold transition ${
+                        isSelected
+                          ? "border-slate-900 bg-slate-900 text-white shadow-sm"
+                          : "border-slate-200 hover:border-slate-400 text-slate-800 bg-white"
+                      }`}
+                    >
+                      <span
+                        style={{ backgroundColor: col.hex }}
+                        className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0"
+                      />
+                      <span>{col.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Custom Blank Upload */}
+            <div className="pt-1 flex items-center justify-between text-xs">
+              <label className="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1.5 cursor-pointer">
+                <Camera className="w-3.5 h-3.5" />
+                <span>{isUploadingBlank ? "Uploading blank..." : "Upload custom photo"}</span>
                 <input
                   type="file"
                   accept="image/png, image/jpeg, image/webp"
@@ -1571,7 +2269,7 @@ function DesignStudioContent() {
                 <button
                   type="button"
                   onClick={() => setCustomBlankPhoto({ front: null, back: null })}
-                  className="text-[11px] text-slate-400 hover:text-red-500 font-semibold"
+                  className="text-slate-400 hover:text-red-500 font-semibold text-[11px]"
                 >
                   Reset to Catalog Blank
                 </button>
@@ -1579,366 +2277,972 @@ function DesignStudioContent() {
             </div>
           </div>
 
-          {/* Step 2: Upload Artwork & Add Typography */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                2. Upload Artwork to Cloudinary
+          {/* STEP 2: Add your design */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h2 className="text-sm font-black text-slate-900 flex items-center gap-1.5 uppercase tracking-wide">
+              <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px]">
+                2
               </span>
-              <span className="text-[11px] text-amber-600 font-semibold uppercase">
-                Active: {activeSide} View
-              </span>
-            </div>
+              Add your design
+            </h2>
 
-            <div className="flex gap-3">
-              <label className="flex-1 border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl p-4 text-center cursor-pointer transition bg-slate-50">
-                <Upload className="w-5 h-5 mx-auto text-slate-500 mb-1" />
-                <span className="text-xs font-bold text-slate-700 block">
-                  {isUploading ? "Uploading to Cloudinary..." : "Choose PNG / Vector"}
+            <div className="grid grid-cols-2 gap-3">
+              <label className="border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-2xl p-4 text-center cursor-pointer transition bg-slate-50 flex flex-col items-center justify-center">
+                <Upload className="w-5 h-5 text-slate-600 mb-1" />
+                <span className="text-xs font-bold text-slate-800 block">
+                  {isUploading ? "Uploading..." : "Upload Image"}
                 </span>
-                <span className="text-[10px] text-slate-400">
-                  Transparent PNG recommended
-                </span>
+                <span className="text-[10px] text-slate-500">PNG, JPG, SVG, PDF</span>
                 <input
                   type="file"
-                  accept="image/png, image/jpeg, image/webp"
+                  accept="image/png, image/jpeg, image/webp, image/svg+xml, application/pdf"
                   onChange={handleFileUpload}
                   className="hidden"
                   disabled={isUploading}
                 />
               </label>
-            </div>
 
-            {/* Add Custom Text */}
-            <div className="pt-2 border-t border-slate-100 space-y-2">
-              <span className="text-xs font-semibold text-slate-700 block">
-                Add Custom Typography
-              </span>
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Enter custom slogan..."
-                  value={customText}
-                  onChange={(e) => setCustomText(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs"
-                />
-                <input
-                  type="color"
-                  value={textColor}
-                  onChange={(e) => setTextColor(e.target.value)}
-                  className="w-9 h-9 p-0.5 rounded-lg border border-slate-200 cursor-pointer"
-                  title="Text color"
-                />
-                <button
-                  type="button"
-                  onClick={handleAddText}
-                  className="px-3 py-2 bg-brand-900 hover:bg-brand-800 text-white rounded-lg text-xs font-bold transition"
-                >
-                  Add Text
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Step 3: Print Technique & Multi-Location Configuration */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-4">
-            <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider block">
-              3. Printing Technique & Dimensions
-            </span>
-
-            {/* Technique Switch */}
-            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() => setIsEmbroidery(false)}
-                className={`py-2 px-3 rounded-xl border text-xs font-bold text-center transition ${
+                onClick={handleAddText}
+                className="border-2 border-slate-200 hover:border-slate-400 rounded-2xl p-4 text-center transition bg-slate-50 flex flex-col items-center justify-center"
+              >
+                <Type className="w-5 h-5 text-slate-600 mb-1" />
+                <span className="text-xs font-bold text-slate-800 block">+ Add Text</span>
+                <span className="text-[10px] text-slate-500">Curved & styled</span>
+              </button>
+            </div>
+
+            {/* Clear active side artwork */}
+            {activeSideCount > 0 && (
+              <div className="flex justify-between items-center pt-1 border-t border-slate-100 text-xs">
+                <span className="text-slate-500">
+                  {activeSideCount} item{activeSideCount > 1 ? "s" : ""} on {activeSide} view
+                </span>
+                <button
+                  type="button"
+                  onClick={handleClearArt}
+                  className="text-red-600 hover:text-red-700 font-bold flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Clear {activeSide} artwork</span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* STEP 3 (TEXT STUDIO): Custom Typography Adjustments */}
+          {selectedLayer && selectedLayer.kind === "text" && (
+            <div className="bg-white p-5 rounded-3xl border-2 border-amber-500 shadow-md space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black text-slate-900 flex items-center gap-1.5 uppercase tracking-wide">
+                  <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">
+                    3
+                  </span>
+                  Adjust &ldquo;{selectedLayer.text || "YOUR TEXT"}&rdquo;
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveLayer(selectedLayer.id)}
+                  className="text-red-600 hover:text-red-700 text-xs font-bold flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Textarea */}
+              <textarea
+                rows={2}
+                value={selectedLayer.text || ""}
+                onChange={(e) => updateSelectedLayer({ text: e.target.value })}
+                placeholder="YOUR TEXT"
+                className="w-full p-3 border border-slate-300 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-slate-900 resize-none"
+              />
+
+              {/* Font Family Dropdown */}
+              <div>
+                <label className="text-xs font-bold text-slate-700 block mb-1">Font Family</label>
+                <select
+                  value={selectedLayer.font || "Archivo"}
+                  onChange={(e) => updateSelectedLayer({ font: e.target.value })}
+                  className="w-full p-2.5 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 bg-slate-50"
+                >
+                  {FONTS.map((f) => (
+                    <option key={f.name} value={f.name}>
+                      {f.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Formatting & Alignment & Casing */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedLayer({ bold: !selectedLayer.bold })}
+                    className={`w-9 h-9 rounded-xl border flex items-center justify-center text-xs font-black transition ${
+                      selectedLayer.bold
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Bold className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedLayer({ italic: !selectedLayer.italic })}
+                    className={`w-9 h-9 rounded-xl border flex items-center justify-center text-xs font-black transition ${
+                      selectedLayer.italic
+                        ? "bg-slate-900 text-white border-slate-900"
+                        : "border-slate-300 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                    }`}
+                  >
+                    <Italic className="w-4 h-4" />
+                  </button>
+
+                  <div className="flex border border-slate-300 rounded-xl overflow-hidden bg-slate-50">
+                    <button
+                      type="button"
+                      onClick={() => updateSelectedLayer({ align: "left" })}
+                      className={`p-2 transition ${
+                        selectedLayer.align === "left" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      <AlignLeft className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateSelectedLayer({ align: "center" })}
+                      className={`p-2 transition ${
+                        selectedLayer.align === "center" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      <AlignCenter className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateSelectedLayer({ align: "right" })}
+                      className={`p-2 transition ${
+                        selectedLayer.align === "right" ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-200"
+                      }`}
+                    >
+                      <AlignRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+
+                <div>
+                  <select
+                    value={selectedLayer.case || "none"}
+                    onChange={(e) => updateSelectedLayer({ case: e.target.value as any })}
+                    className="w-full p-2 border border-slate-300 rounded-xl text-xs font-bold text-slate-800 bg-slate-50"
+                  >
+                    <option value="none">As typed</option>
+                    <option value="upper">UPPERCASE</option>
+                    <option value="lower">lowercase</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* 7 Quick Styles */}
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-700 block">Quick Styles</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {QUICK_STYLES.map((qs) => (
+                    <button
+                      key={qs.name}
+                      type="button"
+                      onClick={() => {
+                        updateSelectedLayer(qs.style);
+                        commitSnapshot();
+                      }}
+                      className="px-2.5 py-1 rounded-lg border border-slate-200 bg-slate-50 hover:bg-amber-100 text-slate-800 text-[11px] font-bold transition"
+                    >
+                      {qs.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Text Color Swatches & Gradient Toggle */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-700">Text Colour</span>
+                  <label className="flex items-center gap-1.5 text-slate-600 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedLayer.grad}
+                      onChange={(e) =>
+                        updateSelectedLayer({
+                          grad: e.target.checked ? "#e8542b" : "",
+                        })
+                      }
+                      className="rounded text-amber-500"
+                    />
+                    <span>Gradient (top → bottom)</span>
+                  </label>
+                </div>
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  {TEXT_COLOURS.map((col) => (
+                    <button
+                      key={col}
+                      type="button"
+                      onClick={() => updateSelectedLayer({ color: col })}
+                      style={{ backgroundColor: col }}
+                      className={`w-6 h-6 rounded-full border border-black/20 transition ${
+                        selectedLayer.color === col ? "ring-2 ring-slate-900 scale-110" : "hover:scale-105"
+                      }`}
+                    />
+                  ))}
+                  <input
+                    type="color"
+                    value={selectedLayer.color || "#111111"}
+                    onChange={(e) => updateSelectedLayer({ color: e.target.value })}
+                    className="w-7 h-7 p-0.5 rounded-full border border-slate-300 cursor-pointer"
+                    title="Pick custom color"
+                  />
+                </div>
+              </div>
+
+              {/* Outline Swatches & Hollow Toggle */}
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-bold text-slate-700">Outline</span>
+                  <label className="flex items-center gap-1.5 text-slate-600 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={!!selectedLayer.hollow}
+                      onChange={(e) =>
+                        updateSelectedLayer({
+                          hollow: e.target.checked,
+                          outline: e.target.checked && selectedLayer.outline === "none" ? "#111111" : selectedLayer.outline,
+                        })
+                      }
+                      className="rounded text-amber-500"
+                    />
+                    <span>Outline only (hollow letters)</span>
+                  </label>
+                </div>
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  <button
+                    type="button"
+                    onClick={() => updateSelectedLayer({ outline: "none" })}
+                    className={`w-6 h-6 rounded-full border flex items-center justify-center text-[10px] text-red-500 font-black ${
+                      selectedLayer.outline === "none" ? "ring-2 ring-slate-900 scale-110" : "border-slate-300"
+                    }`}
+                    title="None"
+                  >
+                    ✕
+                  </button>
+                  {TEXT_COLOURS.map((col) => (
+                    <button
+                      key={col}
+                      type="button"
+                      onClick={() => updateSelectedLayer({ outline: col })}
+                      style={{ backgroundColor: col }}
+                      className={`w-6 h-6 rounded-full border border-black/20 transition ${
+                        selectedLayer.outline === col ? "ring-2 ring-slate-900 scale-110" : "hover:scale-105"
+                      }`}
+                    />
+                  ))}
+                  <input
+                    type="color"
+                    value={selectedLayer.outline && selectedLayer.outline !== "none" ? selectedLayer.outline : "#ffffff"}
+                    onChange={(e) => updateSelectedLayer({ outline: e.target.value })}
+                    className="w-7 h-7 p-0.5 rounded-full border border-slate-300 cursor-pointer"
+                    title="Pick custom outline color"
+                  />
+                </div>
+              </div>
+
+              {/* Curve / Arc Slider */}
+              <div className="space-y-1 pt-2 border-t border-slate-100">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold">Curve</span>
+                  <span className="font-mono text-amber-600 font-bold">
+                    {selectedLayer.curve === 0 || !selectedLayer.curve
+                      ? "Straight"
+                      : selectedLayer.curve > 0
+                      ? `Arch ${selectedLayer.curve}°`
+                      : `Smile ${Math.abs(selectedLayer.curve)}°`}
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="5"
+                  value={selectedLayer.curve || 0}
+                  onChange={(e) => updateSelectedLayer({ curve: parseInt(e.target.value) || 0 })}
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Letter Spacing Slider */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold">Letter spacing</span>
+                  <span className="font-mono text-slate-700 font-bold">{selectedLayer.ls || 0}</span>
+                </div>
+                <input
+                  type="range"
+                  min="-5"
+                  max="30"
+                  step="1"
+                  value={selectedLayer.ls || 0}
+                  onChange={(e) => updateSelectedLayer({ ls: parseInt(e.target.value) || 0 })}
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Download Isolated Text as PNG */}
+              <button
+                type="button"
+                onClick={handleDownloadTextPng}
+                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow flex items-center justify-center gap-2 transition"
+              >
+                <Download className="w-3.5 h-3.5 text-amber-400" />
+                <span>Download text as PNG · high resolution</span>
+              </button>
+
+              {/* Placement Presets */}
+              <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                <span className="text-xs font-bold text-slate-700 block">Placement Presets</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {(PRESETS[activeSide] || PRESETS.front).map((pr) => (
+                    <button
+                      key={pr.label}
+                      type="button"
+                      onClick={() => handleApplyPreset(pr)}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-semibold transition"
+                    >
+                      {pr.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Size Slider with Real Inch Readout */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold">Size</span>
+                  <span className="font-mono text-amber-600 font-bold">
+                    {inch(selectedLayer.w)} × {inch(selectedLayer.w * getAspect(selectedLayer))} in
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="2"
+                  max={isEmbroidery ? 10 : 20}
+                  step="0.2"
+                  value={selectedLayer.w}
+                  onChange={(e) => updateSelectedLayer({ w: parseFloat(e.target.value) || 8 })}
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Rotate Slider */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold">Rotate</span>
+                  <span className="font-mono text-slate-700 font-bold">{selectedLayer.rot || 0}°</span>
+                </div>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="5"
+                  value={selectedLayer.rot || 0}
+                  onChange={(e) => updateSelectedLayer({ rot: parseInt(e.target.value) || 0 })}
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* STEP 3 (IMAGE STUDIO): Image Adjustments, BG Removal, DPI Warning */}
+          {selectedLayer && selectedLayer.kind === "image" && (
+            <div className="bg-white p-5 rounded-3xl border-2 border-amber-500 shadow-md space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-black text-slate-900 flex items-center gap-1.5 uppercase tracking-wide">
+                  <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">
+                    3
+                  </span>
+                  Adjust {selectedLayer.name || "image"}
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveLayer(selectedLayer.id)}
+                  className="text-red-600 hover:text-red-700 text-xs font-bold flex items-center gap-1"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+
+              {/* Placement Presets */}
+              <div className="space-y-1.5">
+                <span className="text-xs font-bold text-slate-700 block">Placement Presets</span>
+                <div className="flex flex-wrap gap-1.5">
+                  {(PRESETS[activeSide] || PRESETS.front).map((pr) => (
+                    <button
+                      key={pr.label}
+                      type="button"
+                      onClick={() => handleApplyPreset(pr)}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-semibold transition"
+                    >
+                      {pr.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Size Slider with Real Inch Readout */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold">Size</span>
+                  <span className="font-mono text-amber-600 font-bold">
+                    {inch(selectedLayer.w)} × {inch(selectedLayer.w * getAspect(selectedLayer))} in
+                  </span>
+                </div>
+                <input
+                  type="range"
+                  min="2"
+                  max={isEmbroidery ? 10 : 20}
+                  step="0.2"
+                  value={selectedLayer.w}
+                  onChange={(e) => updateSelectedLayer({ w: parseFloat(e.target.value) || 8 })}
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Rotate Slider */}
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs text-slate-700">
+                  <span className="font-bold">Rotate</span>
+                  <span className="font-mono text-slate-700 font-bold">{selectedLayer.rot || 0}°</span>
+                </div>
+                <input
+                  type="range"
+                  min="-180"
+                  max="180"
+                  step="5"
+                  value={selectedLayer.rot || 0}
+                  onChange={(e) => updateSelectedLayer({ rot: parseInt(e.target.value) || 0 })}
+                  className="w-full accent-amber-500 cursor-pointer"
+                />
+              </div>
+
+              {/* Quick Actions Row */}
+              <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-100">
+                <button
+                  type="button"
+                  onClick={() => handleQuickAction("centre")}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition"
+                >
+                  Centre
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickAction("flip")}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition"
+                >
+                  Flip
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickAction("fit")}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition"
+                >
+                  Fit area
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickAction("duplicate")}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition"
+                >
+                  Duplicate
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleQuickAction("copyToBack")}
+                  className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition"
+                >
+                  Copy to {activeSide === "front" ? "back" : "front"}
+                </button>
+              </div>
+
+              {/* Background Removal Tool Card */}
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-800">Remove background</span>
+                  <small className="text-[10px] text-slate-500">Tap a colour to remove it</small>
+                </div>
+
+                {/* Checkered Canvas Preview */}
+                <div className="relative aspect-[4/3] rounded-xl overflow-hidden border border-slate-200 bg-[repeating-conic-gradient(#e6e6e6_0%_25%,#ffffff_0%_50%)_50%/16px_16px] flex items-center justify-center cursor-crosshair">
+                  <img
+                    src={selectedLayer.src}
+                    alt="Preview"
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      const x = e.clientX - rect.left;
+                      const y = e.clientY - rect.top;
+                      const canvas = document.createElement("canvas");
+                      canvas.width = rect.width;
+                      canvas.height = rect.height;
+                      const ctx = canvas.getContext("2d");
+                      if (ctx) {
+                        ctx.drawImage(e.currentTarget, 0, 0, rect.width, rect.height);
+                        const pixel = ctx.getImageData(x, y, 1, 1).data;
+                        const hex = rgbHex(pixel[0], pixel[1], pixel[2]);
+                        const nextKeys = [...bgKeys, hex];
+                        setBgKeys(nextKeys);
+                        applyBgRemoval(nextKeys, bgTol, bgEdge);
+                      }
+                    }}
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+
+                {/* Status & Key tags */}
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  {bgKeys.length === 0 ? (
+                    <span className="text-[11px] text-slate-500">No colours removed yet.</span>
+                  ) : (
+                    bgKeys.map((k, idx) => (
+                      <span
+                        key={idx}
+                        className="flex items-center gap-1 px-2 py-0.5 rounded-full border border-slate-300 bg-white text-[10px] font-mono font-bold"
+                      >
+                        <span style={{ backgroundColor: k }} className="w-2.5 h-2.5 rounded-full border border-black/20" />
+                        <span>{k}</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const next = bgKeys.filter((_, i) => i !== idx);
+                            setBgKeys(next);
+                            applyBgRemoval(next, bgTol, bgEdge);
+                          }}
+                          className="text-red-500 hover:text-red-700 font-bold ml-0.5"
+                        >
+                          ✕
+                        </button>
+                      </span>
+                    ))
+                  )}
+                </div>
+
+                {/* Presets Row */}
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = [...bgKeys, "#ffffff"];
+                      setBgKeys(next);
+                      applyBgRemoval(next, bgTol, bgEdge);
+                    }}
+                    className="flex-1 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition"
+                  >
+                    + White
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = [...bgKeys, "#000000"];
+                      setBgKeys(next);
+                      applyBgRemoval(next, bgTol, bgEdge);
+                    }}
+                    className="flex-1 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition"
+                  >
+                    + Black
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setBgKeys([]);
+                      applyBgRemoval([], bgTol, bgEdge);
+                    }}
+                    className="px-3 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition"
+                  >
+                    Undo all
+                  </button>
+                </div>
+
+                {/* Strength Slider */}
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs text-slate-700">
+                    <span className="font-semibold">Strength</span>
+                    <span className="font-mono font-bold">{bgTol}</span>
+                  </div>
+                  <input
+                    type="range"
+                    min="1"
+                    max="60"
+                    value={bgTol}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 14;
+                      setBgTol(val);
+                      applyBgRemoval(bgKeys, val, bgEdge);
+                    }}
+                    className="w-full accent-amber-500 cursor-pointer"
+                  />
+                </div>
+
+                {/* Only background checkbox */}
+                <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={bgEdge}
+                    onChange={(e) => {
+                      setBgEdge(e.target.checked);
+                      applyBgRemoval(bgKeys, bgTol, e.target.checked);
+                    }}
+                    className="rounded text-amber-500"
+                  />
+                  <span>Only the background (keeps the same colour inside your design)</span>
+                </label>
+              </div>
+
+              {/* Low-Resolution DPI Warning Banner */}
+              {(() => {
+                const dpi = Math.round((selectedLayer.nativeW || 1200) / selectedLayer.w);
+                if (dpi < 150) {
+                  return (
+                    <div className="p-3 bg-red-50 border border-red-300 rounded-2xl text-xs text-red-700 font-semibold flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" />
+                      <span>
+                        Low resolution ({dpi} DPI) — this may print blurry. Please upload a bigger file.
+                      </span>
+                    </div>
+                  );
+                }
+                return (
+                  <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-2xl text-xs text-emerald-700 font-medium flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
+                    <span>Print quality: great ({dpi} DPI)</span>
+                  </div>
+                );
+              })()}
+            </div>
+          )}
+
+          {/* STEP 4: Print type & quantity */}
+          <div className="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+            <h2 className="text-sm font-black text-slate-900 flex items-center gap-1.5 uppercase tracking-wide">
+              <span className="w-5 h-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[11px]">
+                4
+              </span>
+              Print type & quantity
+            </h2>
+
+            {/* Position Header & Dimensions */}
+            <div className="flex justify-between items-center text-xs">
+              <span className="font-bold text-slate-800 capitalize">{activeSide}</span>
+              <span className="font-mono text-slate-600">
+                {activeBBox.w > 0 ? `${inch(activeBBox.w)} × ${inch(activeBBox.h)} in` : '0.0" × 0.0"'}
+              </span>
+            </div>
+
+            {/* Segmented Toggle: DTF print vs Embroidery */}
+            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEmbroidery(false);
+                  commitSnapshot();
+                }}
+                className={`py-2 rounded-xl text-xs font-bold transition text-center ${
                   !isEmbroidery
-                    ? "bg-brand-900 text-white border-brand-900 shadow-sm"
-                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
                 }`}
               >
-                High-Definition DTF
+                DTF print
               </button>
               <button
                 type="button"
-                onClick={() => setIsEmbroidery(true)}
-                className={`py-2 px-3 rounded-xl border text-xs font-bold text-center transition ${
+                onClick={() => {
+                  setIsEmbroidery(true);
+                  commitSnapshot();
+                }}
+                className={`py-2 rounded-xl text-xs font-bold transition text-center ${
                   isEmbroidery
-                    ? "bg-brand-900 text-white border-brand-900 shadow-sm"
-                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "text-slate-700 hover:text-slate-900"
                 }`}
               >
                 Embroidery
               </button>
             </div>
 
-            {/* Print Dimensions Selection for Active Side */}
-            {!isEmbroidery && (
-              <div className="space-y-1.5">
-                <div className="flex justify-between items-center text-xs">
-                  <label className="text-slate-600 font-medium">
-                    Dimension for {activeSide.toUpperCase()} print:
-                  </label>
-                  <span className="font-bold text-slate-800">{currentInchDimensions}</span>
+            {/* Embroidery Stitch Estimator & Override */}
+            {isEmbroidery && (
+              <div className="space-y-2 p-3 bg-amber-50/60 rounded-2xl border border-amber-200/80">
+                <div className="flex items-center justify-between text-xs">
+                  <label className="font-bold text-slate-800">Stitches</label>
+                  <input
+                    type="number"
+                    min="500"
+                    step="500"
+                    value={currentStitches}
+                    onChange={(e) => {
+                      const val = Math.max(500, parseInt(e.target.value) || 2000);
+                      setManualStitches((prev) => ({
+                        ...prev,
+                        [activeSide]: val,
+                      }));
+                    }}
+                    className="w-28 text-right p-1.5 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-900 bg-white"
+                  />
                 </div>
-                <select
-                  value={activePrintSizeKey}
-                  onChange={(e) => setActivePrintSizeKey(e.target.value)}
-                  className="w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800"
-                >
-                  <option value="none">No Print on this zone (₹0)</option>
-                  {Object.entries(DTF_PRINTS)
-                    .filter(([key]) => {
-                      if (activeSide === "left" || activeSide === "right") {
-                        // Sleeves support pocket logo, A6, A5
-                        return ["logo", "a6", "a5"].includes(key);
-                      }
-                      return key !== "label";
-                    })
-                    .map(([key, item]) => (
-                      <option key={key} value={key}>
-                        {item.label} ({item.size}) — +₹
-                        {isBulk ? item.bulk : item.single} / pc
-                      </option>
-                    ))}
-                </select>
+                <small className="text-[10px] text-slate-500 leading-tight block">
+                  Max 10 × 10 in per design. Stitches auto-estimated from size — edit if you know it. Digitizing charged extra.
+                </small>
               </div>
             )}
 
-            {/* Free Neck Label Rule Checkbox */}
+            {/* Sizes Breakdown Steppers (XS-XXL) */}
+            <div className="space-y-3 pt-2 border-t border-slate-100">
+              <div className="flex justify-between items-center text-xs">
+                <span className="font-bold text-slate-800">Sizes {quantity} pcs</span>
+                <span className="text-[11px] text-slate-500">Sample or bulk distribution</span>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+                {SIZES.map((sz) => {
+                  const val = sizeBreakdown[sz] ?? 0;
+                  return (
+                    <div
+                      key={sz}
+                      className={`p-2 rounded-xl border text-center transition ${
+                        val > 0
+                          ? "border-slate-900 bg-slate-50"
+                          : "border-slate-200 bg-white"
+                      }`}
+                    >
+                      <span className="text-xs font-bold text-slate-800 block mb-1">{sz}</span>
+                      <div className="flex items-center justify-between gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSizeBreakdown((prev) => ({
+                              ...prev,
+                              [sz]: Math.max(0, (prev[sz] || 0) - 1),
+                            }));
+                            commitSnapshot();
+                          }}
+                          className="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs"
+                        >
+                          −
+                        </button>
+                        <input
+                          type="number"
+                          min="0"
+                          value={val || ""}
+                          placeholder="0"
+                          onChange={(e) => {
+                            const n = Math.max(0, parseInt(e.target.value) || 0);
+                            setSizeBreakdown((prev) => ({ ...prev, [sz]: n }));
+                            commitSnapshot();
+                          }}
+                          className="w-8 text-center text-xs font-black text-slate-900 bg-transparent focus:outline-none"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSizeBreakdown((prev) => ({
+                              ...prev,
+                              [sz]: (prev[sz] || 0) + 1,
+                            }));
+                            commitSnapshot();
+                          }}
+                          className="w-5 h-5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Dynamic Volume Tier Incentive Banner */}
+            {volumeHint && (
+              <div className="p-3.5 bg-amber-50 border border-amber-300 rounded-2xl flex items-center justify-between gap-3 text-xs animate-in fade-in">
+                <div className="space-y-0.5">
+                  <div className="text-slate-800">
+                    Add <b>{volumeHint.add} more</b> ({volumeHint.nextQ} pcs) and pay <b>₹{volumeHint.nextPer}/pc</b> instead of ₹{unitPrice} — you save ₹{volumeHint.savings} on every piece.
+                  </div>
+                  <div className="text-[10px] text-slate-500 font-semibold">
+                    Best price: ₹{volumeHint.bestPer}/pc from 100 pcs.
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSizeBreakdown((prev) => ({
+                      ...prev,
+                      M: (prev.M || 0) + volumeHint.add,
+                    }));
+                    commitSnapshot();
+                    showToast(`Added ${volumeHint.add} × M pieces to unlock volume savings!`);
+                  }}
+                  className="px-3 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shrink-0 shadow transition"
+                >
+                  +{volumeHint.add} pcs
+                </button>
+              </div>
+            )}
+
+            {/* Brand Neck Label Add-on Checkbox */}
             <div className="pt-2 border-t border-slate-100">
-              <label className="flex items-center gap-2 text-xs text-slate-700 font-medium cursor-pointer">
+              <label className="flex items-center gap-2 text-xs text-slate-800 font-medium cursor-pointer select-none">
                 <input
                   type="checkbox"
                   checked={hasNeckLabel}
-                  onChange={(e) => setHasNeckLabel(e.target.checked)}
+                  onChange={(e) => {
+                    setHasNeckLabel(e.target.checked);
+                    commitSnapshot();
+                  }}
                   className="rounded text-amber-500 focus:ring-amber-400"
                 />
                 <span className="flex-1">
-                  Include Custom Brand Neck Label
-                  {hasLargePrint ? (
-                    <span className="ml-1.5 px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-bold text-[10px]">
-                      FREE (Waived with A2/A3/A4)
-                    </span>
+                  Add my brand neck label{" "}
+                  {hasLargePrint && !isEmbroidery ? (
+                    <span className="font-bold text-emerald-600">(free with an A2/A3/A4 print)</span>
                   ) : (
-                    <span className="ml-1.5 text-slate-500 text-[10px]">
-                      (+₹15 / pc)
-                    </span>
+                    <span className="text-slate-500">(+₹15/pc)</span>
                   )}
                 </span>
               </label>
             </div>
-          </div>
 
-          {/* Step 4: Size Matrix Breakdown (XS-XXL) */}
-          <div className="bg-white p-5 rounded-2xl border border-slate-200 space-y-3">
-            <div className="flex justify-between items-center">
-              <span className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
-                4. Order Size Matrix (XS – XXL)
-              </span>
-              <span className="text-xs font-black text-brand-900 bg-amber-100 px-2.5 py-0.5 rounded-full">
-                Total: {quantity} Pieces
-              </span>
-            </div>
-
-            <div className="grid grid-cols-6 gap-2">
-              {SIZES.map((sz) => (
-                <div key={sz} className="text-center">
-                  <label className="text-[11px] font-bold text-slate-600 block mb-1">
-                    {sz}
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="1000"
-                    value={sizeBreakdown[sz] ?? 0}
-                    onChange={(e) => {
-                      const val = Math.max(0, parseInt(e.target.value) || 0);
-                      setSizeBreakdown((prev) => ({ ...prev, [sz]: val }));
-                    }}
-                    className="w-full text-center p-1.5 border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:ring-2 focus:ring-brand-900"
-                  />
-                </div>
-              ))}
-            </div>
-
-            <div className="flex gap-2 pt-1">
+            {/* Save & Add Another Product */}
+            <div className="pt-2">
               <button
                 type="button"
-                onClick={() =>
-                  setSizeBreakdown({ XS: 0, S: 5, M: 10, L: 10, XL: 0, XXL: 0 })
-                }
-                className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold transition"
+                onClick={handleSaveAndAddAnother}
+                className="w-full py-2.5 rounded-2xl border-2 border-slate-200 hover:border-slate-400 text-slate-800 font-bold text-xs flex items-center justify-center gap-1.5 transition bg-slate-50"
               >
-                Sample (25 pcs)
+                <Plus className="w-4 h-4" />
+                <span>+ Save & add another product</span>
               </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setSizeBreakdown({ XS: 5, S: 10, M: 15, L: 15, XL: 5, XXL: 0 })
-                }
-                className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold transition"
-              >
-                Wholesale (50 pcs)
-              </button>
-              <button
-                type="button"
-                onClick={() =>
-                  setSizeBreakdown({ XS: 10, S: 20, M: 35, L: 25, XL: 10, XXL: 0 })
-                }
-                className="text-[10px] bg-slate-100 hover:bg-slate-200 text-slate-700 px-2 py-1 rounded font-semibold transition"
-              >
-                Brand Drop (100 pcs)
-              </button>
+              <small className="text-[10px] text-slate-400 block text-center mt-1">
+                Ordering more than one style? Save this product, then design the next one.
+              </small>
             </div>
           </div>
 
-          {/* Step 5: Pricing Summary & Export Actions */}
-          <div className="bg-brand-900 text-white rounded-2xl p-6 space-y-4">
-            <div>
-              <div className="flex justify-between items-center mb-1">
-                <span className="text-xs font-bold text-brand-200 uppercase">
-                  Order Quantity (Pieces)
-                </span>
-                <span className="text-xs text-amber-300 font-bold">
-                  {quantity >= 10 ? "Wholesale Bulk Rate" : "Sample Rate"}
-                </span>
-              </div>
-              <input
-                type="range"
-                min="5"
-                max="300"
-                step="5"
-                value={quantity}
-                onChange={(e) => {
-                  const newTotal = parseInt(e.target.value) || 10;
-                  const half = Math.floor(newTotal / 2);
-                  setSizeBreakdown({
-                    XS: 0,
-                    S: 0,
-                    M: half,
-                    L: newTotal - half,
-                    XL: 0,
-                    XXL: 0,
-                  });
-                }}
-                className="w-full accent-amber-400 cursor-pointer"
-              />
-              <div className="flex justify-between text-[11px] text-slate-400 mt-1">
-                <span>10 pcs (MOQ)</span>
-                <span className="text-white font-extrabold text-sm">
-                  {quantity} Pieces
-                </span>
-                <span>300+ pcs</span>
-              </div>
-            </div>
+          {/* STEP 5: Itemized Quote & Direct WhatsApp Action */}
+          <div className="bg-[#0F172A] text-white rounded-3xl p-6 space-y-4 shadow-xl border border-slate-800">
+            <h2 className="text-sm font-black text-white flex items-center gap-1.5 uppercase tracking-wide">
+              <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-950 flex items-center justify-center text-[11px] font-black">
+                5
+              </span>
+              Your quote
+            </h2>
 
-            {/* Cost breakdown */}
-            <div className="pt-3 border-t border-brand-800 space-y-2 text-xs">
-              <div className="flex justify-between text-brand-200">
-                <span>Base Garment ({quantity} pcs tier):</span>
-                <span>₹{baseGarmentPrice} / pc</span>
-              </div>
-              <div className="flex justify-between text-brand-200">
-                <span>Prints / Craft Cost:</span>
-                <span>+₹{printUnitCost} / pc</span>
-              </div>
-              <div className="flex justify-between font-bold text-white text-sm pt-1">
-                <span>Unit Price:</span>
-                <span>₹{unitPrice} / pc</span>
-              </div>
-              <div className="flex justify-between text-brand-300 text-[11px]">
-                <span>GST (5%):</span>
-                <span>₹{gstAmount.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center pt-2 border-t border-brand-800">
-                <span className="text-sm font-bold text-brand-100">
-                  Total Quote:
+            {/* Itemized Lines */}
+            <div className="space-y-2 text-xs border-b border-slate-800 pb-3">
+              {/* Garment line */}
+              <div className="flex justify-between items-center text-slate-300">
+                <span>
+                  {selectedProduct.name} {selectedProduct.spec} · {currentColor.name}
                 </span>
-                <span className="text-2xl font-black text-amber-400">
-                  ₹{total.toLocaleString()}
-                </span>
+                <span className="font-mono font-bold text-white">₹{baseGarmentPrice}</span>
               </div>
-            </div>
 
-            {/* Add to Quote List Button */}
-            <div className="space-y-2 pt-2">
-              <button
-                type="button"
-                onClick={handleAddToCart}
-                className="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs flex items-center justify-center gap-2 transition shadow-md"
-              >
-                <ShoppingBag className="w-4 h-4" /> Add to Quote List (Cart)
-              </button>
+              {/* Decoration prints */}
+              {placedPrints
+                .filter((p) => p.position !== "neck")
+                .map((p, idx) => (
+                  <div key={idx} className="flex justify-between items-center text-slate-300">
+                    <div>
+                      <span className="block">{p.sizeLabel}</span>
+                      <small className="text-[10px] text-slate-400 block">{p.dimensions}</small>
+                    </div>
+                    <span className="font-mono font-bold text-amber-400">+₹{p.unitCost}</span>
+                  </div>
+                ))}
 
-              {addedToCartToast && (
-                <div className="p-2.5 bg-emerald-900/90 border border-emerald-600 rounded-xl text-xs text-emerald-200 flex items-center justify-between">
-                  <span className="flex items-center gap-1.5 font-semibold">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                    Added to Quote List!
+              {/* Neck label line */}
+              {hasNeckLabel && (
+                <div className="flex justify-between items-center text-slate-300">
+                  <div>
+                    <span className="block">Neck label (your brand)</span>
+                    <small className="text-[10px] text-slate-400 block">
+                      {hasLargePrint && !isEmbroidery
+                        ? "Free with an A2/A3/A4 print"
+                        : "+₹15 / pc standard branding"}
+                    </small>
+                  </div>
+                  <span className="font-mono font-bold text-emerald-400">
+                    {hasLargePrint && !isEmbroidery ? "FREE" : "+₹15"}
                   </span>
-                  <Link
-                    href="/quote"
-                    className="underline text-white font-bold hover:text-amber-300"
-                  >
-                    View Quote →
-                  </Link>
                 </div>
               )}
             </div>
 
-            {/* Save to Remote Quote Drawer & WhatsApp Trigger */}
-            {submittedSuccess ? (
-              <div className="p-4 bg-emerald-950/80 border border-emerald-700 rounded-2xl space-y-3 text-center">
-                <div className="text-xs text-emerald-300 font-semibold flex items-center justify-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Design & Quote saved! Opening WhatsApp...
-                </div>
-                <p className="text-[11px] text-slate-300">
-                  If WhatsApp did not launch automatically, tap below to send your design specs:
-                </p>
-                <a
-                  href={lastWhatsAppUrl || `https://wa.me/${(process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918089963691").replace(/[^0-9]/g, "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition"
-                >
-                  <span>Open WhatsApp Chat</span>
-                  <ArrowRight className="w-3.5 h-3.5" />
-                </a>
+            {/* Per Piece & Subtotal */}
+            <div className="space-y-1.5 text-xs">
+              <div className="flex justify-between text-slate-400">
+                <span>Per piece</span>
+                <span className="font-mono font-bold text-white">₹{unitPrice}</span>
               </div>
-            ) : (
-              <form onSubmit={handleSubmitQuote} className="pt-2 border-t border-brand-800 space-y-2">
-                <span className="text-[11px] font-bold text-brand-300 uppercase block">
-                  Send Design & Get Instant WhatsApp Confirmation
+
+              <div className="flex justify-between text-slate-400">
+                <span>Subtotal ({quantity} pc{quantity > 1 ? "s" : ""})</span>
+                <span className="font-mono font-bold text-white">₹{subtotal.toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="flex justify-between text-slate-400">
+                <span>GST (5%)</span>
+                <span className="font-mono font-bold text-white">₹{gstAmount.toLocaleString("en-IN")}</span>
+              </div>
+
+              <div className="pt-2 border-t border-slate-800 flex justify-between items-center">
+                <span className="text-sm font-bold text-slate-200">Estimated total</span>
+                <span className="text-2xl font-black text-amber-400">
+                  ₹{total.toLocaleString("en-IN")}
                 </span>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    required
-                    placeholder="Your Name"
-                    value={customerName}
-                    onChange={(e) => setCustomerName(e.target.value)}
-                    className="p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
-                  />
-                  <input
-                    type="tel"
-                    required
-                    placeholder="Phone Number"
-                    value={customerPhone}
-                    onChange={(e) => setCustomerPhone(e.target.value)}
-                    className="p-2.5 rounded-lg bg-brand-950 border border-brand-800 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-emerald-950/30"
-                >
-                  <Send className="w-4 h-4" />
-                  {isSubmitting ? "Opening WhatsApp..." : "Send Design & Specs to WhatsApp"}
-                </button>
-              </form>
-            )}
+              </div>
+            </div>
+
+            {/* Shipping notice */}
+            <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
+              <span>🚚</span>
+              <span>Shipping charges extra, as per actual weight & location.</span>
+            </p>
+
+            {/* Primary Action Button: Send design on WhatsApp without intermediate checkout form */}
+            <button
+              type="button"
+              onClick={handleWhatsAppSubmit}
+              disabled={isSubmitting}
+              className="w-full py-3.5 rounded-2xl bg-[#25D366] hover:bg-[#20ba5a] text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg transition"
+            >
+              <Send className="w-4 h-4 fill-current" />
+              <span>{isSubmitting ? "Opening WhatsApp..." : "Send design on WhatsApp"}</span>
+            </button>
+
+            <p className="text-[10px] text-slate-400 text-center leading-normal">
+              Your WhatsApp opens a chat with {WHATSAPP_NUMBER || "+91 90729 97950"} with all your details; then send your mockup images to the same chat in one tap.
+            </p>
+
+            {/* Reset link */}
+            <div className="text-center pt-1">
+              <button
+                type="button"
+                onClick={handleResetDesign}
+                className="text-xs text-slate-400 hover:text-white underline transition"
+              >
+                Start a new design
+              </button>
+            </div>
           </div>
         </div>
       </div>
