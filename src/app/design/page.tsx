@@ -93,6 +93,8 @@ function DesignStudioContent() {
   const [backUploadedImage, setBackUploadedImage] = useState<string | null>(null);
   const [leftUploadedImage, setLeftUploadedImage] = useState<string | null>(null);
   const [rightUploadedImage, setRightUploadedImage] = useState<string | null>(null);
+  const [frontArtworkFilename, setFrontArtworkFilename] = useState<string>("");
+  const [backArtworkFilename, setBackArtworkFilename] = useState<string>("");
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [isRemovingBg, setIsRemovingBg] = useState<boolean>(false);
 
@@ -437,11 +439,17 @@ function DesignStudioContent() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const chosenName = file.name || "artwork.png";
+    if (activeSide === "front") setFrontArtworkFilename(chosenName);
+    else if (activeSide === "back") setBackArtworkFilename(chosenName);
+
     setIsUploading(true);
     try {
       const formData = new FormData();
       formData.append("file", file);
-      formData.append("folder", "asson_studio_designs");
+      formData.append("type", "artwork");
+      formData.append("side", activeSide);
+      formData.append("folder", "artworks");
 
       const res = await fetch("/api/upload", {
         method: "POST",
@@ -451,6 +459,10 @@ function DesignStudioContent() {
       const data = await res.json();
       if (data.url) {
         setCurrentActiveImage(data.url);
+        if (data.filename) {
+          if (activeSide === "front") setFrontArtworkFilename(data.filename);
+          else if (activeSide === "back") setBackArtworkFilename(data.filename);
+        }
         if (activePrintSizeKey === "none") {
           setActivePrintSizeKey(activeSide === "left" || activeSide === "right" ? "logo" : "a3");
         }
@@ -464,6 +476,8 @@ function DesignStudioContent() {
       reader.onload = (uploadEvent) => {
         if (uploadEvent.target?.result) {
           setCurrentActiveImage(uploadEvent.target.result as string);
+          if (activeSide === "front") setFrontArtworkFilename(chosenName);
+          else if (activeSide === "back") setBackArtworkFilename(chosenName);
           if (activePrintSizeKey === "none") {
             setActivePrintSizeKey(activeSide === "left" || activeSide === "right" ? "logo" : "a3");
           }
@@ -663,22 +677,25 @@ function DesignStudioContent() {
     };
   }, []);
 
-  // High-Fidelity Client-Side Composite Mockup Generator (Apparel + Artwork + Text)
-  const generateCompositeMockup = async (): Promise<string> => {
+  // High-Fidelity Composite Mockup Generator matching Looma Apparels reference image
+  const generateCompositeMockup = async (sideOverride?: StudioViewSide): Promise<string> => {
     return new Promise((resolve) => {
       try {
+        const side = sideOverride || activeSide;
         const canvas = document.createElement("canvas");
-        canvas.width = 800;
-        canvas.height = 800;
+        const canvasW = 903;
+        const canvasH = 1024;
+        canvas.width = canvasW;
+        canvas.height = canvasH;
         const ctx = canvas.getContext("2d");
         if (!ctx) {
           resolve("/logo.png");
           return;
         }
 
-        // 1. Clean background fill
-        ctx.fillStyle = "#f6f5f1";
-        ctx.fillRect(0, 0, 800, 800);
+        // 1. Clean solid white background fill matching Looma Apparels reference image
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fillRect(0, 0, canvasW, canvasH);
 
         const loadImage = (src: string): Promise<HTMLImageElement | null> => {
           return new Promise((imgResolve) => {
@@ -688,7 +705,6 @@ function DesignStudioContent() {
             }
             const img = new Image();
             img.crossOrigin = "anonymous";
-            // Use image proxy for external URLs to prevent canvas tainting
             let targetSrc = src;
             if (
               (src.startsWith("http://") || src.startsWith("https://")) &&
@@ -699,7 +715,6 @@ function DesignStudioContent() {
             img.src = targetSrc;
             img.onload = () => imgResolve(img);
             img.onerror = () => {
-              // If proxy failed, retry directly without crossOrigin
               const fallbackImg = new Image();
               fallbackImg.src = src;
               fallbackImg.onload = () => imgResolve(fallbackImg);
@@ -710,36 +725,54 @@ function DesignStudioContent() {
 
         const renderMockup = async () => {
           try {
-            // 2. Load and draw garment photo
+            // 2. Load and draw garment blank photo
             const garmentSource =
-              activeGarmentPhoto ||
-              (activeSide === "back" ? currentColor.back : currentColor.front);
+              side === "front"
+                ? (customBlankPhoto.front || currentColor.front)
+                : (customBlankPhoto.back || currentColor.back);
 
             const garmentImg = await loadImage(garmentSource);
             if (garmentImg) {
-              ctx.drawImage(garmentImg, 50, 50, 700, 700);
+              const gw = 816;
+              const gh = 852;
+              const gx = Math.round((canvasW - gw) / 2); // 44px
+              const gy = 92;
+              ctx.drawImage(garmentImg, gx, gy, gw, gh);
             } else {
-              // Stylized garment fallback silhouette
-              ctx.fillStyle = currentColor.hex || "#1e293b";
+              ctx.fillStyle = currentColor.hex || "#DCCFBE";
               ctx.beginPath();
-              ctx.roundRect(160, 160, 480, 560, 24);
+              ctx.roundRect(44, 92, 816, 852, 28);
               ctx.fill();
             }
 
-            // 3. Load and draw artwork if present
-            const artSource = currentActiveImage || frontUploadedImage || backUploadedImage;
+            // 3. Load and draw artwork for this view side
+            const artSource = side === "back" ? backUploadedImage : frontUploadedImage;
             if (artSource) {
               const artImg = await loadImage(artSource);
               if (artImg) {
-                const t = transforms[activeSide] || { x: 0, y: 0, scale: 0.85, rotation: 0 };
-                const baseSize = 280;
-                const artW = baseSize * (t.scale || 0.85);
-                const artH = baseSize * (t.scale || 0.85);
-                const posX = 400 + (t.x || 0) * 3 - artW / 2;
-                const posY = 380 + (t.y || 0) * 3 - artH / 2;
+                const t = transforms[side] || { x: 0, y: 0, scale: 0.85, rotation: 0 };
+                const centerX = 451.5 + (t.x || 0) * 3.5;
+                const centerY = (side === "front" ? 490 : 455) + (t.y || 0) * 3.5;
+
+                const baseW = 280;
+                const baseH = 280;
+                let artW = baseW;
+                let artH = baseH;
+                if (artImg.width && artImg.height) {
+                  const aspect = artImg.width / artImg.height;
+                  if (aspect >= 1) {
+                    artW = baseW;
+                    artH = baseW / aspect;
+                  } else {
+                    artH = baseH;
+                    artW = baseH * aspect;
+                  }
+                }
+                artW *= (t.scale || 1);
+                artH *= (t.scale || 1);
 
                 ctx.save();
-                ctx.translate(posX + artW / 2, posY + artH / 2);
+                ctx.translate(centerX, centerY);
                 ctx.rotate(((t.rotation || 0) * Math.PI) / 180);
                 ctx.drawImage(artImg, -artW / 2, -artH / 2, artW, artH);
                 ctx.restore();
@@ -747,57 +780,34 @@ function DesignStudioContent() {
             }
 
             // 4. Draw Typography overlays for this side
-            const activeTextElements = textElements.filter((t) => t.side === activeSide);
+            const activeTextElements = textElements.filter((item) => item.side === side);
             activeTextElements.forEach((item, index) => {
               ctx.save();
               ctx.fillStyle = item.color || "#ffffff";
-              ctx.font = `bold ${Math.round((item.size || 24) * 1.6)}px sans-serif`;
+              ctx.font = `bold ${Math.round((item.size || 24) * 1.5)}px Archivo, Arial, sans-serif`;
               ctx.textAlign = "center";
               ctx.textBaseline = "middle";
-              ctx.shadowColor = "rgba(0,0,0,0.6)";
+              ctx.shadowColor = "rgba(0,0,0,0.5)";
               ctx.shadowBlur = 4;
-              ctx.fillText(item.text, 400 + (item.x || 0), 400 + (item.y || 0) + index * 40);
+              ctx.fillText(
+                item.text,
+                451.5 + (item.x || 0) * 3.5,
+                (side === "front" ? 490 : 455) + (item.y || 0) * 3.5 + index * 40
+              );
               ctx.restore();
             });
 
-            // 5. Tech pack footer stamp with exact real dimensions and rotation
-            const tActive = transforms[activeSide] || { x: 0, y: 0, scale: 1, rotation: 0 };
-            const scalePct = Math.round((tActive.scale || 1) * 100);
-            const rotDeg = Math.round(tActive.rotation || 0);
+            // 5. Watermark branding stamp in bottom-right corner matching reference image:
+            // "LOOMA APPARELS · FRONT" / "LOOMA APPARELS · BACK"
+            ctx.save();
+            ctx.font = '600 13px Archivo, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif';
+            ctx.fillStyle = 'rgba(11, 20, 38, 0.55)';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'alphabetic';
+            ctx.fillText(`LOOMA APPARELS · ${side.toUpperCase()}`, canvasW - 22, canvasH - 22);
+            ctx.restore();
 
-            const printConfig = DTF_PRINTS[activePrintSizeKey] || DTF_PRINTS.a3;
-            let baseW = 11;
-            let baseH = 16;
-            if (printConfig.size) {
-              const match = printConfig.size.match(/([0-9.]+)"\s*[×xX]\s*([0-9.]+)"/);
-              if (match) {
-                baseW = parseFloat(match[1]);
-                baseH = parseFloat(match[2]);
-              }
-            }
-            const realW = +(baseW * (tActive.scale || 1)).toFixed(2);
-            const realH = +(baseH * (tActive.scale || 1)).toFixed(2);
-            const realWCm = +(realW * 2.54).toFixed(1);
-            const realHCm = +(realH * 2.54).toFixed(1);
-
-            ctx.fillStyle = "#1e293b";
-            ctx.font = "bold 15px sans-serif";
-            ctx.textAlign = "left";
-            ctx.fillText("ASSON CLOTHING BRAND — FACTORY PRINT TECH PACK", 50, 745);
-            ctx.font = "11px sans-serif";
-            ctx.fillStyle = "#475569";
-            ctx.fillText(
-              `${selectedProduct.name} · Color: ${currentColor.name} · Zone: ${activeSide.toUpperCase()} · Template: ${printConfig.label || "A3"}`,
-              50,
-              763
-            );
-            ctx.fillText(
-              `REAL PRINT SIZE: ${realW}" × ${realH}" (${realWCm} × ${realHCm} cm) · Scale: ${scalePct}% · Rotation: ${rotDeg}° · Offset: X:${Math.round(tActive.x)}px, Y:${Math.round(tActive.y)}px`,
-              50,
-              779
-            );
-
-            // Export data URI
+            // Export pure PNG dataUrl
             const dataUrl = canvas.toDataURL("image/png");
             resolve(dataUrl);
           } catch (canvasErr) {
@@ -818,7 +828,7 @@ function DesignStudioContent() {
   const handleDownloadMockup = async () => {
     const dataUrl = await generateCompositeMockup();
     const link = document.createElement("a");
-    link.download = `asson-${selectedProduct.slug}-${activeSide}-mockup.png`;
+    link.download = `looma-${selectedProduct.slug}-${activeSide}-mockup.png`;
     link.href = dataUrl;
     link.click();
   };
@@ -861,59 +871,35 @@ function DesignStudioContent() {
       process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "918089963691"
     ).replace(/[^0-9]/g, "");
 
-    const sizesText =
-      Object.entries(sizeBreakdown)
-        .filter(([_, qty]) => (qty as number) > 0)
-        .map(([sz, qty]) => `${sz}×${qty}`)
-        .join(", ") || `${quantity} pcs`;
-
-    const printsText =
-      placedPrints.length > 0
-        ? placedPrints.map((p) => p.sizeLabel || p.sizeKey).join(", ")
-        : "none (plain t-shirt)";
-
-    const generatedDesignId = `ASSON-${Date.now().toString(36).toUpperCase()}`;
+    // Generate Looma Apparels format Design ID (e.g. WWGO-zexkxlvp)
+    const charsUpper = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    const charsLower = "abcdefghijklmnopqrstuvwxyz0123456789";
+    let p1 = "";
+    for (let i = 0; i < 4; i++) p1 += charsUpper.charAt(Math.floor(Math.random() * charsUpper.length));
+    let p2 = "";
+    for (let i = 0; i < 8; i++) p2 += charsLower.charAt(Math.floor(Math.random() * charsLower.length));
+    const generatedDesignId = `${p1}-${p2}`;
 
     const appBaseUrl =
       typeof window !== "undefined" && window.location.origin
         ? window.location.origin
         : process.env.NEXT_PUBLIC_APP_URL || "https://asson-cloths.vercel.app";
 
-    // Clean normal-sized URL for WhatsApp link
-    const mockupImg = `${appBaseUrl}/api/mockup/${generatedDesignId}.png`;
-
-    const whatsappMessage = [
-      `Hi Asson Clothing Brand! I designed a t-shirt on your website.`,
-      ``,
-      `Mockup images: ${mockupImg}`,
-      `Design ID: ${generatedDesignId}`,
-      `T-shirt: ${selectedProduct.name} — ${currentColor.name}`,
-      `Prints: ${printsText}`,
-      `Sizes: ${sizesText} (${quantity} pcs)`,
-      `Neck label: ${hasNeckLabel ? "yes" : "no"}`,
-      `Price: ₹${unitPrice}/pc × ${quantity} = ₹${subtotal} (+ GST)`,
-      `Total: ${quantity} pcs`,
-      `Estimate: ₹${subtotal} + GST ₹${gstAmount} = ₹${total}`,
-      `Shipping charges extra.`,
-    ].join("\n");
-
-    const whatsappUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(
-      whatsappMessage
-    )}`;
-
     try {
-      // 1. Generate full composite mockup image (garment + artwork + text overlay)
+      // 1. Generate full composite mockup image matching Looma Apparels reference
       const compositeMockup = await generateCompositeMockup();
 
-      // 2. Upload to Cloudinary if available
-      let finalMockupUrl = compositeMockup;
+      // 2. Upload composite mockup to local disk storage
+      let finalMockupUrl = "";
       try {
         if (compositeMockup && compositeMockup.startsWith("data:image")) {
           const blobRes = await fetch(compositeMockup);
           const blob = await blobRes.blob();
           const fd = new FormData();
           fd.append("file", blob, `mockup-${generatedDesignId}.png`);
-          fd.append("folder", "asson_studio_designs");
+          fd.append("type", "mockup");
+          fd.append("designId", generatedDesignId);
+          fd.append("side", activeSide);
           const upRes = await fetch("/api/upload", { method: "POST", body: fd });
           const upData = await upRes.json();
           if (upData.url) {
@@ -921,12 +907,97 @@ function DesignStudioContent() {
           }
         }
       } catch (upErr) {
-        console.warn("Upload composite to /api/upload error, fallback to data URI:", upErr);
+        console.warn("Upload composite to /api/upload error:", upErr);
       }
 
-      // 3. Compute production Tech Pack measurements (real printable inches, cm, scale %, rotation)
+      // 3. Upload raw artwork file if needed to guarantee persistent disk asset
+      let rawArtworkUrl = (activeSide === "back" ? backUploadedImage : frontUploadedImage) || "";
+      const rawArtworkName =
+        (activeSide === "back" ? backArtworkFilename : frontArtworkFilename) ||
+        `artwork-01-mockup-${generatedDesignId.toLowerCase()}.png`;
+
+      if (rawArtworkUrl && rawArtworkUrl.startsWith("data:image")) {
+        try {
+          const blobRes = await fetch(rawArtworkUrl);
+          const blob = await blobRes.blob();
+          const fd = new FormData();
+          fd.append("file", blob, rawArtworkName);
+          fd.append("type", "artwork");
+          fd.append("designId", generatedDesignId);
+          const upRes = await fetch("/api/upload", { method: "POST", body: fd });
+          const upData = await upRes.json();
+          if (upData.url) {
+            rawArtworkUrl = upData.url;
+          }
+        } catch (e) {
+          console.warn("Artwork upload error:", e);
+        }
+      }
+
+      // 4. Construct accessible URLs for WhatsApp message
+      const mockupImgUrl = `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
+      const artworkFileUrl = rawArtworkUrl
+        ? (rawArtworkUrl.startsWith("http") ? rawArtworkUrl : `${appBaseUrl}${rawArtworkUrl}`)
+        : `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
+
+      // 5. Format WhatsApp message exactly per specification
+      const activePrints = placedPrints.filter((p) => p.position !== "neck" && p.sizeKey !== "none");
+      let printsSection = "";
+      if (activePrints.length === 0) {
+        printsSection = "Prints: none (plain t-shirt)";
+      } else {
+        const bulletLines = activePrints.map((p) => {
+          const posName = p.position.charAt(0).toUpperCase() + p.position.slice(1);
+          const config = DTF_PRINTS[p.sizeKey] || DTF_PRINTS.a4;
+          const dims = config.dimensions || config.size || "9.8 × 8.2 in";
+          const label = config.label || "A4 DTF";
+          const cost = p.unitCost;
+          const artName =
+            (p.position === "back" ? backArtworkFilename : frontArtworkFilename) || rawArtworkName;
+          return `• ${posName}: ${label} — ${dims} — ₹${cost}/pc (${artName})`;
+        });
+        printsSection = `Prints:\n${bulletLines.join("\n")}`;
+      }
+
+      const sizeParts = Object.entries(sizeBreakdown)
+        .filter(([_, qty]) => (qty as number) > 0)
+        .map(([sz, qty]) => `${sz}×${qty}`);
+      const sizesFormatted = sizeParts.length > 0 ? sizeParts.join(", ") : `M×${quantity}`;
+
+      const neckLabelFormatted = hasNeckLabel
+        ? (hasLargePrint ? "yes (free)" : "yes")
+        : "no";
+
+      const tshirtSpecs = `${selectedProduct.name} · ${selectedProduct.spec} — ${currentColor.name}`;
+
+      const whatsappMessage = [
+        `Hi Looma Apparels! I designed a t-shirt on your website.`,
+        ``,
+        `Mockup images:`,
+        `${mockupImgUrl}`,
+        ``,
+        `Design ID: ${generatedDesignId}`,
+        `T-shirt: ${tshirtSpecs}`,
+        `${printsSection}`,
+        `Sizes: ${sizesFormatted} (${quantity} pcs)`,
+        `Neck label: ${neckLabelFormatted}`,
+        `Price: ₹${unitPrice}/pc × ${quantity} = ₹${subtotal} (+ GST)`,
+        ``,
+        `Total: ${quantity} pcs`,
+        `Estimate: ₹${subtotal} + GST ₹${gstAmount} = ₹${total}`,
+        `Shipping charges extra.`,
+        ``,
+        `Artwork files (print-ready):`,
+        `${artworkFileUrl}`,
+      ].join("\n");
+
+      const whatsappUrl = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(
+        whatsappMessage
+      )}`;
+
+      // 6. Compute production Tech Pack measurements for factory
       const activeTransform = transforms[activeSide] || { x: 0, y: 0, scale: 1, rotation: 0 };
-      const printConfig = DTF_PRINTS[activePrintSizeKey] || DTF_PRINTS.a3;
+      const printConfig = DTF_PRINTS[activePrintSizeKey] || DTF_PRINTS.a4;
 
       let baseW = 11;
       let baseH = 16;
@@ -960,6 +1031,7 @@ function DesignStudioContent() {
           .map((t) => ({ text: t.text, color: t.color, size: t.size })),
       };
 
+      // 7. Save to /api/designs and /api/quotes
       await fetch("/api/designs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -970,12 +1042,13 @@ function DesignStudioContent() {
           productName: selectedProduct.name,
           colorName: currentColor.name,
           colorHex: currentColor.hex,
-          previewUrl: finalMockupUrl,
-          frontPreviewUrl: finalMockupUrl,
+          previewUrl: finalMockupUrl || `/uploads/mockups/${generatedDesignId}.png`,
+          frontPreviewUrl: finalMockupUrl || `/uploads/mockups/${generatedDesignId}.png`,
           backPreviewUrl: backUploadedImage || finalMockupUrl,
-          artworkUrl: frontUploadedImage || backUploadedImage || customBlankPhoto.front || customBlankPhoto.back || "",
+          artworkUrl: rawArtworkUrl || frontUploadedImage || backUploadedImage || "",
           uploadedAssets: [
             finalMockupUrl,
+            rawArtworkUrl,
             frontUploadedImage,
             backUploadedImage,
             customBlankPhoto.front,
@@ -1011,7 +1084,7 @@ function DesignStudioContent() {
               sizes: { ...sizeBreakdown },
               printType: isEmbroidery ? "Embroidery" : "DTF",
               printSize: `${techPackData.nominalSizeLabel} (${techPackData.realDimensionsInches})`,
-              designPreviewUrl: mockupImg,
+              designPreviewUrl: mockupImgUrl,
               techPack: techPackData,
               unitPrice,
               totalPrice: total,
@@ -1020,7 +1093,7 @@ function DesignStudioContent() {
           subtotal,
           gst: gstAmount,
           total,
-          notes: "Generated via Asson Interactive Design Studio",
+          notes: "Generated via Looma Apparels Interactive Design Studio",
         }),
       });
 
@@ -1052,7 +1125,7 @@ function DesignStudioContent() {
             </span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-1">
-            Asson Design Studio
+            Looma Apparels Design Studio
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             4-zone interactive canvas, real DTF inch measurements, live volume tiers,
@@ -1878,7 +1951,7 @@ export default function DesignStudioPage() {
     <Suspense
       fallback={
         <div className="p-16 text-center text-xs font-semibold text-slate-500">
-          Loading Asson Design Studio...
+          Loading Looma Apparels Design Studio...
         </div>
       }
     >

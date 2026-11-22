@@ -86,109 +86,109 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#131313",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-black.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-black-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-black-back.jpg",
       },
       {
         name: "White",
         hex: "#F2EAEA",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-white.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-white-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-white-back.jpg",
       },
       {
         name: "Beige",
         hex: "#EBE6D4",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-beige.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-beige-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-beige.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-beige-back.jpg",
       },
       {
         name: "Navy Blue",
         hex: "#1F273A",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-navy-blue.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-navy-blue-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-navy-blue.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-navy-blue-back.jpg",
       },
       {
         name: "Royal Blue",
         hex: "#083D8A",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-royal-blue.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-royal-blue-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-royal-blue.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-royal-blue-back.jpg",
       },
       {
         name: "Lavender",
         hex: "#684BA2",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-lavender.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-lavender-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-lavender.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-lavender-back.jpg",
       },
       {
         name: "Red",
         hex: "#C52E2E",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-red.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-red-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-red.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-red-back.jpg",
       },
       {
         name: "Green",
         hex: "#24572A",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-green.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-green-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-green.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-green-back.jpg",
       },
       {
         name: "Brown",
         hex: "#79472D",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-brown.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-brown-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-brown.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-brown-back.jpg",
       },
     ],
     colours: [
@@ -196,73 +196,73 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#131313",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-black-back.jpg",
       },
       {
         name: "White",
         hex: "#F2EAEA",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-white-back.jpg",
       },
       {
         name: "Beige",
         hex: "#EBE6D4",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-beige.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-beige-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-beige-back.jpg",
       },
       {
         name: "Navy Blue",
         hex: "#1F273A",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-navy-blue.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-navy-blue-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-navy-blue-back.jpg",
       },
       {
         name: "Royal Blue",
         hex: "#083D8A",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-royal-blue.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-royal-blue-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-royal-blue-back.jpg",
       },
       {
         name: "Lavender",
         hex: "#684BA2",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-lavender.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-lavender-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-lavender-back.jpg",
       },
       {
         name: "Red",
         hex: "#C52E2E",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-red.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-red-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-red-back.jpg",
       },
       {
         name: "Green",
         hex: "#24572A",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-green.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-green-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-green-back.jpg",
       },
       {
         name: "Brown",
         hex: "#79472D",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-brown.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-250-gsm-french-terry-brown-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-250-gsm-french-terry-brown-back.jpg",
       },
     ],
     zones: {
@@ -302,37 +302,37 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#313131",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-black.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-black-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-black-back.jpg",
       },
       {
         name: "Green",
         hex: "#24572A",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-green.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-green-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-green.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-green-back.jpg",
       },
       {
         name: "Royal Blue",
         hex: "#083D8A",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-royal-blue.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-royal-blue-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-royal-blue.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-royal-blue-back.jpg",
       },
     ],
     colours: [
@@ -340,25 +340,25 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#313131",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-black-back.jpg",
       },
       {
         name: "Green",
         hex: "#24572A",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-green.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-green-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-green-back.jpg",
       },
       {
         name: "Royal Blue",
         hex: "#083D8A",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-royal-blue.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/acid-wash-oversized-tee-250-gsm-royal-blue-back.jpg?v=3.3.0",
+          "/blanks/acid-wash-oversized-tee-250-gsm-royal-blue-back.jpg",
       },
     ],
     zones: {
@@ -398,13 +398,13 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#131313",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "/blanks/full-sleeve-oversized-tee-250-gsm-black.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/full-sleeve-oversized-tee-250-gsm-black-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "/blanks/full-sleeve-oversized-tee-250-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/full-sleeve-oversized-tee-250-gsm-black-back.jpg",
       },
     ],
     colours: [
@@ -412,9 +412,9 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#131313",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black.jpg?v=3.3.0",
+          "/blanks/full-sleeve-oversized-tee-250-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/full-sleeve-oversized-tee-250-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/full-sleeve-oversized-tee-250-gsm-black-back.jpg",
       },
     ],
     zones: {
@@ -454,25 +454,25 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#131313",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-black.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-black-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-black-back.jpg",
       },
       {
         name: "White",
         hex: "#F2EAEA",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-white.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-white-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-white-back.jpg",
       },
     ],
     colours: [
@@ -480,17 +480,17 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#131313",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-black-back.jpg",
       },
       {
         name: "White",
         hex: "#F2EAEA",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-230-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-230-gsm-white-back.jpg",
       },
     ],
     zones: {
@@ -532,9 +532,9 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         photoBack:
           "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm/back-black.png",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-black-back.jpg",
       },
       {
         name: "White",
@@ -544,9 +544,9 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         photoBack:
           "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm/back-white.png",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-white-back.jpg",
       },
     ],
     colours: [
@@ -554,17 +554,17 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#131313",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-black.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-black-back.jpg",
       },
       {
         name: "White",
         hex: "#F2EAEA",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-white.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/oversized-tee-190-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/oversized-tee-190-gsm-white-back.jpg",
       },
     ],
     zones: {
@@ -600,37 +600,37 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#000000",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-black.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-black-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-black-back.jpg",
       },
       {
         name: "White",
         hex: "#FFFFFF",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-white.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-white-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-white-back.jpg",
       },
       {
         name: "Red",
         hex: "#DB0C0C",
         photoFront:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-red.jpg",
         photoBack:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-red-back.jpg",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-red.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-red-back.jpg",
       },
     ],
     colours: [
@@ -638,25 +638,25 @@ export const REVERSE_ENGINEERED_PRODUCTS: GarmentProduct[] = [
         name: "Black",
         hex: "#000000",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-black.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-black-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-black-back.jpg",
       },
       {
         name: "White",
         hex: "#FFFFFF",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-white.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-white-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-white-back.jpg",
       },
       {
         name: "Red",
         hex: "#DB0C0C",
         front:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-red.jpg",
         back:
-          "https://loomaapparels.com/wp-content/themes/looma-apparels/assets/img/products/regular-fit-tee-190-gsm-red-back.jpg?v=3.3.0",
+          "/blanks/regular-fit-tee-190-gsm-red-back.jpg",
       },
     ],
     zones: {

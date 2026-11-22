@@ -1285,38 +1285,54 @@ FACTORY RIP OPERATOR INSTRUCTIONS:
                     >
                       <div className="space-y-3">
                         <div className="w-full h-44 rounded-xl bg-[#0E0E0E] border border-[#222222] flex items-center justify-center overflow-hidden relative group">
-                          {d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0]) ? (
-                            <img
-                              src={d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0])}
-                              alt={d.title || d.productName || "Custom design"}
-                              className="max-h-full max-w-full object-contain p-2"
-                            />
-                          ) : (
-                            <Palette className="w-10 h-10 text-neutral-700" />
-                          )}
-                          {(d.previewUrl || d.frontPreviewUrl || d.artworkUrl || (d.uploadedAssets && d.uploadedAssets[0])) && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const img = d.previewUrl || d.frontPreviewUrl || d.artworkUrl || d.backPreviewUrl || (d.uploadedAssets && d.uploadedAssets[0]);
-                                setPreviewModal({
-                                  isOpen: true,
-                                  imageUrl: img,
-                                  title: d.title || d.productName || "Custom Studio Design",
-                                  customer: d.customerName || "Customer",
-                                  phone: d.customerPhone,
-                                  designId: d.designId || d._id,
-                                  design: d,
-                                });
-                              }}
-                              className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1.5 text-xs font-bold text-white transition backdrop-blur-xs cursor-pointer z-10"
-                            >
-                              <span className="p-2 rounded-full bg-amber-500 text-slate-950 shadow-lg">
-                                <ExternalLink className="w-4 h-4" />
-                              </span>
-                              <span>Open Full Mockup ↗</span>
-                            </button>
-                          )}
+                          {(() => {
+                            const candidateImg =
+                              d.previewUrl ||
+                              d.frontPreviewUrl ||
+                              d.artworkUrl ||
+                              d.backPreviewUrl ||
+                              (d.uploadedAssets && d.uploadedAssets[0]) ||
+                              (d.designId ? `/api/mockup/${d.designId}.jpg` : "/blanks/oversized-tee-250-gsm-french-terry-beige.jpg");
+
+                            return (
+                              <img
+                                src={candidateImg}
+                                alt={d.title || d.productName || "Custom design"}
+                                className="max-h-full max-w-full object-contain p-2"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src =
+                                    "/blanks/oversized-tee-250-gsm-french-terry-beige.jpg";
+                                }}
+                              />
+                            );
+                          })()}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const img =
+                                d.previewUrl ||
+                                d.frontPreviewUrl ||
+                                d.artworkUrl ||
+                                d.backPreviewUrl ||
+                                (d.uploadedAssets && d.uploadedAssets[0]) ||
+                                (d.designId ? `/api/mockup/${d.designId}.jpg` : "/blanks/oversized-tee-250-gsm-french-terry-beige.jpg");
+                              setPreviewModal({
+                                isOpen: true,
+                                imageUrl: img,
+                                title: d.title || d.productName || "Custom Studio Design",
+                                customer: d.customerName || "Customer",
+                                phone: d.customerPhone,
+                                designId: d.designId || d._id,
+                                design: d,
+                              });
+                            }}
+                            className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center gap-1.5 text-xs font-bold text-white transition backdrop-blur-xs cursor-pointer z-10"
+                          >
+                            <span className="p-2 rounded-full bg-amber-500 text-slate-950 shadow-lg">
+                              <ExternalLink className="w-4 h-4" />
+                            </span>
+                            <span>Open Full Mockup ↗</span>
+                          </button>
                         </div>
 
                         <div>
