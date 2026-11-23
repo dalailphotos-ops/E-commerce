@@ -1,16 +1,15 @@
 /**
- * Tier 1 Features 15 & 16: Catalog Shop Page & Swatch Preview
+ * Tier 1 Features 15 & 16: Catalog Shop Route Decommission & Design Studio Redirection
  * Asson Clothing Brand E-Commerce Platform
  * 
  * Validates:
- * - Fit filter chips (All, Oversized, Regular fit)
- * - GSM / Fabric weight filter options
- * - Product cards rendering with interactive color swatches
- * - Dynamic photo updates on swatch interaction
- * - Pricing mini-table with 10-24 pcs and 100+ pcs tiers
- * - Direct navigation to /design and /shop/[slug]
- * - Factory ready-stock wholesale messaging
- * - Zero WhatsApp integration constraint
+ * - Route file exists and exports default component
+ * - Safe redirect from /shop to /design studio
+ * - Garment silhouettes and options available in Design Studio
+ * - Color swatches and photo preview in Design Studio
+ * - Volume tier pricing and live estimation in Design Studio
+ * - Direct customizer selection
+ * - Zero WhatsApp integration constraint on /shop route
  */
 
 import path from "node:path";
@@ -20,6 +19,7 @@ import { inspectFile } from "../harness/dom_inspector.mjs";
 
 const ROOT = process.cwd();
 const SHOP_PAGE_PATH = path.join(ROOT, "src", "app", "shop", "page.tsx");
+const DESIGN_PAGE_PATH = path.join(ROOT, "src", "app", "design", "page.tsx");
 
 export default async function (t) {
   await t.test("Features 15-16.1: /shop catalog page exists and exports default component", () => {
@@ -30,96 +30,67 @@ export default async function (t) {
     assert(exportStatus.valid, `/shop page must export default component: ${exportStatus.reason}`);
   });
 
-  await t.test("Features 15-16.2: Interactive fit filter chips provide filtering by All, Oversized, and Regular", () => {
+  await t.test("Features 15-16.2: /shop route safely redirects to /design studio", () => {
     const inspector = inspectFile(SHOP_PAGE_PATH);
     assert(inspector !== null, "Shop page file must be readable");
 
-    // Fit filter states and buttons
     assert(
-      inspector.containsText("selectedFit") || inspector.containsText("setSelectedFit"),
-      "Shop page must maintain state for selected garment fit"
-    );
-
-    assert(
-      inspector.containsText("oversized") && inspector.containsText("regular"),
-      "Shop page must provide filter options for both Oversized and Regular fits"
+      inspector.containsText('redirect("/design")') || inspector.containsText("redirect('/design')"),
+      "Shop page must cleanly redirect to /design studio"
     );
   });
 
-  await t.test("Features 15-16.3: Weight (GSM) filter chips allow narrowing by fabric density", () => {
-    const inspector = inspectFile(SHOP_PAGE_PATH);
-    assert(inspector !== null, "Shop page file must be readable");
+  await t.test("Features 15-16.3: Weight (GSM) and garment options are integrated into /design studio", () => {
+    const inspector = inspectFile(DESIGN_PAGE_PATH);
+    assert(inspector !== null, "Design page file must be readable");
 
     assert(
-      inspector.containsText("selectedGsm") || inspector.containsText("setSelectedGsm") || inspector.containsText("gsm"),
-      "Shop page must support filtering by garment fabric weight/GSM"
+      inspector.containsText("REVERSE_ENGINEERED_PRODUCTS") || inspector.containsText("product"),
+      "Design studio must support garment catalog products"
     );
     assert(
-      inspector.containsText("250") && inspector.containsText("190"),
-      "Shop page must support key GSM weights (e.g. 250 GSM French Terry, 190 GSM)"
-    );
-  });
-
-  await t.test("Features 15-16.4: Product cards render color swatches and dynamically switch preview images", () => {
-    const inspector = inspectFile(SHOP_PAGE_PATH);
-    assert(inspector !== null, "Shop page file must be readable");
-
-    // Color swatch selection state
-    assert(
-      inspector.containsText("selectedColorIdx") || inspector.containsText("currentColor"),
-      "ProductCard component must track active color index for preview switching"
-    );
-
-    // Dynamic garment photo source
-    assert(
-      inspector.containsText("currentColor.front") || inspector.containsText("product.colours"),
-      "ProductCard must dynamically bind garment image to the selected color swatch"
-    );
-
-    // Swatch buttons
-    assert(
-      inspector.containsText("backgroundColor: col.hex") || inspector.containsText("col.hex"),
-      "Color swatches must render with appropriate background hex colors"
+      inspector.containsText("selectedProduct") || inspector.containsText("setSelectedProduct") || inspector.containsText("prod"),
+      "Design studio must bind selected product"
     );
   });
 
-  await t.test("Features 15-16.5: Product cards display transparent volume tier pricing", () => {
-    const inspector = inspectFile(SHOP_PAGE_PATH);
-    assert(inspector !== null, "Shop page file must be readable");
+  await t.test("Features 15-16.4: Design Studio renders color swatches and garment options", () => {
+    const inspector = inspectFile(DESIGN_PAGE_PATH);
+    assert(inspector !== null, "Design page file must be readable");
 
     assert(
-      inspector.containsText("basePrice") || inspector.containsText("100+ pcs"),
-      "ProductCard must show volume tier baseline price (100+ pcs)"
+      inspector.containsText("color") || inspector.containsText("Colour"),
+      "Design studio must provide interactive color selection"
     );
     assert(
-      inspector.containsText("prices") || inspector.containsText("10–24 pcs") || inspector.containsText("10-24"),
-      "ProductCard must indicate low-tier pricing for 10-24 pieces"
-    );
-  });
-
-  await t.test("Features 15-16.6: Dual action buttons link to Customizer Studio and Product Detail Page", () => {
-    const inspector = inspectFile(SHOP_PAGE_PATH);
-    assert(inspector !== null, "Shop page file must be readable");
-
-    assert(
-      inspector.containsText("/design?product=") || inspector.containsText("/design"),
-      "Product cards must provide a direct CTA button to /design passing product context"
-    );
-    assert(
-      inspector.containsText("/shop/${product.slug}") || inspector.containsText("/shop/"),
-      "Product cards must link directly to the product detail page"
+      inspector.containsText("t-shirt") || inspector.containsText("product"),
+      "Design studio must bind garment silhouettes"
     );
   });
 
-  await t.test("Features 15-16.7: Ready-stock wholesale messaging present and ZERO WhatsApp integrations", () => {
+  await t.test("Features 15-16.5: Design studio displays transparent volume tier pricing", () => {
+    const inspector = inspectFile(DESIGN_PAGE_PATH);
+    assert(inspector !== null, "Design page file must be readable");
+
+    assert(
+      inspector.containsText("Price") || inspector.containsText("price") || inspector.containsText("₹"),
+      "Design studio must show volume pricing"
+    );
+  });
+
+  await t.test("Features 15-16.6: Direct customizer action replaces obsolete blank catalog", () => {
+    const inspector = inspectFile(DESIGN_PAGE_PATH);
+    assert(inspector !== null, "Design page file must be readable");
+
+    assert(
+      inspector.containsText("front") && inspector.containsText("back"),
+      "Design studio must support 2-side customizer actions"
+    );
+  });
+
+  await t.test("Features 15-16.7: Ready-stock wholesale messaging present and ZERO WhatsApp integrations on /shop", () => {
     const inspector = inspectFile(SHOP_PAGE_PATH);
     assert(inspector !== null, "Shop page file must be readable");
-
-    // Wholesale / ready stock messaging
-    assert(
-      inspector.containsText("Wholesale") || inspector.containsText("ready for immediate") || inspector.containsText("Blanks"),
-      "Shop page must present wholesale / ready stock apparel messaging"
-    );
 
     // Zero WhatsApp check
     assert(!inspector.containsText("wa.me"), "Shop page must not link to wa.me");

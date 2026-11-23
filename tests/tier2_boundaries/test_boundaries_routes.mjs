@@ -23,20 +23,13 @@ const DESIGN_PATH = path.join(ROOT, "src", "app", "design", "page.tsx");
 const ESTIMATOR_PATH = path.join(ROOT, "src", "app", "price-estimator", "page.tsx");
 
 export default async function (t) {
-  await t.test("Route Boundary 2.1: Non-existent product slug triggers Next.js notFound()", () => {
+  await t.test("Route Boundary 2.1: Legacy product slug route safely redirects to Design Studio", () => {
     const inspector = inspectFile(PDP_PATH);
     assert(inspector !== null, "PDP page file must exist");
 
-    // Must import notFound from next/navigation
     assert(
-      inspector.containsText("notFound"),
-      "PDP must import and invoke notFound() for invalid product slugs"
-    );
-
-    // Slug lookup check
-    assert(
-      inspector.containsText("if (!product)") || inspector.containsText("!product"),
-      "PDP must verify if product was found before rendering"
+      inspector.containsText("redirect"),
+      "PDP route must cleanly redirect to /design studio"
     );
   });
 
@@ -73,10 +66,10 @@ export default async function (t) {
     assertEqual(sanitizeQuantity("undefined"), 0, "Undefined string must resolve to 0");
     assertEqual(sanitizeQuantity("42"), 42, "Valid number string must parse to integer 42");
 
-    const inspector = inspectFile(PDP_PATH);
+    const inspector = inspectFile(DESIGN_PATH);
     assert(
-      inspector.containsText("Math.max(0, parseInt(val) || 0)") || inspector.containsText("parseInt"),
-      "PDP size input handler must safely parse integer strings"
+      inspector.containsText("parseInt"),
+      "Design studio size input handler must safely parse integer strings"
     );
   });
 

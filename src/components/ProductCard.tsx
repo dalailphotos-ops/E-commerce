@@ -44,7 +44,7 @@ export function ProductCard({
     >
       {/* Garment Image & Swatches Overlay */}
       <div className="h-72 bg-slate-100 overflow-hidden relative">
-        <Link href={`/shop/${product.slug}`} className="block w-full h-full">
+        <Link href={`/design?product=${product.id}&color=${encodeURIComponent(currentColor.name)}`} className="block w-full h-full">
           <img
             src={currentColor.front}
             alt={`${product.name} in ${currentColor.name}`}
@@ -110,7 +110,7 @@ export function ProductCard({
             {product.fit}
           </span>
           <h3 className="p-card-title text-base font-bold text-slate-900 mt-1 group-hover:text-brand-800 transition-colors">
-            <Link href={`/shop/${product.slug}`}>{product.name}</Link>
+            <Link href={`/design?product=${product.id}&color=${encodeURIComponent(currentColor.name)}`}>{product.name}</Link>
           </h3>
           <p className="p-card-spec text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
             {product.spec}
@@ -155,10 +155,10 @@ export function ProductCard({
             <Palette className="w-3.5 h-3.5" /> Customize
           </Link>
           <Link
-            href={`/shop/${product.slug}`}
+            href={`/design?product=${product.id}&color=${encodeURIComponent(currentColor.name)}`}
             className="flex-1 py-2.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-semibold text-xs text-center flex items-center justify-center gap-1 transition"
           >
-            Details & Tiers <ArrowRight className="w-3.5 h-3.5" />
+            Design Studio <ArrowRight className="w-3.5 h-3.5" />
           </Link>
         </div>
       </div>

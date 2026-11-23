@@ -142,8 +142,12 @@ export default async function (t) {
       "Homepage must link to Price Estimator"
     );
     assert(
-      links.includes("/shop") || homeInspector.containsText("/shop"),
-      "Homepage must link to Shop Blanks"
+      links.includes("/bulk-orders") || homeInspector.containsText("/bulk-orders"),
+      "Homepage must link to Bulk Orders"
+    );
+    assert(
+      !links.includes("/shop"),
+      "Homepage must not link to decommissioned Shop Blanks"
     );
   });
 

@@ -135,22 +135,10 @@ export default function Navbar() {
           {/* Desktop Nav: responsive gap and tracking */}
           <nav className="hidden xl:flex items-center gap-2.5 2xl:gap-5 text-[11px] 2xl:text-xs font-mono uppercase tracking-wider 2xl:tracking-widest whitespace-nowrap">
             <Link
-              href="/shop"
-              className="whitespace-nowrap text-neutral-300 hover:text-white transition-colors py-1 hover:underline underline-offset-8"
-            >
-              Shop Blanks
-            </Link>
-            <Link
               href="/design"
               className="whitespace-nowrap text-white font-bold transition-colors py-1 hover:underline underline-offset-8"
             >
               Design Studio
-            </Link>
-            <Link
-              href="/dropshipping"
-              className="whitespace-nowrap text-neutral-300 hover:text-white transition-colors py-1 hover:underline underline-offset-8"
-            >
-              Dropshipping
             </Link>
             <Link
               href="/bulk-orders"
@@ -239,26 +227,12 @@ export default function Navbar() {
             </span>
           </div>
           <Link
-            href="/shop"
-            onClick={() => setIsOpen(false)}
-            className="block px-3 py-2.5 rounded-md text-sm font-mono uppercase tracking-wider text-neutral-200 hover:bg-[#1A1A1A] transition-colors"
-          >
-            Shop Blanks
-          </Link>
-          <Link
             href="/design"
             onClick={() => setIsOpen(false)}
             className="block px-3 py-2.5 rounded-md text-sm font-mono uppercase tracking-wider text-white hover:bg-[#1A1A1A] flex items-center gap-2 transition-colors font-bold"
           >
             <Palette className="w-4 h-4 text-neutral-400" />
             Design Studio
-          </Link>
-          <Link
-            href="/dropshipping"
-            onClick={() => setIsOpen(false)}
-            className="block px-3 py-2.5 rounded-md text-sm font-mono uppercase tracking-wider text-neutral-200 hover:bg-[#1A1A1A] transition-colors"
-          >
-            Dropshipping
           </Link>
           <Link
             href="/bulk-orders"

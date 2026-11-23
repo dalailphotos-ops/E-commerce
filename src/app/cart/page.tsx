@@ -54,10 +54,10 @@ export default function CartPage() {
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-4">
           <Link
-            href="/shop"
+            href="/design"
             className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition flex items-center gap-2 shadow-md"
           >
-            Explore Blanks Catalog <ArrowRight className="w-4 h-4" />
+            Launch Design Studio <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/design"
@@ -96,10 +96,10 @@ export default function CartPage() {
             <Trash2 className="w-3.5 h-3.5" /> Clear Cart
           </button>
           <Link
-            href="/shop"
+            href="/design"
             className="px-4 py-2 text-xs font-semibold rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 transition flex items-center gap-1.5"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Continue Shopping
+            <ArrowLeft className="w-3.5 h-3.5" /> Back to Studio
           </Link>
         </div>
       </div>

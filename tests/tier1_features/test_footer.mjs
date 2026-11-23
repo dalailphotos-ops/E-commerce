@@ -26,8 +26,9 @@ export default async function (t) {
     const links = footer.extractLinks();
     assert(links.includes("/about"), "Footer must include link to /about");
     assert(links.includes("/contact"), "Footer must include link to /contact");
-    assert(links.includes("/dropshipping"), "Footer must include link to /dropshipping");
     assert(links.includes("/services"), "Footer must include link to /services");
+    assert(links.includes("/design"), "Footer must include link to /design");
+    assert(!links.includes("/dropshipping"), "Footer must not include decommissioned /dropshipping");
   });
 
   await t.test("Feature 3.3: Legal policy links (Privacy Policy & Terms of Service) are present", () => {

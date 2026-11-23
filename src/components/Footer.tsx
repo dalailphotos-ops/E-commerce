@@ -73,8 +73,8 @@ export default function Footer() {
             </h3>
             <ul className="space-y-3 text-xs text-neutral-300">
               <li>
-                <Link href="/shop" className="hover:text-white transition-colors">
-                  Products
+                <Link href="/design" className="hover:text-white transition-colors">
+                  Design Studio
                 </Link>
               </li>
               <li>
@@ -88,8 +88,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/dropshipping" className="hover:text-white transition-colors">
-                  Dropshipping
+                <Link href="/bulk-orders" className="hover:text-white transition-colors">
+                  Bulk Orders
                 </Link>
               </li>
               <li>

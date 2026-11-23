@@ -71,9 +71,11 @@ export default async function (t) {
 
   await t.test("Feature 2.6: Essential store navigation links present", () => {
     const links = nav.extractLinks();
-    assert(links.includes("/shop"), "Navigation must link to /shop");
     assert(links.includes("/design"), "Navigation must link to /design");
-    assert(links.includes("/dropshipping"), "Navigation must link to /dropshipping");
+    assert(links.includes("/bulk-orders"), "Navigation must link to /bulk-orders");
     assert(links.includes("/price-estimator"), "Navigation must link to /price-estimator");
+    assert(links.includes("/contact"), "Navigation must link to /contact");
+    assert(!links.includes("/shop"), "Navigation must not link to decommissioned /shop");
+    assert(!links.includes("/dropshipping"), "Navigation must not link to decommissioned /dropshipping");
   });
 }

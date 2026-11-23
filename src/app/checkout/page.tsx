@@ -165,10 +165,10 @@ export default function CheckoutPage() {
 
           <div className="pt-4 flex flex-wrap justify-center gap-4">
             <Link
-              href="/shop"
+              href="/design"
               className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition flex items-center gap-2 shadow-md"
             >
-              Continue Exploring Blanks <ArrowRight className="w-4 h-4" />
+              Continue Designing <ArrowRight className="w-4 h-4" />
             </Link>
             <Link
               href="/"
@@ -206,10 +206,10 @@ export default function CheckoutPage() {
             <ArrowLeft className="w-4 h-4" /> Back to Cart
           </Link>
           <Link
-            href="/shop"
+            href="/design"
             className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition flex items-center gap-2 shadow-md"
           >
-            Shop Blanks Catalog <ArrowRight className="w-4 h-4" />
+            Launch Design Studio <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
       </div>

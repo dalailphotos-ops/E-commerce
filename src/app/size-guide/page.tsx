@@ -7,10 +7,10 @@ export default function SizeGuidePage() {
       {/* Header */}
       <div className="border-b border-slate-200 pb-6">
         <Link
-          href="/shop"
+          href="/design"
           className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition mb-3"
         >
-          <ArrowLeft className="w-3.5 h-3.5" /> Back to Shop
+          <ArrowLeft className="w-3.5 h-3.5" /> Back to Studio
         </Link>
         <span className="text-xs font-bold text-accent uppercase tracking-widest block">
           Measurement Specs

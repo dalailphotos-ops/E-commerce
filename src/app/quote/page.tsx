@@ -293,10 +293,10 @@ export default function QuotePage() {
                 </p>
                 <div className="flex justify-center gap-3 pt-1">
                   <Link
-                    href="/shop"
+                    href="/design"
                     className="text-xs font-bold text-amber-600 hover:text-amber-700 flex items-center gap-1"
                   >
-                    Browse Blanks <ArrowRight className="w-3 h-3" />
+                    Design Studio <ArrowRight className="w-3 h-3" />
                   </Link>
                   <Link
                     href="/design"
@@ -348,10 +348,10 @@ export default function QuotePage() {
               </p>
               <div className="pt-2">
                 <Link
-                  href="/shop"
+                  href="/design"
                   className="px-5 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-xs inline-flex items-center gap-2 transition"
                 >
-                  Continue Shopping <ArrowRight className="w-3.5 h-3.5" />
+                  Start New Design <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>

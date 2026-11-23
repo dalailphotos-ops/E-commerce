@@ -76,10 +76,10 @@ export default function HomePage() {
                 </Link>
 
                 <Link
-                  href="/shop"
+                  href="/bulk-orders"
                   className="px-6 py-3.5 rounded-xl bg-[#121212] hover:bg-[#1E1E1E] text-neutral-300 hover:text-white font-mono uppercase tracking-wider border border-neutral-800 text-sm sm:text-base transition text-center whitespace-nowrap"
                 >
-                  View Blanks
+                  Bulk Orders
                 </Link>
               </div>
 
@@ -137,10 +137,10 @@ export default function HomePage() {
                 </div>
 
                 <Link
-                  href="/shop/oversized-tee-250-gsm-french-terry"
+                  href="/design?product=oversized-tee-250-gsm-french-terry"
                   className="w-full py-2.5 rounded-lg bg-brand-700 hover:bg-brand-600 text-white font-medium text-xs flex items-center justify-center gap-2 transition"
                 >
-                  Explore Sizes & Colors <ArrowRight className="w-3.5 h-3.5" />
+                  Customize in Studio <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
@@ -164,10 +164,10 @@ export default function HomePage() {
             </p>
           </div>
           <Link
-            href="/shop"
+            href="/design"
             className="text-sm font-semibold text-accent hover:text-accent-hover flex items-center gap-1.5 transition"
           >
-            View all 6 silhouettes <ArrowRight className="w-4 h-4" />
+            Design in Studio <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
@@ -237,10 +237,10 @@ export default function HomePage() {
                   <Palette className="w-4 h-4" /> Launch Design Studio
                 </Link>
                 <Link
-                  href="/dropshipping"
+                  href="/contact"
                   className="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold flex items-center gap-1 transition"
                 >
-                  How Dropshipping Works <ArrowRight className="w-3.5 h-3.5" />
+                  Contact Our Team <ArrowRight className="w-3.5 h-3.5" />
                 </Link>
               </div>
             </div>
@@ -279,10 +279,10 @@ export default function HomePage() {
             <div className="p-8 pt-0">
               <div className="flex flex-wrap gap-3">
                 <Link
-                  href="/shop"
+                  href="/design"
                   className="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold flex items-center gap-1.5 transition shadow"
                 >
-                  <Shirt className="w-4 h-4" /> Explore All Blanks
+                  <Shirt className="w-4 h-4" /> Open Design Studio
                 </Link>
                 <Link
                   href="/bulk-orders"

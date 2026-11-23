@@ -77,8 +77,8 @@ export default async function (t) {
 
     const links = inspector.extractLinks();
     assert(
-      links.some((l) => l.startsWith("/shop")),
-      "Homepage blanks section must link to /shop catalog or individual product slugs"
+      links.some((l) => l.startsWith("/design")),
+      "Homepage blanks section must link directly to /design customizer studio"
     );
   });
 
@@ -140,7 +140,7 @@ export default async function (t) {
     );
   });
 
-  await t.test("Feature 14.7: Core action buttons provide seamless paths to Design Studio and Shop", () => {
+  await t.test("Feature 14.7: Core action buttons provide seamless paths to Design Studio and Bulk Orders", () => {
     const inspector = inspectFile(HOMEPAGE_PATH);
     assert(inspector !== null, "Homepage file must be readable");
 
@@ -150,8 +150,12 @@ export default async function (t) {
       "Homepage must link to /design customizer studio"
     );
     assert(
-      links.includes("/shop"),
-      "Homepage must link to /shop catalog"
+      links.includes("/bulk-orders"),
+      "Homepage must link to /bulk-orders"
+    );
+    assert(
+      !links.includes("/shop"),
+      "Homepage must not link to decommissioned /shop"
     );
   });
 

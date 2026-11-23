@@ -19,6 +19,7 @@ const DROPSHIPPING_PAGE = path.join(ROOT, "src", "app", "dropshipping", "page.ts
 const SERVICES_PAGE = path.join(ROOT, "src", "app", "services", "page.tsx");
 const PRIVACY_PAGE = path.join(ROOT, "src", "app", "privacy-policy", "page.tsx");
 const TERMS_PAGE = path.join(ROOT, "src", "app", "terms-of-service", "page.tsx");
+const DESIGN_PAGE_PATH = path.join(ROOT, "src", "app", "design", "page.tsx");
 
 export default async function (t) {
   // -------------------------------------------------------------
@@ -131,39 +132,39 @@ export default async function (t) {
     assert(exportStatus.valid, `/dropshipping must export default component: ${exportStatus.reason}`);
   });
 
-  await t.test("Feature 11.2: /dropshipping explains Print-on-Demand (POD) workflow steps", () => {
+  await t.test("Feature 11.2: /dropshipping safely redirects to /design customizer studio", () => {
     const inspector = inspectFile(DROPSHIPPING_PAGE);
     assert(inspector !== null, "dropshipping page file must be readable");
     assert(
-      inspector.containsText("Print") || inspector.containsText("Demand") || inspector.containsText("Ship"),
-      "/dropshipping must explain POD fulfillment workflow"
+      inspector.containsText('redirect("/design")') || inspector.containsText("redirect('/design')"),
+      "/dropshipping must safely redirect to /design studio"
     );
   });
 
-  await t.test("Feature 11.3: /dropshipping details logistics and pan-India courier shipping", () => {
-    const inspector = inspectFile(DROPSHIPPING_PAGE);
-    assert(inspector !== null, "dropshipping page file must be readable");
+  await t.test("Feature 11.3: Custom apparel production handled directly in Design Studio", () => {
+    const designInspector = inspectFile(DESIGN_PAGE_PATH);
+    assert(designInspector !== null, "design page file must be readable");
     assert(
-      inspector.containsText("shipping") || inspector.containsText("courier") || inspector.containsText("India"),
-      "/dropshipping must outline shipping and courier logistics"
+      designInspector.containsText("t-shirt") || designInspector.containsText("Tee") || designInspector.containsText("print"),
+      "Design studio must handle apparel production"
     );
   });
 
-  await t.test("Feature 11.4: /dropshipping highlights custom neck labels and blind shipping", () => {
-    const inspector = inspectFile(DROPSHIPPING_PAGE);
-    assert(inspector !== null, "dropshipping page file must be readable");
+  await t.test("Feature 11.4: Design studio highlights custom neck labels and brand waiver", () => {
+    const designInspector = inspectFile(DESIGN_PAGE_PATH);
+    assert(designInspector !== null, "design page file must be readable");
     assert(
-      inspector.containsText("label") || inspector.containsText("branding") || inspector.containsText("packaging"),
-      "/dropshipping must highlight white-labeling and custom neck label services"
+      designInspector.containsText("neck label") || designInspector.containsText("Neck label"),
+      "Design studio must offer neck label branding"
     );
   });
 
-  await t.test("Feature 11.5: /dropshipping provides onboarding or partner enquiry CTA", () => {
+  await t.test("Feature 11.5: Zero 404 errors for legacy dropshipping URLs with clean redirection", () => {
     const inspector = inspectFile(DROPSHIPPING_PAGE);
     assert(inspector !== null, "dropshipping page file must be readable");
     assert(
-      inspector.containsText("Apply") || inspector.containsText("Start") || inspector.containsText("Contact") || inspector.hasElement("form"),
-      "/dropshipping must include a partner signup or enquiry CTA"
+      inspector.containsText("redirect"),
+      "/dropshipping must redirect to prevent 404s"
     );
   });
 

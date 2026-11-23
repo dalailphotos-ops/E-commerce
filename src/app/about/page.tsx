@@ -111,10 +111,10 @@ export default function AboutPage() {
         </p>
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
           <Link
-            href="/shop"
+            href="/bulk-orders"
             className="px-6 py-3 rounded-md bg-white hover:bg-neutral-200 text-black font-mono font-bold text-xs uppercase tracking-wider transition flex items-center gap-2 shadow"
           >
-            Explore Product Catalog <ArrowRight className="w-4 h-4" />
+            Explore Bulk Orders <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/design"

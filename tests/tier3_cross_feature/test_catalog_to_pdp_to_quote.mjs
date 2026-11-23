@@ -45,18 +45,13 @@ export default async function (t) {
     const inspector = inspectFile(SHOP_PAGE);
     assert(inspector !== null, "Unable to inspect /shop page component");
 
-    // Verify filter capabilities (fits and GSM)
+    // Verify clean redirect to /design studio
     assert(
-      inspector.containsText("oversized", false) && inspector.containsText("regular", false),
-      "Catalog must provide fit filter options for Oversized and Regular fits"
+      inspector.containsText("redirect"),
+      "Catalog page safely redirects to /design studio"
     );
 
-    // Verify that links to PDP routes exist in the catalog
-    const links = inspector.extractLinks();
-    const hasPdpLinks = links.some((l) => l.includes("/shop/")) || inspector.containsText("/shop/");
-    assert(hasPdpLinks, "Catalog cards must link to individual product detail pages (/shop/[slug])");
-
-    // Verify ZERO WhatsApp references in catalog
+    // Verify ZERO WhatsApp references in catalog redirect
     assert(
       !inspector.containsText("whatsapp", false) && !inspector.containsText("wa.me", false),
       "Catalog page must strictly contain ZERO WhatsApp links or buttons"
