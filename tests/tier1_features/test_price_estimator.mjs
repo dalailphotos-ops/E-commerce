@@ -5,12 +5,15 @@
  * Validates:
  * - /price-estimator route and PriceEstimatorPage component
  * - Multi-line order item builder (dynamic add, remove, and item configuration)
- * - Independent front & back print placement options (A2 to A6, Logo, None)
- * - Popular presets (Plain T-shirt, A3 Back only, Chest Logo + A3 Back)
+ * - Independent front & back print placement options (A2 to A6, Logo, None, Embroidery)
+ * - Popular presets (Plain T-shirt, A3 Back only, Chest Logo + A3 Back, A3 Back + A4 Chest)
  * - Cumulative multi-line volume pricing with 5% Indian textile GST
  * - Clipboard export functionality for customer quote summaries
  * - In-app quote submission to /api/quotes
- * - STRICT USER CONSTRAINT: Absolute absence of WhatsApp links or widgets.
+ * - WhatsApp quote integration with pre-filled wa.me links
+ * - 4-step configurator flow header and multi-item discount banner
+ * - Free neck label perk triggering on A2, A3, or A4 print selection
+ * - Dynamic next-tier discount tip box and quick-add button
  */
 
 import path from "node:path";
@@ -21,6 +24,7 @@ import { calculateOrder } from "../harness/pricing_simulator.mjs";
 
 const ROOT = process.cwd();
 const ESTIMATOR_PAGE_PATH = path.join(ROOT, "src", "app", "price-estimator", "page.tsx");
+const PRICING_LIB_PATH = path.join(ROOT, "src", "lib", "estimator-pricing.ts");
 
 export default async function (t) {
   await t.test("Features 23-24.1: /price-estimator route exists and exports default component", () => {
@@ -37,7 +41,7 @@ export default async function (t) {
 
     // Adding items
     assert(
-      inspector.containsText("handleAddItem") || inspector.containsText("Add Another Silhouette"),
+      inspector.containsText("handleAddItem") || inspector.containsText("Add Another Silhouette") || inspector.containsText("Add another product"),
       "Estimator must provide an action button to add additional garment lines"
     );
 
@@ -72,11 +76,11 @@ export default async function (t) {
       "Estimator must provide Plain T-Shirt preset"
     );
     assert(
-      inspector.containsText("A3 Back Only") || inspector.containsText("a3"),
-      "Estimator must provide A3 Back Only preset"
+      inspector.containsText("A3 Back Only") || inspector.containsText("A3 Back Print") || inspector.containsText("a3"),
+      "Estimator must provide A3 Back preset"
     );
     assert(
-      inspector.containsText("Chest Logo + A3 Back") || inspector.containsText("logo"),
+      inspector.containsText("Chest Logo + A3 Back") || inspector.containsText("A3 Back + Chest Logo") || inspector.containsText("logo"),
       "Estimator must provide Chest Logo + A3 Back preset"
     );
   });
@@ -130,7 +134,7 @@ export default async function (t) {
     );
 
     assert(
-      inspector.containsText("generateQuoteSummaryText") || inspector.containsText("Price Estimator Quote"),
+      inspector.containsText("generateQuoteSummaryText") || inspector.containsText("Price Estimator Quote") || inspector.containsText("formatQuoteSummaryText"),
       "Estimator must generate human-readable formatted summary text"
     );
   });
@@ -150,12 +154,62 @@ export default async function (t) {
     );
   });
 
-  await t.test("Features 23-24.8: [CRITICAL CONSTRAINT] ABSENCE of WhatsApp links or widgets on Price Estimator", () => {
+  await t.test("Features 23-24.8: WhatsApp integration generates prefilled quote export link and action button", () => {
     const inspector = inspectFile(ESTIMATOR_PAGE_PATH);
     assert(inspector !== null, "Estimator page file must be readable");
 
-    assert(!inspector.containsText("wa.me"), "Price Estimator must not link to wa.me");
-    assert(!inspector.containsText("api.whatsapp.com"), "Price Estimator must not link to api.whatsapp.com");
-    assert(!inspector.containsText("whatsapp", false), "Price Estimator must not contain WhatsApp buttons or links");
+    assert(
+      inspector.containsText("Send on WhatsApp") || inspector.containsText("Send via WhatsApp"),
+      "Price Estimator must provide 'Send on WhatsApp' action button"
+    );
+
+    const pricingInspector = inspectFile(PRICING_LIB_PATH);
+    assert(pricingInspector !== null, "Pricing library file must be readable");
+    assert(
+      pricingInspector.containsText("wa.me") && pricingInspector.containsText("formatWhatsAppQuoteUrl"),
+      "Pricing engine must configure wa.me export link"
+    );
+  });
+
+  await t.test("Features 23-24.9: 4-step configurator flow header and multi-item discount banner", () => {
+    const inspector = inspectFile(ESTIMATOR_PAGE_PATH);
+    assert(inspector !== null, "Estimator page file must be readable");
+
+    assert(inspector.containsText("Pick a t-shirt"), "Must contain step 1: Pick a t-shirt");
+    assert(inspector.containsText("Colour & sizes") || inspector.containsText("Colour &amp; sizes"), "Must contain step 2: Colour & sizes");
+    assert(inspector.containsText("Add prints"), "Must contain step 3: Add prints");
+    assert(inspector.containsText("Send your quote"), "Must contain step 4: Send your quote");
+    assert(
+      inspector.containsText("Mix as many styles, colours and prints as you like in one order"),
+      "Must contain multi-item automatic discount banner note"
+    );
+  });
+
+  await t.test("Features 23-24.10: Free neck label perk notification triggers on A2, A3, or A4 print selection", () => {
+    const inspector = inspectFile(ESTIMATOR_PAGE_PATH);
+    assert(inspector !== null, "Estimator page file must be readable");
+
+    assert(
+      inspector.containsText("Free neck label (your brand name) included") || inspector.containsText("hasFreeNeckLabel"),
+      "Estimator must indicate free neck label included when A2, A3, or A4 is selected"
+    );
+    assert(
+      inspector.containsText("Add an A2, A3 or A4 print to get a free neck label"),
+      "Estimator must display prompt when free neck label perk is inactive"
+    );
+  });
+
+  await t.test("Features 23-24.11: Dynamic next-tier discount tip box and quick-add button", () => {
+    const inspector = inspectFile(ESTIMATOR_PAGE_PATH);
+    assert(inspector !== null, "Estimator page file must be readable");
+
+    assert(
+      inspector.containsText("data-order-hint") || inspector.containsText("orderBestDrop"),
+      "Estimator sidebar must support dynamic next-tier tip box"
+    );
+    assert(
+      inspector.containsText("handleQuickAddPieces") || inspector.containsText("orderBestDrop.addQuantity"),
+      "Estimator must provide quick-add button to qualify for the next price tier"
+    );
   });
 }

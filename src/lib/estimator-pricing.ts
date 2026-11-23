@@ -429,10 +429,11 @@ export function formatQuoteSummaryText(
 export function formatWhatsAppQuoteUrl(
   lines: EstimatorLine[],
   result: EstimatorCalculationResult,
-  phone: string = "919072997950"
+  phone: string = "919072997950",
+  customPrefix?: string
 ): string {
   const text = formatQuoteSummaryText(lines, result);
   const cleanPhone = phone.replace(/[^0-9]/g, "");
-  const intro = `Hi ${BRAND_NAME}, I would like a quote for this order:\n\n`;
-  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(intro + text)}`;
+  const prefix = customPrefix !== undefined ? customPrefix : `Hi ${BRAND_NAME}, I would like a quote for this order:\n\n`;
+  return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(prefix + text)}`;
 }

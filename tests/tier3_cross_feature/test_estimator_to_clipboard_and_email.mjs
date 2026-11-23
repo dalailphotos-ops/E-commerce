@@ -7,7 +7,7 @@
  * 3. Text quotation generation formatted for clipboard copy
  * 4. Mailto RFQ link generation targeted to orders@assonclothing.com
  * 5. Direct transfer from Price Estimator into CartContext ('asson_quote_v1')
- * 6. ZERO WHATSAPP constraint verification across estimator exports
+ * 6. WhatsApp quote link export and action integration
  */
 
 import path from "node:path";
@@ -209,15 +209,17 @@ export default async function (t) {
     assertEqual(stored[1].totalPrice, 7600, "Second stored line total must be 7,600");
   });
 
-  await t.test("Flow 3.3.6: Strict ZERO WhatsApp verification across Price Estimator page", () => {
+  await t.test("Flow 3.3.6: WhatsApp quotation link generation and action buttons", () => {
     const inspector = inspectFile(ESTIMATOR_PAGE);
     assert(inspector !== null, "Unable to inspect /price-estimator page");
 
     assert(
-      !inspector.containsText("whatsapp", false) &&
-      !inspector.containsText("wa.me", false) &&
-      !inspector.containsText("api.whatsapp.com", false),
-      "Price Estimator page must strictly contain ZERO WhatsApp links, buttons, or CTAs"
+      inspector.containsText("whatsappUrl") || inspector.containsText("formatWhatsAppQuoteUrl"),
+      "Price Estimator page must configure prefilled WhatsApp link"
+    );
+    assert(
+      inspector.containsText("Send on WhatsApp") || inspector.containsText("Send via WhatsApp"),
+      "Price Estimator order summary must provide WhatsApp action button"
     );
   });
 }
