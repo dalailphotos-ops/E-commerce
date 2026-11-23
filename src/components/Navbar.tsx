@@ -159,12 +159,6 @@ export default function Navbar() {
               Bulk Orders
             </Link>
             <Link
-              href="/printing"
-              className="whitespace-nowrap text-neutral-300 hover:text-white transition-colors py-1 hover:underline underline-offset-8"
-            >
-              Printing
-            </Link>
-            <Link
               href="/price-estimator"
               className="whitespace-nowrap text-neutral-300 hover:text-white transition-colors py-1 hover:underline underline-offset-8"
             >
@@ -273,13 +267,6 @@ export default function Navbar() {
           >
             <Layers className="w-4 h-4 text-neutral-400" />
             Bulk Orders
-          </Link>
-          <Link
-            href="/printing"
-            onClick={() => setIsOpen(false)}
-            className="block px-3 py-2.5 rounded-md text-sm font-mono uppercase tracking-wider text-neutral-200 hover:bg-[#1A1A1A] transition-colors"
-          >
-            Printing
           </Link>
           <Link
             href="/price-estimator"

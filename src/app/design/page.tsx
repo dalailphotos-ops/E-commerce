@@ -3287,63 +3287,21 @@ function DesignStudioContent() {
               </span>
             </div>
 
-            {/* Segmented Toggle: DTF print vs Embroidery */}
-            <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-2xl">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsEmbroidery(false);
-                  commitSnapshot();
-                }}
-                className={`py-2 rounded-xl text-xs font-bold transition text-center ${
-                  !isEmbroidery
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-slate-700 hover:text-slate-900"
-                }`}
-              >
-                DTF print
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsEmbroidery(true);
-                  commitSnapshot();
-                }}
-                className={`py-2 rounded-xl text-xs font-bold transition text-center ${
-                  isEmbroidery
-                    ? "bg-slate-900 text-white shadow-sm"
-                    : "text-slate-700 hover:text-slate-900"
-                }`}
-              >
-                Embroidery
-              </button>
-            </div>
-
-            {/* Embroidery Stitch Estimator & Override */}
-            {isEmbroidery && (
-              <div className="space-y-2 p-3 bg-amber-50/60 rounded-2xl border border-amber-200/80">
-                <div className="flex items-center justify-between text-xs">
-                  <label className="font-bold text-slate-800">Stitches</label>
-                  <input
-                    type="number"
-                    min="500"
-                    step="500"
-                    value={currentStitches}
-                    onChange={(e) => {
-                      const val = Math.max(500, parseInt(e.target.value) || 2000);
-                      setManualStitches((prev) => ({
-                        ...prev,
-                        [activeSide]: val,
-                      }));
-                    }}
-                    className="w-28 text-right p-1.5 border border-slate-300 rounded-lg text-xs font-mono font-bold text-slate-900 bg-white"
-                  />
+            {/* Print Technique: DTF Print Only */}
+            <div className="p-3 bg-slate-900 text-white rounded-2xl flex items-center justify-between shadow-sm">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center font-black text-xs border border-amber-500/30">
+                  DTF
                 </div>
-                <small className="text-[10px] text-slate-500 leading-tight block">
-                  Max 10 × 10 in per design. Stitches auto-estimated from size — edit if you know it. Digitizing charged extra.
-                </small>
+                <div>
+                  <span className="text-xs font-bold block text-white">Direct to Film (DTF) Print</span>
+                  <span className="text-[11px] text-slate-400">High-definition vibrant apparel print</span>
+                </div>
               </div>
-            )}
+              <span className="px-2.5 py-1 bg-amber-500 text-slate-950 rounded-full text-[10px] font-black uppercase tracking-wider">
+                Active
+              </span>
+            </div>
 
             {/* Sizes Breakdown Steppers (XS-XXL) */}
             <div className="space-y-3 pt-2 border-t border-slate-100">
