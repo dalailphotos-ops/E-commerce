@@ -36,7 +36,6 @@ import {
   Sliders,
   Scissors,
   CheckCircle2,
-  Camera,
   Shirt,
   Minus,
   Plus,
@@ -3211,31 +3210,6 @@ function DesignStudioContent() {
                   );
                 })}
               </div>
-            </div>
-
-            {/* Custom Blank Upload */}
-            <div className="pt-1 flex items-center justify-between text-xs">
-              <label className="text-amber-600 hover:text-amber-700 font-bold flex items-center gap-1.5 cursor-pointer">
-                <Camera className="w-3.5 h-3.5" />
-                <span>{isUploadingBlank ? "Uploading blank..." : "Upload custom photo"}</span>
-                <input
-                  type="file"
-                  accept="image/png, image/jpeg, image/webp"
-                  onChange={handleUploadCustomBlank}
-                  className="hidden"
-                  disabled={isUploadingBlank}
-                />
-              </label>
-
-              {(customBlankPhoto.front || customBlankPhoto.back) && (
-                <button
-                  type="button"
-                  onClick={() => setCustomBlankPhoto({ front: null, back: null })}
-                  className="text-slate-400 hover:text-red-500 font-semibold text-[11px]"
-                >
-                  Reset to Catalog Blank
-                </button>
-              )}
             </div>
           </div>
 
