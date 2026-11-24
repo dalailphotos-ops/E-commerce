@@ -1638,9 +1638,48 @@ function DesignStudioContent() {
         console.warn("Mockup upload endpoint notice:", upErr);
       }
 
-      const mockupImgUrl = finalMockupUrl || `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
-      const artworkFileUrl =
-        frontUploadedImage || backUploadedImage || `${appBaseUrl}/api/mockup/${generatedDesignId}.jpg`;
+      // Ensure full absolute URL for mockup
+      let mockupImgUrl = "";
+      if (finalMockupUrl) {
+        mockupImgUrl = finalMockupUrl.startsWith("http")
+          ? finalMockupUrl
+          : `${appBaseUrl}${finalMockupUrl.startsWith("/") ? "" : "/"}${finalMockupUrl}`;
+      } else {
+        mockupImgUrl = `${appBaseUrl}/api/mockup/${generatedDesignId}.png`;
+      }
+
+      // Safely resolve artwork URL — never dump lengthy base64 in WhatsApp
+      let finalArtworkUrl = "";
+      const rawArtwork = frontUploadedImage || backUploadedImage;
+      if (rawArtwork && rawArtwork.startsWith("data:image")) {
+        try {
+          const artBlobRes = await fetch(rawArtwork);
+          const artBlob = await artBlobRes.blob();
+          const artFd = new FormData();
+          artFd.append("file", artBlob, `artwork-${generatedDesignId}.png`);
+          artFd.append("type", "artwork");
+          artFd.append("designId", generatedDesignId);
+          artFd.append("side", activeSide);
+          const artUpRes = await fetch("/api/upload", { method: "POST", body: artFd });
+          const artUpData = await artUpRes.json();
+          if (artUpData.url) {
+            finalArtworkUrl = artUpData.url;
+          }
+        } catch (artErr) {
+          console.warn("Artwork upload endpoint notice:", artErr);
+        }
+      } else if (rawArtwork && (rawArtwork.startsWith("http") || rawArtwork.startsWith("/"))) {
+        finalArtworkUrl = rawArtwork;
+      }
+
+      let artworkFileUrl = "";
+      if (finalArtworkUrl) {
+        artworkFileUrl = finalArtworkUrl.startsWith("http")
+          ? finalArtworkUrl
+          : `${appBaseUrl}${finalArtworkUrl.startsWith("/") ? "" : "/"}${finalArtworkUrl}`;
+      } else {
+        artworkFileUrl = `${appBaseUrl}/api/mockup/art_${generatedDesignId}.png`;
+      }
 
       // Format WhatsApp message matching Looma Apparels reference
       const activePrints = placedPrints.filter((p) => p.position !== "neck");
@@ -1705,8 +1744,10 @@ function DesignStudioContent() {
             productName: selectedProduct.name,
             colorName: currentColor.name,
             colorHex: currentColor.hex,
-            previewUrl: finalMockupUrl || `/uploads/mockups/${generatedDesignId}.png`,
-            printType: isEmbroidery ? "Embroidery" : "DTF",
+            previewUrl: compositeMockup || mockupImgUrl,
+            frontPreviewUrl: compositeMockup || mockupImgUrl,
+            artworkUrl: rawArtwork || artworkFileUrl,
+            printType: "DTF",
             estimatedPrice: total,
             layers,
           }),

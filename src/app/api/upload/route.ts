@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadToCloudinary, isCloudinaryConfigured } from "@/lib/cloudinary";
-import fs from "node:fs";
-import path from "node:path";
+import { saveImage } from "@/lib/image-storage";
 import crypto from "node:crypto";
+import path from "node:path";
 
 export const dynamic = "force-dynamic";
 
@@ -22,53 +22,35 @@ export async function POST(req: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Ensure uploads directories exist
-    const baseUploadsDir = path.join(process.cwd(), "public", "uploads");
-    const artworksDir = path.join(baseUploadsDir, "artworks");
-    const mockupsDir = path.join(baseUploadsDir, "mockups");
-
-    if (!fs.existsSync(artworksDir)) {
-      fs.mkdirSync(artworksDir, { recursive: true });
-    }
-    if (!fs.existsSync(mockupsDir)) {
-      fs.mkdirSync(mockupsDir, { recursive: true });
-    }
-
     const originalName = file.name || "upload.png";
     const extMatch = originalName.match(/\.(png|jpe?g|webp|svg)$/i);
-    const ext = extMatch ? extMatch[0].toLowerCase() : (file.type?.includes("jpeg") || file.type?.includes("jpg") ? ".jpg" : ".png");
+    const ext = extMatch
+      ? extMatch[0].toLowerCase()
+      : file.type?.includes("jpeg") || file.type?.includes("jpg")
+      ? ".jpg"
+      : ".png";
+
+    const contentType =
+      file.type || (ext === ".jpg" || ext === ".jpeg" ? "image/jpeg" : "image/png");
 
     let savedFilename = "";
-    let relativeUrl = "";
     let fileId = "";
 
     if (type === "mockup" || folder === "mockups") {
-      const cleanDesignId = designId.replace(/[^a-zA-Z0-9_-]/g, "") || `LOOMA-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
+      const cleanDesignId =
+        designId.replace(/[^a-zA-Z0-9_-]/g, "") ||
+        `ASSON-${crypto.randomBytes(3).toString("hex").toUpperCase()}`;
       fileId = cleanDesignId;
       savedFilename = `${cleanDesignId}-${side}${ext}`;
-      const destPath = path.join(mockupsDir, savedFilename);
-      fs.writeFileSync(destPath, buffer);
-
-      // Also save as cleanDesignId.ext for default resolution if side is front
-      const defaultDestPath = path.join(mockupsDir, `${cleanDesignId}${ext}`);
-      try {
-        fs.writeFileSync(defaultDestPath, buffer);
-      } catch (err) {
-        console.error("Failed to write default mockup path:", err);
-      }
-
-      relativeUrl = `/uploads/mockups/${savedFilename}`;
     } else {
-      // Artwork upload
-      const cleanBaseName = path.basename(originalName, ext).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 40) || "artwork";
-      fileId = `art_${Date.now()}_${crypto.randomBytes(3).toString("hex")}`;
+      const cleanBaseName =
+        path.basename(originalName, ext).replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 30) || "art";
+      const cleanDesignPrefix = designId ? `${designId.replace(/[^a-zA-Z0-9_-]/g, "")}_` : "";
+      fileId = `art_${cleanDesignPrefix}${Date.now().toString(36)}_${crypto.randomBytes(2).toString("hex")}`;
       savedFilename = `${fileId}_${cleanBaseName}${ext}`;
-      const destPath = path.join(artworksDir, savedFilename);
-      fs.writeFileSync(destPath, buffer);
-      relativeUrl = `/uploads/artworks/${savedFilename}`;
     }
 
-    // Optional Cloudinary upload in background / if configured
+    // Optional Cloudinary upload if user configured it
     let cloudinaryUrl = "";
     let cloudinaryId = "";
     if (isCloudinaryConfigured()) {
@@ -77,13 +59,26 @@ export async function POST(req: NextRequest) {
         cloudinaryUrl = result.url;
         cloudinaryId = result.public_id;
       } catch (cErr) {
-        console.warn("Cloudinary upload failed, using local disk asset:", cErr);
+        console.warn("Cloudinary upload notice (falling back to image storage):", cErr);
       }
     }
 
+    // Save to memory cache, disk (/tmp or public/uploads), and MongoDB
+    const saveResult = await saveImage({
+      id: fileId,
+      filename: savedFilename,
+      buffer,
+      contentType,
+      type: type === "mockup" ? "mockup" : "artwork",
+      designId: designId || (type === "mockup" ? fileId : undefined),
+    });
+
+    // Determine public URL
+    const finalUrl = cloudinaryUrl || saveResult.url;
+
     return NextResponse.json({
-      url: relativeUrl,
-      publicUrl: relativeUrl,
+      url: finalUrl,
+      publicUrl: finalUrl,
       cloudinaryUrl: cloudinaryUrl || undefined,
       filename: originalName,
       savedFilename,
@@ -92,7 +87,7 @@ export async function POST(req: NextRequest) {
       status: "success",
     });
   } catch (error: any) {
-    console.error("Upload error:", error);
+    console.error("Upload error caught:", error);
     return NextResponse.json(
       { error: error.message || "Failed to upload file" },
       { status: 500 }
