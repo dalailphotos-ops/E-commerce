@@ -5,7 +5,6 @@ import {
   Calculator,
   ArrowRight,
   CheckCircle2,
-  Sparkles,
   Layers,
   Shirt,
   ShieldCheck,
@@ -38,7 +37,6 @@ export default function HomePage() {
             <div className="lg:col-span-7 space-y-5 sm:space-y-6">
               {/* Primary Authoritative Hero Pill */}
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#141414] border border-neutral-700 text-white font-mono uppercase tracking-widest text-xs font-semibold tracking-wide max-w-full">
-                <Sparkles className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
                 <span className="font-bold">South India's Custom Apparel Hub</span>
                 <span className="text-neutral-400/60">•</span>
                 <span className="text-neutral-300 whitespace-nowrap">Low 10 pc MOQ</span>
@@ -202,7 +200,6 @@ export default function HomePage() {
           <div className="rounded-3xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
             <div className="p-8 sm:p-10 space-y-4">
               <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold uppercase tracking-wide">
-                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
                 For Online Stores & Creators
               </div>
               <h3 className="text-2xl font-bold text-neutral-900 group-hover:text-neutral-600 transition-colors">

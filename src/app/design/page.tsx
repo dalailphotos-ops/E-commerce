@@ -23,7 +23,6 @@ import {
   RotateCw,
   Trash2,
   Check,
-  Sparkles,
   Layers,
   ArrowRight,
   Download,
@@ -2705,7 +2704,7 @@ function DesignStudioContent() {
       {/* Floating Alert / Toast */}
       {toastMessage && (
         <div className="fixed top-20 right-6 z-50 bg-slate-900/95 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-2xl border border-slate-700 backdrop-blur-md flex items-center gap-2 animate-in fade-in slide-in-from-top-2">
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <Check className="w-3.5 h-3.5 text-emerald-400" />
           <span>{toastMessage}</span>
         </div>
       )}

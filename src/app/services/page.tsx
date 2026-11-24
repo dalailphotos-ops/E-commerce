@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Sparkles, Layers, Tag, CheckCircle2, Calculator } from "lucide-react";
+import { ArrowRight, Layers, Tag, CheckCircle2, Calculator } from "lucide-react";
 import { DTF_PRINTS } from "@/lib/constants";
 
 export const metadata = {

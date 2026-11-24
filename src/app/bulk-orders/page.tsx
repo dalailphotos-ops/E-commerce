@@ -6,7 +6,6 @@ import {
   Upload,
   CheckCircle2,
   Mail,
-  Sparkles,
   FileCheck,
 } from "lucide-react";
 

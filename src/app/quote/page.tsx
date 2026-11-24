@@ -8,7 +8,6 @@ import {
   FileText,
   ShoppingBag,
   ArrowRight,
-  Sparkles,
   CheckCircle2,
   Trash2,
   Plus,
@@ -162,7 +161,6 @@ export default function QuotePage() {
           <span className="text-xs font-bold text-amber-600">Step 2</span>
           <h3 className="font-bold text-slate-900 group-hover:text-amber-600 transition flex items-center justify-between">
             <span>Design Studio</span>
-            <Sparkles className="w-4 h-4 text-slate-400 group-hover:text-amber-600 transition" />
           </h3>
           <p className="text-xs text-slate-500">
             Create front & back mockups with custom graphics, sleeve prints, and woven labels.

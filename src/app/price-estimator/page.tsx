@@ -45,7 +45,6 @@ import {
   Trash2,
   ArrowRight,
   FileCheck,
-  Sparkles,
   Send,
   Mail,
   Printer,
@@ -580,7 +579,6 @@ export default function PriceEstimatorPage() {
           </div>
 
           <div className="bg-amber-50/70 border border-amber-200/80 rounded-xl px-4 py-3 text-xs sm:text-sm text-amber-950 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-accent shrink-0" />
             <span>
               Mix as many styles, colours and prints as you like in one order — quantity discounts
               are applied automatically.
@@ -1091,7 +1089,6 @@ export default function PriceEstimatorPage() {
                               </>
                             ) : (
                               <>
-                                <Sparkles className="w-4 h-4 text-accent shrink-0" />
                                 <span>Add an A2, A3 or A4 print to get a free neck label.</span>
                               </>
                             )}

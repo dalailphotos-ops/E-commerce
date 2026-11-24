@@ -11,7 +11,6 @@ import {
   Plus,
   Minus,
   FileText,
-  Sparkles,
   ShieldCheck,
 } from "lucide-react";
 
@@ -58,12 +57,6 @@ export default function CartPage() {
             className="px-6 py-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold text-sm transition flex items-center gap-2 shadow-md"
           >
             Launch Design Studio <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/design"
-            className="px-6 py-3 rounded-xl bg-brand-900 hover:bg-brand-800 text-white font-semibold text-sm transition flex items-center gap-2 shadow-sm"
-          >
-            Launch Design Studio <Sparkles className="w-4 h-4" />
           </Link>
           <Link
             href="/price-estimator"
@@ -182,7 +175,6 @@ export default function CartPage() {
                         key={idx}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-amber-50 border border-amber-200 text-xs text-amber-900 font-medium"
                       >
-                        <Sparkles className="w-3 h-3 text-accent" />
                         <span className="capitalize font-bold">{p.position}:</span>
                         <span>{p.sizeLabel || p.sizeKey}</span>
                         <span className="font-bold text-emerald-700">

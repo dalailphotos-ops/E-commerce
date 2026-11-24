@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, CheckCircle2, Factory, Sparkles, Award } from "lucide-react";
+import { ArrowRight, CheckCircle2, Factory, Award } from "lucide-react";
 import { BRAND_NAME, BRAND_TAGLINE, BUSINESS_LOCATION } from "@/lib/constants";
 
 export const metadata = {
@@ -120,7 +120,7 @@ export default function AboutPage() {
             href="/design"
             className="px-6 py-3 rounded-md bg-neutral-900 hover:bg-neutral-800 text-white font-mono text-xs uppercase tracking-wider transition border border-neutral-700 flex items-center gap-2"
           >
-            Launch Design Studio <Sparkles className="w-4 h-4" />
+            Launch Design Studio <ArrowRight className="w-4 h-4" />
           </Link>
           <Link
             href="/contact"
