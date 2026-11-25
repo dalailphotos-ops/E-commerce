@@ -107,28 +107,39 @@ export default function CartPage() {
               className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4 transition hover:border-slate-300"
             >
               <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="space-y-1.5 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base sm:text-lg font-extrabold text-slate-900">
-                      {item.productName}
-                    </h3>
-                    {item.color && (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                        {item.colorHex && (
-                          <span
-                            className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block"
-                            style={{ backgroundColor: item.colorHex }}
-                          />
-                        )}
-                        {item.color}
-                      </span>
+                <div className="flex gap-4 items-start flex-1 min-w-0">
+                  {(item.mockupFrontUrl || item.mockupBackUrl) && (
+                    <div className="w-16 h-20 sm:w-20 sm:h-24 rounded-xl bg-[#e9e8e4] border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
+                      <img
+                        src={item.mockupFrontUrl || item.mockupBackUrl}
+                        alt={item.productName}
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-1.5 flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="text-base sm:text-lg font-extrabold text-slate-900 truncate">
+                        {item.productName}
+                      </h3>
+                      {item.color && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
+                          {item.colorHex && (
+                            <span
+                              className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block"
+                              style={{ backgroundColor: item.colorHex }}
+                            />
+                          )}
+                          {item.color}
+                        </span>
+                      )}
+                    </div>
+                    {item.productSpec && (
+                      <p className="text-xs text-slate-500 font-mono">
+                        {item.productSpec}
+                      </p>
                     )}
                   </div>
-                  {item.productSpec && (
-                    <p className="text-xs text-slate-500 font-mono">
-                      {item.productSpec}
-                    </p>
-                  )}
                 </div>
 
                 {/* Per Piece Unit Price & Line Total */}

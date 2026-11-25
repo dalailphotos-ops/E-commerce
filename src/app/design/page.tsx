@@ -52,6 +52,7 @@ import {
   Bold,
   Italic,
   HelpCircle,
+  History,
 } from "lucide-react";
 
 type StudioViewSide = "front" | "back";
@@ -95,6 +96,20 @@ interface ArtworkTransform {
   y: number;
   scale: number;
   rotation: number;
+}
+
+export interface SavedDesignItem {
+  id: string;
+  createdAt: string;
+  productName: string;
+  productId: string;
+  colorName: string;
+  colorHex: string;
+  previewUrl: string;
+  layers: CanvasLayer[];
+  quantity: number;
+  unitPrice: number;
+  printLabels: string[];
 }
 
 const PPI = 18.2; // Pixels per inch matching reverse-engineered zone geometry
@@ -437,6 +452,8 @@ function DesignStudioContent() {
 
   // Canvas utility states
   const [showGuides, setShowGuides] = useState<boolean>(true);
+  const [savedDesigns, setSavedDesigns] = useState<SavedDesignItem[]>([]);
+  const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
   const [isFontMenuOpen, setIsFontMenuOpen] = useState<boolean>(false);
   const [isEmbroidery, setIsEmbroidery] = useState<boolean>(false);
   const [manualStitches, setManualStitches] = useState<Record<StudioViewSide, number>>({
@@ -651,7 +668,7 @@ function DesignStudioContent() {
 
   // Active zone coordinates from selectedProduct.zones
   const currentZone = useMemo(() => {
-    const defaultZone: [number, number, number, number, number] = [300, 375, 300, 420, 0];
+    const defaultZone: [number, number, number, number, number] = [300, 340, 290, 370, 0];
     if (!selectedProduct.zones) return defaultZone;
     if (activeSide === "front") return selectedProduct.zones.front || defaultZone;
     if (activeSide === "back") return selectedProduct.zones.back || defaultZone;
@@ -1526,7 +1543,7 @@ function DesignStudioContent() {
             ctx.textAlign = "right";
             ctx.textBaseline = "alphabetic";
             ctx.fillText(
-              `LOOMA APPARELS · ${side.toUpperCase()}`,
+              `ASSON CLOTHING · ${side.toUpperCase()}`,
               canvasW - 22,
               canvasH - 22
             );
@@ -1545,19 +1562,113 @@ function DesignStudioContent() {
     [activeSide, customBlankPhoto, currentColor, layers, getAspect]
   );
 
+  // Hydrate design history from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("asson_design_history");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) setSavedDesigns(parsed);
+        }
+      } catch (e) {
+        console.warn("Failed to load design history:", e);
+      }
+    }
+  }, []);
+
+  // Save current design snapshot to history
+  const saveCurrentDesignToHistory = useCallback(
+    async (providedMockup?: string) => {
+      try {
+        let preview = providedMockup;
+        if (!preview) {
+          preview = await generateCompositeMockup();
+        }
+        const item: SavedDesignItem = {
+          id: `des_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+          createdAt: new Date().toLocaleString("en-IN", {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }),
+          productName: selectedProduct.name,
+          productId: selectedProduct.id,
+          colorName: currentColor.name,
+          colorHex: currentColor.hex,
+          previewUrl: preview || customBlankPhoto.front || currentColor.front,
+          layers: JSON.parse(JSON.stringify(layers)),
+          quantity,
+          unitPrice,
+          printLabels: placedPrints.map((p) => `${p.position}: ${p.sizeLabel || p.sizeKey}`),
+        };
+        setSavedDesigns((prev) => {
+          const updated = [item, ...prev.filter((d) => d.id !== item.id)].slice(0, 30);
+          try {
+            localStorage.setItem("asson_design_history", JSON.stringify(updated));
+          } catch (e) {}
+          return updated;
+        });
+        showToast("Design saved to your history");
+      } catch (err) {
+        console.error("Failed to save design snapshot:", err);
+      }
+    },
+    [generateCompositeMockup, selectedProduct, currentColor, customBlankPhoto, layers, quantity, unitPrice, placedPrints, showToast]
+  );
+
+  const loadSavedDesign = (item: SavedDesignItem) => {
+    const prod = REVERSE_ENGINEERED_PRODUCTS.find((p) => p.id === item.productId);
+    if (prod) {
+      setSelectedProduct(prod);
+      const cIdx = prod.colors.findIndex((c) => c.name === item.colorName);
+      if (cIdx >= 0) setSelectedColorIdx(cIdx);
+    }
+    if (item.layers && Array.isArray(item.layers)) {
+      setLayers(item.layers);
+    }
+    setShowHistoryModal(false);
+    showToast(`Loaded "${item.productName}" onto canvas`);
+  };
+
+  const deleteSavedDesign = (id: string) => {
+    setSavedDesigns((prev) => {
+      const updated = prev.filter((d) => d.id !== id);
+      try {
+        localStorage.setItem("asson_design_history", JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+    showToast("Design removed from history");
+  };
+
   // Client-Side Mockup PNG Download
   const handleDownloadMockup = async () => {
     showToast("Rendering high-res mockup PNG...");
     const dataUrl = await generateCompositeMockup();
     const link = document.createElement("a");
-    link.download = `looma-${selectedProduct.slug}-${activeSide}-mockup.png`;
+    link.download = `asson-${selectedProduct.slug}-${activeSide}-mockup.png`;
     link.href = dataUrl;
     link.click();
-    showToast("Downloaded mockup PNG");
+    saveCurrentDesignToHistory(dataUrl);
+    showToast("Downloaded mockup PNG & saved to history");
   };
 
   // Add customized apparel to CartContext
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    let mockupFront = frontUploadedImage || undefined;
+    let mockupBack = backUploadedImage || undefined;
+    try {
+      const comp = await generateCompositeMockup();
+      if (comp) {
+        if (activeSide === "front") mockupFront = comp;
+        else mockupBack = comp;
+      }
+    } catch (e) {
+      console.warn("Could not generate composite mockup for cart:", e);
+    }
+
     addItem({
       productId: selectedProduct.id,
       productName: selectedProduct.name,
@@ -1575,9 +1686,13 @@ function DesignStudioContent() {
         cost: p.unitCost,
         isWaived: p.isWaived,
       })),
-      mockupFrontUrl: frontUploadedImage || undefined,
-      mockupBackUrl: backUploadedImage || undefined,
+      mockupFrontUrl: mockupFront,
+      mockupBackUrl: mockupBack,
     });
+
+    if (mockupFront || mockupBack) {
+      saveCurrentDesignToHistory(mockupFront || mockupBack);
+    }
 
     setAddedToCartToast(true);
     showToast("Added design to your order list");
@@ -1618,6 +1733,9 @@ function DesignStudioContent() {
 
     try {
       const compositeMockup = await generateCompositeMockup();
+      if (compositeMockup) {
+        saveCurrentDesignToHistory(compositeMockup);
+      }
 
       let finalMockupUrl = "";
       try {
@@ -2787,9 +2905,9 @@ function DesignStudioContent() {
                 className="absolute border-2 border-dashed border-amber-500/80 rounded-lg pointer-events-none flex flex-col items-center justify-center"
                 style={{
                   left: `${((currentZone[0] - currentZone[2] / 2) / 600) * 100}%`,
-                  top: `${((currentZone[1] - currentZone[3] / 2) / 600) * 100}%`,
+                  top: `${((currentZone[1] - currentZone[3] / 2) / 680) * 100}%`,
                   width: `${(currentZone[2] / 600) * 100}%`,
-                  height: `${(currentZone[3] / 600) * 100}%`,
+                  height: `${(currentZone[3] / 680) * 100}%`,
                   transform: `rotate(${currentZone[4]}deg)`,
                 }}
               >
@@ -3074,14 +3192,31 @@ function DesignStudioContent() {
               </label>
             </div>
 
-            <button
-              type="button"
-              onClick={handleDownloadMockup}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow flex items-center gap-2 transition"
-            >
-              <Download className="w-3.5 h-3.5 text-amber-400" />
-              <span>Download mockup</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(true)}
+                title="View your saved design history with mockup images"
+                className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition flex items-center gap-1.5"
+              >
+                <History className="w-3.5 h-3.5 text-amber-600" />
+                <span>Design history</span>
+                {savedDesigns.length > 0 && (
+                  <span className="w-4 h-4 rounded-full bg-slate-900 text-white text-[10px] flex items-center justify-center font-bold">
+                    {savedDesigns.length}
+                  </span>
+                )}
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadMockup}
+                className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow flex items-center gap-2 transition"
+              >
+                <Download className="w-3.5 h-3.5 text-amber-400" />
+                <span>Download mockup</span>
+              </button>
+            </div>
           </div>
 
           {/* STEP 3 (ADJUST STUDIO): Displayed immediately after the view of selected t-shirt */}
@@ -3586,6 +3721,165 @@ function DesignStudioContent() {
           </div>
         </div>
       </div>
+
+      {/* Design History Modal */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
+          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-600">
+                  <History className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    My Design History
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-slate-200 text-slate-700 font-bold">
+                      {savedDesigns.length} saved
+                    </span>
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    Browse and reload previously customized garments with designed preview images
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowHistoryModal(false)}
+                className="w-8 h-8 rounded-full bg-slate-200 hover:bg-slate-300 flex items-center justify-center text-slate-700 font-bold transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-5 overflow-y-auto space-y-4 flex-1">
+              {savedDesigns.length === 0 ? (
+                <div className="text-center py-12 space-y-3">
+                  <div className="w-16 h-16 rounded-2xl bg-slate-100 flex items-center justify-center text-slate-400 mx-auto">
+                    <Shirt className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-sm font-bold text-slate-800">No Saved Designs Yet</h4>
+                  <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                    Designs are automatically saved here when you download mockups, add items to your quote list, or share on WhatsApp.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => saveCurrentDesignToHistory()}
+                    className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs inline-flex items-center gap-1.5 shadow"
+                  >
+                    <Plus className="w-3.5 h-3.5 text-amber-400" /> Save Current Canvas Now
+                  </button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {savedDesigns.map((d) => (
+                    <div
+                      key={d.id}
+                      className="bg-slate-50 border border-slate-200 rounded-2xl p-3 flex flex-col justify-between hover:border-slate-300 transition shadow-sm space-y-3"
+                    >
+                      {/* Mockup Preview Image */}
+                      <div className="aspect-[600/680] w-full rounded-xl bg-[#e9e8e4] overflow-hidden border border-slate-200 relative group flex items-center justify-center">
+                        <img
+                          src={d.previewUrl}
+                          alt={d.productName}
+                          className="w-full h-full object-contain"
+                        />
+                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-2 p-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const win = window.open("");
+                              win?.document.write(`
+                                <html>
+                                  <head><title>${d.productName} Preview</title></head>
+                                  <body style="margin:0;display:flex;align-items:center;justify-content:center;background:#0b111e;min-height:100vh;">
+                                    <img src="${d.previewUrl}" style="max-width:90vw;max-height:90vh;object-fit:contain;border-radius:16px;box-shadow:0 20px 40px rgba(0,0,0,0.5);" />
+                                  </body>
+                                </html>
+                              `);
+                            }}
+                            className="px-2.5 py-1.5 bg-white text-slate-900 rounded-lg text-xs font-bold shadow flex items-center gap-1 hover:bg-slate-100 transition"
+                          >
+                            <Eye className="w-3.5 h-3.5" /> Full view
+                          </button>
+                          <a
+                            href={d.previewUrl}
+                            download={`asson-${d.productName.toLowerCase().replace(/[^a-z0-9]/g, "-")}.png`}
+                            className="px-2.5 py-1.5 bg-amber-500 text-slate-950 rounded-lg text-xs font-bold shadow flex items-center gap-1 hover:bg-amber-400 transition"
+                          >
+                            <Download className="w-3.5 h-3.5" /> Save
+                          </a>
+                        </div>
+                      </div>
+
+                      {/* Details */}
+                      <div className="space-y-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <h4 className="text-xs font-extrabold text-slate-900 truncate">
+                            {d.productName}
+                          </h4>
+                          <span className="text-[10px] text-slate-400 font-mono shrink-0">
+                            {d.createdAt}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[11px] text-slate-600">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block"
+                            style={{ backgroundColor: d.colorHex }}
+                          />
+                          <span className="truncate">{d.colorName}</span>
+                          <span>·</span>
+                          <span className="shrink-0">{d.layers?.length || 0} items</span>
+                        </div>
+                        {d.printLabels && d.printLabels.length > 0 && (
+                          <div className="text-[10px] text-amber-800 bg-amber-100/70 rounded px-1.5 py-0.5 truncate">
+                            {d.printLabels.join(" · ")}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 pt-2 border-t border-slate-200/60">
+                        <button
+                          type="button"
+                          onClick={() => loadSavedDesign(d)}
+                          className="flex-1 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition flex items-center justify-center gap-1 shadow-sm"
+                        >
+                          <RefreshCw className="w-3 h-3 text-amber-400" /> Load to Studio
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => deleteSavedDesign(d.id)}
+                          title="Delete design"
+                          className="w-7 h-7 rounded-lg border border-slate-200 hover:bg-red-50 hover:text-red-600 text-slate-400 flex items-center justify-center transition"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer Note */}
+            <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+              <span>
+                Designs are stored in your browser so you can revisit them anytime.
+              </span>
+              <button
+                type="button"
+                onClick={() => saveCurrentDesignToHistory()}
+                className="px-3.5 py-1.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold transition flex items-center gap-1.5 shadow-sm"
+              >
+                <Plus className="w-3.5 h-3.5" /> Save Current Canvas
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -3595,7 +3889,7 @@ export default function DesignStudioPage() {
     <Suspense
       fallback={
         <div className="p-16 text-center text-xs font-semibold text-slate-500">
-          Loading Looma Apparels Design Studio...
+          Loading ASSON Clothing Design Studio...
         </div>
       }
     >

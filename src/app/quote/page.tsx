@@ -204,18 +204,31 @@ export default function QuotePage() {
                     key={item.id}
                     className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-3"
                   >
-                    <div className="flex justify-between items-start gap-3">
-                      <div>
-                        <h4 className="font-extrabold text-sm text-slate-900">
-                          {item.productName}
-                        </h4>
-                        <div className="text-xs text-slate-500 mt-0.5">
-                          Color: <strong>{item.color}</strong> · {formatINR(item.unitPrice)} / piece
+                    <div className="flex gap-3 items-start">
+                      {(item.mockupFrontUrl || item.mockupBackUrl) && (
+                        <div className="w-16 h-20 rounded-xl bg-[#e9e8e4] border border-slate-200 overflow-hidden shrink-0 flex items-center justify-center shadow-sm">
+                          <img
+                            src={item.mockupFrontUrl || item.mockupBackUrl}
+                            alt={item.productName}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-start gap-3">
+                          <div>
+                            <h4 className="font-extrabold text-sm text-slate-900">
+                              {item.productName}
+                            </h4>
+                            <div className="text-xs text-slate-500 mt-0.5">
+                              Color: <strong>{item.color}</strong> · {formatINR(item.unitPrice)} / piece
+                            </div>
+                          </div>
+                          <span className="font-black text-sm text-slate-900">
+                            {formatINR(item.totalPrice)}
+                          </span>
                         </div>
                       </div>
-                      <span className="font-black text-sm text-slate-900">
-                        {formatINR(item.totalPrice)}
-                      </span>
                     </div>
 
                     {/* Size Breakdown */}
